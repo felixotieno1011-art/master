@@ -13,7 +13,7 @@ Progress: tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 1.3 IP, DNS, HTTP 📱
 - [x] 1.4 Command Line Basics 📱
 - [x] 1.5 Git & GitHub 📱
-- [ ] 1.6 How Computers Work 📱
+- [x] 1.6 How Computers Work 📱
 
 ## Part 2 — Networking
 - [ ] 2.1 OSI Model 📱

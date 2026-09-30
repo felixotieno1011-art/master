@@ -55,3 +55,7 @@ i learned ip address number assigned to every device
 - >>       = append (safer)
 ### My own words for 1.5
 - git restore = brings a file back to its last committed version
+### My own words for 1.6
+- RAM = temporary memory, loses data when device is off
+- Storage = permanent memory, keeps data when device is off
+- RAM is fast but small; Storage is slower but big
