@@ -10,7 +10,7 @@ Progress: tick `[x]` when done. Track totals in PROGRESS.md.
 ## Part 1 — Foundations
 - [x] 1.1 How the Internet Works 📱
 - [x] 1.2 Client vs Server 📱
-- [ ] 1.3 IP, DNS, HTTP 📱
+- [x] 1.3 IP, DNS, HTTP 📱
 - [ ] 1.4 Command Line Basics 📱
 - [ ] 1.5 Git & GitHub 📱
 - [ ] 1.6 How Computers Work 📱

@@ -36,3 +36,14 @@ i learned ip address number assigned to every device
 
 - Both needed: one to send, one to receive.
 - NAT hides my private IP behind a public one.
+### Git lesson learned
+- "working tree clean" = everything is saved and committed
+- Not an error. Means git has nothing new to do.
+- Use `git log --oneline` to see recent commits
+- My push script auto-stages everything (git add .)
+  so files get committed even without running git add manually
+### My own words (locked in)
+- HTTP = rules computers follow to exchange data
+- 200 = success
+- 404 = not available / not found
+- 301 = moved permanently (redirect)
