@@ -1,5 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# push.sh — commit and push master repo from anywhere
+# push.sh — commit (if needed) and always push
 
 cd ~/master || { echo "❌ ~/master not found"; exit 1; }
 
@@ -12,10 +12,10 @@ msg="${1:-update: $(date +%Y-%m-%d\ %H:%M)}"
 
 git add .
 if git diff --cached --quiet; then
-  echo "ℹ️  Nothing new to commit."
+  echo "ℹ️  Nothing new to commit — pushing anyway…"
 else
   git commit -m "$msg"
 fi
 
-git push
-echo "✅ Pushed to GitHub."
+git push origin main
+echo "✅ Done."
