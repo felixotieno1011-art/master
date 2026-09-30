@@ -53,3 +53,5 @@ i learned ip address number assigned to every device
 - |        = pipe: output of one command becomes input to another
 - >        = overwrite (dangerous, use carefully)
 - >>       = append (safer)
+### My own words for 1.5
+- git restore = brings a file back to its last committed version

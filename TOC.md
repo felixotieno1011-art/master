@@ -12,7 +12,7 @@ Progress: tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 1.2 Client vs Server 📱
 - [x] 1.3 IP, DNS, HTTP 📱
 - [x] 1.4 Command Line Basics 📱
-- [ ] 1.5 Git & GitHub 📱
+- [x] 1.5 Git & GitHub 📱
 - [ ] 1.6 How Computers Work 📱
 
 ## Part 2 — Networking
