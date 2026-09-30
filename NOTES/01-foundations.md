@@ -47,3 +47,9 @@ i learned ip address number assigned to every device
 - 200 = success
 - 404 = not available / not found
 - 301 = moved permanently (redirect)
+### 1.4 — My own words
+- ls       = list files
+- ls -la   = list with all details + hidden + permissions + sizes
+- |        = pipe: output of one command becomes input to another
+- >        = overwrite (dangerous, use carefully)
+- >>       = append (safer)
