@@ -1,4 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
+# show.sh — pretty progress + recent ticks
+
 MASTER="$HOME/master"
 TOC="$MASTER/TOC.md"
 
@@ -27,3 +29,6 @@ echo ""
 echo "Next up:"
 grep -e "^- \[ \] [0-9]" "$TOC" | head -n 3
 echo ""
+
+
+

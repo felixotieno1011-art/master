@@ -1,4 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
+# tick.sh — toggle topics in TOC.md and regenerate PROGRESS.md
+
 MASTER="$HOME/master"
 TOC="$MASTER/TOC.md"
 PROG="$MASTER/PROGRESS.md"
@@ -35,13 +37,12 @@ esac
 
 echo "✅ $action $topic"
 
+# ---- Recalculate PROGRESS.md ----
 total=$(grep -c -e "^- \[.\] [0-9]" "$TOC")
 done_count=$(grep -c -e "^- \[x\] [0-9]" "$TOC")
 remaining=$((total - done_count))
 percent=0
 [ "$total" -gt 0 ] && percent=$(( done_count * 100 / total ))
-
-parts=("Foundations" "Networking" "Programming" "Frontend" "Backend" "Databases" "DevOps" "Security" "Career" "Capstone" "Specialization")
 
 {
   echo "# 📊 Progress Tracker"
@@ -56,14 +57,31 @@ parts=("Foundations" "Networking" "Programming" "Frontend" "Backend" "Databases"
   echo "## By Part"
   echo "| Part | Title | Done | Total | % |"
   echo "|------|-------|------|-------|---|"
-  for i in $(seq 1 11); do
-    part_total=$(grep -c -e "^- \[.\] $i\." "$TOC")
-    part_done=$(grep -c -e "^- \[x\] $i\." "$TOC")
-    part_pct=0
-    [ "$part_total" -gt 0 ] && part_pct=$(( part_done * 100 / part_total ))
-    title="${parts[$((i-1))]}"
-    echo "| $i | $title | $part_done | $part_total | $part_pct% |"
-  done
+
+  print_part() {
+    local key="$1"
+    local title="$2"
+    local pt pd pp
+    pt=$(grep -c -e "^- \[.\] ${key}\." "$TOC")
+    pd=$(grep -c -e "^- \[x\] ${key}\." "$TOC")
+    pp=0
+    [ "$pt" -gt 0 ] && pp=$(( pd * 100 / pt ))
+    echo "| $key | $title | $pd | $pt | $pp% |"
+  }
+
+  print_part "1" "Foundations"
+  print_part "2" "Networking"
+  print_part "3" "Programming"
+  print_part "4" "Frontend"
+  print_part "5" "Backend"
+  print_part "6" "Databases"
+  print_part "7" "DevOps"
+  print_part "7.5" "Systems"
+  print_part "8" "Security"
+  print_part "9" "Career"
+  print_part "10" "Capstone"
+  print_part "11" "Specialization"
+
   echo
   echo "## Milestones"
   echo "- [ ] First project pushed to GitHub"
