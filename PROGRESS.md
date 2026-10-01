@@ -2,16 +2,16 @@
 
 ## Overall
 - Total topics: 131
-- Completed: 6
-- Remaining: 125
-- Progress: 4%
-- Last updated: 2026-10-01 01:48
+- Completed: 7
+- Remaining: 124
+- Progress: 5%
+- Last updated: 2026-10-01 11:48
 
 ## By Part
 | Part | Title | Done | Total | % |
 |------|-------|------|-------|---|
 | 1 | Foundations | 6 | 6 | 100% |
-| 2 | Networking | 0 | 14 | 0% |
+| 2 | Networking | 1 | 14 | 7% |
 | 3 | Programming | 0 | 12 | 0% |
 | 4 | Frontend | 0 | 14 | 0% |
 | 5 | Backend | 0 | 16 | 0% |

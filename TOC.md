@@ -17,7 +17,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 1.6 How Computers Work 📱
 
 ## Part 2 — Networking
-- [ ] 2.1 The OSI Model 📱
+- [x] 2.1 The OSI Model 📱
 - [ ] 2.2 TCP/IP Model 📱
 - [ ] 2.3 IP Addressing & Subnetting 📱
 - [ ] 2.4 Routers, Switches, Hubs 📱🔁
