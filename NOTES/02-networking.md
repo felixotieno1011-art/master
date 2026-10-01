@@ -36,3 +36,42 @@ All People Seem To Need Data Processing
 ### My own words
 OSI is a 7-layer model used to understand how data moves.
 HTTP is on Layer 7. Routing is Layer 3.
+## 2.2 TCP/IP Model
+
+### The 4 layers (top → bottom)
+4. Application
+3. Transport
+2. Internet
+1. Network Access
+
+### Mnemonic
+All Trucks In Nairobi
+
+### OSI vs TCP/IP
+- OSI = 7 layers, teaching tool only
+- TCP/IP = 4 layers, what the internet actually uses
+- OSI merges into TCP/IP:
+  * App + Presentation + Session → Application
+  * Transport → Transport
+  * Network → Internet
+  * Data Link + Physical → Network Access
+
+### TCP vs UDP
+- TCP = careful, reliable, ordered (downloading files, websites)
+- UDP = fast, no retransmit, no order (live streams, games, DNS)
+
+### TCP 3-way handshake
+1. SYN     -> "Hey, you there?"
+2. SYN-ACK -> "Yeah, and you?"
+3. ACK     -> "Cool, let's talk"
+
+### Real commands I ran
+- curl -v https://google.com       -> saw TCP + TLS + HTTP/2 in action
+- dig +stats google.com            -> DNS uses UDP (udp:512), 6 IPs
+- netstat -t                      -> shows active TCP connections
+
+### My own words
+- TCP/IP has 4 layers
+- Live streams use UDP (speed not reliability)
+- Handshake is 3 steps: SYN, SYN-ACK, ACK
+- Mobile data hides your IP behind the ISP
