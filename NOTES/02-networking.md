@@ -75,3 +75,45 @@ All Trucks In Nairobi
 - Live streams use UDP (speed not reliability)
 - Handshake is 3 steps: SYN, SYN-ACK, ACK
 - Mobile data hides your IP behind the ISP
+## 2.3 IP Addressing
+
+### IPv4
+- 4 numbers (0-255 each)
+- 32 bits total (4 × 8 bits)
+- ~4.3 billion addresses total
+- Ran out in 2011
+
+### IPv6
+- 8 groups of hex digits
+- 128 bits total
+- 340 undecillion addresses (basically unlimited)
+
+### Private IP ranges (memorize these)
+- 10.x.x.x.x        (big companies)
+- 172.16-31.x.x     (medium networks)
+- 192.168.x.x       (home WiFi) - mine: 192.168.1.114
+- 127.x.x.x         (localhost)
+
+### Subnetting
+- /24 = 24 network bits, 8 device bits → 254 devices
+- /26 = 26 network bits, 6 device bits → 62 devices
+- /30 = 30 network bits, 2 device bits → 2 devices (point-to-point)
+- Slicing a big network into smaller ones
+
+### My WiFi findings
+- WiFi IP: 192.168.1.114
+- Router: 192.168.1.1
+- Devices on WiFi: router, my phone, 192.168.1.189 (unknown)
+- Router ports: 53 (DNS), 80 (HTTP), 443 (HTTPS)
+- Latency to router: 8ms
+- Latency to internet: 40ms+
+- WiFi speed (tested): ~0.5 Mbps (slow!)
+- Mobile data IPs: 100.x.x.x (ISP CGNAT)
+
+### Commands I ran
+- ifconfig                          -> see interfaces
+- nmap -sn 192.168.1.0/24          -> scan all devices
+- nmap -F 192.168.1.1              -> scan router ports
+- traceroute 8.8.8.8               -> path to internet
+- ping 192.168.1.1                 -> test router
+- Built subnet-calc.py (Python)    -> my own subnet calculator
