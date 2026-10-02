@@ -246,3 +246,38 @@ DROP is more secure than REJECT because the attacker learns nothing.
 - DHCP   = automatically assigns IP addresses (via router)
 - NAT    = translates private IPs to public IP
 - Why NAT: protects our specific IP + conserves IP addresses
+## 2.7 VPNs, Proxies & Tunneling
+
+### The 3 concepts (my words)
+- PROXY   = replaces my IP for ONE app/site
+- VPN     = replaces my IP AND encrypts my data (for ALL apps)
+- TUNNEL  = wraps my message inside another envelope
+
+### Real-life analogies
+- Proxy  = friend goes to buy shoes in my place
+- VPN    = bodyguard walks with me everywhere, covers my face
+- Tunnel = putting a letter inside another envelope
+
+### The difference
+| Feature        | Proxy      | VPN        | Tunnel     |
+|----------------|------------|------------|------------|
+| Hides IP       | ✅ (1 site)| ✅ (all)   | ❌         |
+| Encrypts       | ❌         | ✅         | ✅         |
+| Scope          | 1 app      | all apps   | any data   |
+| Analogy        | friend     | bodyguard  | envelope   |
+
+### What I built
+- mini_proxy.py  — forwards HTTP requests (middleman)
+- mini_tunnel.py — wraps messages in base64 (envelope)
+
+### Real tools
+- Proxies:   Squid, mitmproxy, Charles
+- VPNs:      WireGuard, OpenVPN, NordVPN
+- Tunnels:   SSH tunnel, Cloudflare Tunnel, ngrok
+
+### Commands I ran
+- curl -x http://localhost:8888 http://example.com   -> proxy
+- python mini_proxy.py                                -> ran proxy
+- python mini_tunnel.py server / client "msg"         -> tunnel
+- base64 file.txt                                     -> wrapped data
+- base64 -d < <(base64 file.txt)                     -> unwrapped data

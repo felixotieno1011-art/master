@@ -23,7 +23,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 2.4 Routers, Switches, Hubs 📱🔁
 - [x] 2.5 Firewalls & Network Security 📱🔁
 - [x] 2.6 DNS, DHCP, NAT 📱🔁
-- [ ] 2.7 VPNs,proxies & Tunneling 📱🔁
+- [x] 2.7 VPNs,proxies & Tunneling 📱🔁
 - [ ] 2.8 Wireless Networking 📱
 - [ ] 2.9 Network Troubleshooting Tools 📱
 - [ ] 2.10 Cloud Networking 📱💻
