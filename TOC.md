@@ -31,6 +31,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 2.12 Load Balancing & Proxies 📱🔁
 - [ ] 2.13 Network Security (IDS/IPS) 📱
 - [ ] 2.14 Network+ Certification Prep 📱
+- [ ] 2.15 Network Automation Basics (Python + Ansible) 📱🔁
 
 ## Part 3 — Programming Fundamentals
 - [ ] 3.1 How Programming Works 📱
@@ -107,6 +108,8 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 7.12 Monitoring & Logging 📱
 - [ ] 7.13 Environment Management 📱
 - [ ] 7.14 Infrastructure as Code 💻
+- [ ] 7.15 Ansible Deep Dive 📱🔁
+- [ ] 7.16 Multi-Cloud Networking 📱💻
 
 ## Part 7.5 — Operating Systems & Systems
 - [ ] 7.5.1 What is an OS? 📱
@@ -129,6 +132,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 8.8 Authentication Attacks 📱🔁
 - [ ] 8.9 Rate Limiting & DDoS 📱
 - [ ] 8.10 Secure API Design 📱
+- [ ] 8.11 SASE & Zero Trust Architecture 📱
 
 ## Part 9 — Career
 - [ ] 9.1 Reading Docs 📱
@@ -162,3 +166,4 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 11.5 Fullstack Engineer 📱
 - [ ] 11.6 Network Engineer 📱💻
 - [ ] 11.7 Final Project 📱
+- [ ] 11.8 Network Automation Specialist Path 📱
