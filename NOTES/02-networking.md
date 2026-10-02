@@ -117,3 +117,40 @@ All Trucks In Nairobi
 - traceroute 8.8.8.8               -> path to internet
 - ping 192.168.1.1                 -> test router
 - Built subnet-calc.py (Python)    -> my own subnet calculator
+## 2.4 Routers, Switches, Hubs
+
+### The 3 devices
+- ROUTER:  Layer 3, connects DIFFERENT networks, uses IP addresses
+- SWITCH:  Layer 2, connects SAME network, uses MAC addresses
+- HUB:     Layer 1, sends to EVERYONE (dumb), extinct
+
+### Real-world analogy
+- Hub = megaphone (shouts to everyone)
+- Switch = local posta office (delivers locally)
+- Router = main post office (routes between cities)
+
+### My home "router" has 5-7 jobs
+- Router (connects to internet)
+- Switch (connects my devices)
+- WiFi Access Point (broadcasts WiFi)
+- Firewall (basic protection)
+- DHCP server (assigns IPs)
+- DNS cache (speeds up lookups)
+- Modem (sometimes)
+
+### Key distinction
+- Switch = stays INSIDE the network
+- Router = connects OUTSIDE to other networks
+
+### Commands I ran
+- ip route / netstat -rn     -> routing table (blocked on Android)
+- ip neigh / arp -a          -> ARP table (blocked on Android)
+- traceroute -m 3 8.8.8.8    -> showed router as hop 1
+- nmap -sn 192.168.1.0/24    -> 3 devices on WiFi
+- curl -I http://192.168.1.1 -> 501 Not Implemented (no HEAD support)
+- curl -s http://192.168.1.1 -> encrypted garbage (HTTPS only)
+
+### Discovery
+- My router prefers HTTPS (port 443) for admin
+- It returned encrypted bytes on HTTP (port 80)
+- HTTP response was garbled = encrypted TLS data

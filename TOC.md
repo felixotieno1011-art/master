@@ -20,7 +20,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 2.1 The OSI Model 📱
 - [x] 2.2 TCP/IP Model 📱
 - [x] 2.3 IP Addressing & Subnetting 📱
-- [ ] 2.4 Routers, Switches, Hubs 📱🔁
+- [x] 2.4 Routers, Switches, Hubs 📱🔁
 - [ ] 2.5 Firewalls & Network Security 📱🔁
 - [ ] 2.6 DNS, DHCP, NAT 📱🔁
 - [ ] 2.7 VPNs & Tunneling 📱🔁
