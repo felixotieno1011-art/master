@@ -1,0 +1,78 @@
+"""All logging — text log and CSV log."""
+import csv
+import os
+from datetime import datetime
+
+import config
+
+
+def ensure_dirs():
+    """Make sure logs/ and reports/ exist."""
+    os.makedirs("logs", exist_ok=True)
+    os.makedirs("reports", exist_ok=True)
+
+
+def session_start(isp, conn):
+    """Write the session header to the text log."""
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(config.LOG_TXT, "a") as f:
+        f.write(f"\n{'=' * 60}\n")
+        f.write(f"SESSION STARTED: {ts} [{conn}]\n")
+        f.write(f"{'=' * 60}\n")
+        if "error" in isp:
+            f.write(f"ISP detection failed: {isp['error']}\n")
+        else:
+            f.write(f"ISP:        {isp['isp']}\n")
+            f.write(f"Location:   {isp['city']}, {isp['region']}, {isp['country']}\n")
+            f.write(f"Public IP:  {isp['ip']}\n")
+            f.write(f"Connection: {conn}\n")
+        f.write("\n")
+
+
+def run_txt(conn, isp_name, results):
+    """Write one run to the text log."""
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(config.LOG_TXT, "a") as f:
+        f.write(f"----- {ts} [{conn}] [{isp_name}] -----\n")
+        for label, stats in results["pings"].items():
+            if stats["avg"] is None:
+                f.write(f"{label}: FAILED\n")
+            else:
+                f.write(
+                    f"{label}: {stats['avg']:.0f} ms | "
+                    f"loss {stats['loss']:.1f}% | "
+                    f"jitter {stats['jitter'] or 0:.0f} ms\n"
+                )
+        dl = results["download"]
+        ul = results["upload"]
+        f.write(f"Download: {'FAILED' if dl is None else f'{dl:.2f} Mbps'}\n")
+        f.write(f"Upload:   {'FAILED' if ul is None else f'{ul:.2f} Mbps'}\n")
+        f.write("\n")
+
+
+def run_csv(conn, isp_name, results):
+    """Write one run to the CSV log."""
+    file_exists = os.path.exists(config.LOG_CSV)
+    with open(config.LOG_CSV, "a", newline="") as f:
+        w = csv.writer(f)
+        if not file_exists:
+            w.writerow([
+                "timestamp", "conn", "isp",
+                "google_avg", "google_loss", "google_jitter",
+                "cloudflare_avg", "quad9_avg", "opendns_avg",
+                "download_mbps", "upload_mbps",
+            ])
+        p = results["pings"]
+
+        def g(key, field):
+            return p.get(key, {}).get(field)
+
+        w.writerow([
+            datetime.now().isoformat(),
+            conn, isp_name,
+            g("Google DNS", "avg"), g("Google DNS", "loss"), g("Google DNS", "jitter"),
+            g("Cloudflare", "avg"),
+            g("Quad9", "avg"),
+            g("OpenDNS", "avg"),
+            results["download"], results["upload"],
+        ])

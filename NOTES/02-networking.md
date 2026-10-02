@@ -199,3 +199,50 @@ A filter between two networks that decides which traffic is allowed or blocked.
 
 ### Key insight
 DROP is more secure than REJECT because the attacker learns nothing.
+## 2.6 DNS, DHCP, NAT
+
+### DNS (Domain Name System)
+- Translates names to IPs
+- google.com → 142.250.x.x
+- Command: dig google.com +short
+- Caches answers (TTL = how long to remember)
+
+### DNS Hierarchy
+- Root servers (13 worldwide, named a-m.root-servers.net)
+- TLD servers (.com, .org, .ke)
+- Authoritative servers (Google's own)
+- Resolver caches queries
+
+### DHCP (Dynamic Host Configuration Protocol)
+- Gives your device an IP automatically
+- DORA process:
+  * Discover: "Anyone got an IP for me?"
+  * Offer: "I'll give you 192.168.1.114"
+  * Request: "Yes please"
+  * Ack: "Confirmed"
+- Without DHCP, you'd type IP manually
+
+### NAT (Network Address Translation)
+- Lets many devices share one public IP
+- Your local IP: 192.168.1.114
+- Your public IP: 102.0.100.84 (Airtel) / 41.90.193.104 (Safaricom)
+- Carrier-Grade NAT (CGNAT): mobile ISP uses this, hides many users behind one IP
+
+### Interesting findings
+- Different DNS servers return different Google IPs (GeoDNS)
+- My phone on mobile data: 41.90.193.104 (Safaricom)
+- DNS trace showed root servers + .com servers + Google servers
+- DNSSEC signatures present (RRSIG)
+
+### Commands
+- nslookup google.com       -> basic lookup
+- dig google.com +short     -> clean answer
+- dig @8.8.8.8 google.com   -> ask specific DNS
+- dig google.com +trace     -> follow full DNS path
+- curl https://ipinfo.io/ip -> my public IP
+- ifconfig wlan0            -> local WiFi IP
+### My own words for 2.6
+- DNS    = phonebook (name → IP)
+- DHCP   = automatically assigns IP addresses (via router)
+- NAT    = translates private IPs to public IP
+- Why NAT: protects our specific IP + conserves IP addresses

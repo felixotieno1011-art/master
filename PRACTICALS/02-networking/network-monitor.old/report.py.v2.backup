@@ -1,0 +1,150 @@
+#!/usr/bin/env python3
+# ============================================
+# report.py — Reads network_log.txt and summarizes
+# ============================================
+
+import re
+import statistics
+from datetime import datetime
+
+LOG_FILE = "network_log.txt"
+
+def parse_log():
+    """Read the log and extract all ping measurements."""
+    entries = []
+
+    with open(LOG_FILE, "r") as f:
+        content = f.read()
+
+    # Split into blocks by "====="
+    blocks = content.split("===== ")[1:]  # skip empty first
+
+    for block in blocks:
+        entry = {}
+        # Timestamp
+        ts_match = re.match(r"([\d\-]+ [\d:]+)", block)
+        if ts_match:
+            entry["time"] = ts_match.group(1)
+
+        # Ping to IP
+        ip_match = re.search(r"Ping to [\d.]+: (\d+) ms avg", block)
+        entry["ip_ping"] = int(ip_match.group(1)) if ip_match else None
+
+        # Ping to domain
+        dom_match = re.search(r"Ping to [\w.]+: (\d+) ms avg", block)
+        # Skip the first match (that's the IP) — find the SECOND one
+        all_pings = re.findall(r"Ping to [\w.]+: (\d+) ms avg", block)
+        if len(all_pings) >= 2:
+            entry["domain_ping"] = int(all_pings[1])
+        else:
+            entry["domain_ping"] = None
+
+        # DNS overhead
+        dns_match = re.search(r"Difference: (\d+) ms", block)
+        entry["dns_overhead"] = int(dns_match.group(1)) if dns_match else None
+
+        entries.append(entry)
+
+    return entries
+
+def safe_stats(values, label):
+    """Compute stats for a list, or return None if empty."""
+    vals = [v for v in values if v is not None]
+    if not vals:
+        return None
+
+    return {
+        "label": label,
+        "count": len(vals),
+        "avg": statistics.mean(vals),
+        "min": min(vals),
+        "max": max(vals),
+        "stdev": statistics.stdev(vals) if len(vals) > 1 else 0,
+    }
+
+def report():
+    print("=" * 60)
+    print("📊 NETWORK LOG REPORT")
+    print(f"   Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("=" * 60)
+
+    try:
+        entries = parse_log()
+    except FileNotFoundError:
+        print(f"\n❌ Log file '{LOG_FILE}' not found.")
+        print("   Run monitor.py first to generate data.")
+        return
+
+    if not entries:
+        print(f"\n❌ No entries found in log file.")
+        return
+
+    print(f"\n📁 Total tests: {len(entries)}")
+    print(f"   First test: {entries[0]['time']}")
+    print(f"   Last test:  {entries[-1]['time']}")
+
+    # Stats for IP
+    ip_stats = safe_stats([e["ip_ping"] for e in entries], f"Ping to 8.8.8.8")
+    if ip_stats:
+        print(f"\n{'─' * 60}")
+        print(f"📍 {ip_stats['label']}  (raw IP — no DNS)")
+        print(f"{'─' * 60}")
+        print(f"   Tests:    {ip_stats['count']}")
+        print(f"   Average:  {ip_stats['avg']:.0f} ms")
+        print(f"   Fastest:  {ip_stats['min']} ms")
+        print(f"   Slowest:  {ip_stats['max']} ms")
+        print(f"   Std dev:  {ip_stats['stdev']:.0f} ms")
+
+    # Stats for domain
+    dom_stats = safe_stats([e["domain_ping"] for e in entries], "Ping to google.com")
+    if dom_stats:
+        print(f"\n{'─' * 60}")
+        print(f"📍 {dom_stats['label']}  (needs DNS)")
+        print(f"{'─' * 60}")
+        print(f"   Tests:    {dom_stats['count']}")
+        print(f"   Average:  {dom_stats['avg']:.0f} ms")
+        print(f"   Fastest:  {dom_stats['min']} ms")
+        print(f"   Slowest:  {dom_stats['max']} ms")
+        print(f"   Std dev:  {dom_stats['stdev']:.0f} ms")
+
+    # DNS overhead
+    dns_stats = safe_stats([e["dns_overhead"] for e in entries], "DNS Overhead")
+    if dns_stats:
+        print(f"\n{'─' * 60}")
+        print(f"🔍 {dns_stats['label']}  (domain - IP)")
+        print(f"{'─' * 60}")
+        print(f"   Average:  {dns_stats['avg']:.0f} ms")
+        print(f"   Min:      {dns_stats['min']} ms")
+        print(f"   Max:      {dns_stats['max']} ms")
+
+    # Verdict
+    print(f"\n{'═' * 60}")
+    print("🔎 VERDICT")
+    print(f"{'═' * 60}")
+
+    if ip_stats and dom_stats and dns_stats:
+        if ip_stats["stdev"] > 200:
+            print("⚠  Network is UNSTABLE — huge swings in ping times.")
+        elif ip_stats["stdev"] > 50:
+            print("⚠  Network is somewhat unstable.")
+        else:
+            print("✓  Network latency is stable.")
+
+        if dns_stats["avg"] > 200:
+            print(f"⚠  DNS is the BOTTLENECK ({dns_stats['avg']:.0f} ms overhead).")
+            print("   → Consider changing DNS to 1.1.1.1 or 8.8.8.8")
+        elif dns_stats["avg"] > 100:
+            print(f"⚠  DNS adds {dns_stats['avg']:.0f} ms — noticeable but OK.")
+        else:
+            print(f"✓  DNS is fast ({dns_stats['avg']:.0f} ms overhead).")
+
+        if ip_stats["avg"] > 300:
+            print(f"⚠  Overall latency is HIGH ({ip_stats['avg']:.0f} ms avg).")
+            print("   → ISP may be congested. Try again at different times.")
+        elif ip_stats["avg"] > 150:
+            print(f"⚠  Overall latency is moderate ({ip_stats['avg']:.0f} ms avg).")
+
+    print(f"{'═' * 60}")
+
+if __name__ == "__main__":
+    report()

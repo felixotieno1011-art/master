@@ -1,0 +1,114 @@
+
+============================================================
+SESSION STARTED: 2026-10-02 18:03:59 [WIFI]
+============================================================
+ISP:      AS36926 Airtel Networks Kenya Limited
+Location: Kakamega, Kakamega County, KE
+Public IP: 102.0.100.84
+Hostname:  84-100-0-102.r.airtelkenya.com
+Connection: WIFI
+
+----- 2026-10-02 18:04:26 [WIFI] -----
+Router (192.168.1.1): 27 ms
+ISP Gateway (172.22.42.131): 285 ms
+Google DNS (8.8.8.8): 756 ms
+Cloudflare (1.1.1.1): 388 ms
+Quad9 (9.9.9.9): 426 ms
+OpenDNS (208.67.222.222): 567 ms
+
+
+============================================================
+SESSION STARTED: 2026-10-02 18:05:29 [MOBILE]
+============================================================
+ISP:      AS33771 Safaricom Limited
+Location: Nairobi, Nairobi County, KE
+Public IP: 41.80.117.125
+Hostname:  unknown
+Connection: MOBILE
+
+----- 2026-10-02 18:05:45 [MOBILE] -----
+Google DNS (8.8.8.8): 61 ms
+Cloudflare (1.1.1.1): 39 ms
+Quad9 (9.9.9.9): 36 ms
+OpenDNS (208.67.222.222): 237 ms
+
+
+============================================================
+SESSION STARTED: 2026-10-02 18:11:24 [MOBILE]
+============================================================
+ISP:      AS33771 Safaricom Limited
+Location: Nairobi, Nairobi County, KE
+Public IP: 41.80.117.125
+Hostname:  unknown
+Connection: MOBILE
+
+----- 2026-10-02 18:11:40 [MOBILE] -----
+Google DNS (8.8.8.8): 42 ms
+Cloudflare (1.1.1.1): 38 ms
+Quad9 (9.9.9.9): 37 ms
+OpenDNS (208.67.222.222): 226 ms
+
+
+============================================================
+SESSION STARTED: 2026-10-02 18:12:07 [MOBILE]
+============================================================
+ISP:      AS33771 Safaricom Limited
+Location: Nairobi, Nairobi County, KE
+Public IP: 41.80.117.125
+Hostname:  unknown
+Connection: MOBILE
+
+----- 2026-10-02 18:12:23 [MOBILE] -----
+Google DNS (8.8.8.8): 41 ms
+Cloudflare (1.1.1.1): 39 ms
+Quad9 (9.9.9.9): 43 ms
+OpenDNS (208.67.222.222): 222 ms
+
+
+============================================================
+SESSION STARTED: 2026-10-02 18:12:49 [MOBILE]
+============================================================
+ISP:      AS33771 Safaricom Limited
+Location: Nairobi, Nairobi County, KE
+Public IP: 41.80.117.125
+Hostname:  unknown
+Connection: MOBILE
+
+----- 2026-10-02 18:13:06 [MOBILE] -----
+Google DNS (8.8.8.8): 36 ms
+Cloudflare (1.1.1.1): 37 ms
+Quad9 (9.9.9.9): 36 ms
+OpenDNS (208.67.222.222): 221 ms
+
+
+============================================================
+SESSION STARTED: 2026-10-02 18:13:32 [MOBILE]
+============================================================
+ISP:      AS33771 Safaricom Limited
+Location: Nairobi, Nairobi County, KE
+Public IP: 41.80.117.125
+Hostname:  unknown
+Connection: MOBILE
+
+----- 2026-10-02 18:13:49 [MOBILE] -----
+Google DNS (8.8.8.8): 36 ms
+Cloudflare (1.1.1.1): 38 ms
+Quad9 (9.9.9.9): 40 ms
+OpenDNS (208.67.222.222): 222 ms
+
+
+============================================================
+SESSION STARTED: 2026-10-02 18:33:42 [MOBILE]
+============================================================
+ISP:      AS33771 Safaricom Limited
+Location: Nairobi, Nairobi County, KE
+Public IP: 41.80.117.125
+Hostname:  unknown
+Connection: MOBILE
+
+----- 2026-10-02 18:33:59 [MOBILE] -----
+Google DNS (8.8.8.8): 44 ms
+Cloudflare (1.1.1.1): 61 ms
+Quad9 (9.9.9.9): 46 ms
+OpenDNS (208.67.222.222): 227 ms
+

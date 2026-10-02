@@ -1,0 +1,34 @@
+
+============================================================
+SESSION STARTED: 2026-10-02 19:42:40 [MOBILE]
+============================================================
+ISP:        AS33771 Safaricom Limited
+Location:   Nairobi, Nairobi County, KE
+Public IP:  196.96.236.170
+Connection: MOBILE
+
+----- 2026-10-02 19:43:11 [MOBILE] [AS33771 Safaricom Limited] -----
+Google DNS: 61 ms | loss 0.0% | jitter 13 ms
+Cloudflare: 53 ms | loss 0.0% | jitter 5 ms
+Quad9: 69 ms | loss 0.0% | jitter 10 ms
+OpenDNS: 101 ms | loss 0.0% | jitter 14 ms
+Download: 5.67 Mbps
+Upload:   FAILED
+
+
+============================================================
+SESSION STARTED: 2026-10-02 19:48:18 [MOBILE]
+============================================================
+ISP:        AS33771 Safaricom Limited
+Location:   Nairobi, Nairobi County, KE
+Public IP:  196.96.236.170
+Connection: MOBILE
+
+----- 2026-10-02 19:48:39 [MOBILE] [AS33771 Safaricom Limited] -----
+Google DNS: 48 ms | loss 0.0% | jitter 4 ms
+Cloudflare: 47 ms | loss 0.0% | jitter 3 ms
+Quad9: 70 ms | loss 0.0% | jitter 24 ms
+OpenDNS: 91 ms | loss 0.0% | jitter 7 ms
+Download: 17.12 Mbps
+Upload:   FAILED
+

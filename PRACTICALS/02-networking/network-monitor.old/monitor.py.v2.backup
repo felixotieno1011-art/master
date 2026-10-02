@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+# ============================================
+# monitor.py — Network Monitor
+# Tests ping to IP vs domain, calculates DNS overhead, logs result
+# ============================================
+
+import subprocess
+import re
+import os
+from datetime import datetime
+
+LOG_FILE = "network_log.txt"
+PING_IP = "8.8.8.8"          # Raw IP — no DNS lookup
+PING_DOMAIN = "google.com"   # Domain — needs DNS lookup
+PING_COUNT = 5               # Number of pings per target
+
+def ping_avg(target):
+    """Pings a target N times, returns average in ms (or None if failed)."""
+    try:
+        result = subprocess.run(
+            ["ping", "-c", str(PING_COUNT), "-W", "3", target],
+            capture_output=True, text=True, timeout=30
+        )
+        output = result.stdout
+
+        # Look for line like: rtt min/avg/max/mdev = 57.123/70.456/85.789/9.123 ms
+        match = re.search(r"rtt [^=]*=\s*([\d.]+)/([\d.]+)/([\d.]+)/([\d.]+)", output)
+        if match:
+            return float(match.group(2))  # avg is second value
+        return None
+    except Exception as e:
+        print(f"   Error pinging {target}: {e}")
+        return None
+
+def log_result(ip_avg, domain_avg):
+    """Append result to log file."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    with open(LOG_FILE, "a") as f:
+        f.write(f"===== {timestamp} =====\n")
+
+        if ip_avg is not None:
+            f.write(f"Ping to {PING_IP}: {ip_avg:.0f} ms avg\n")
+        else:
+            f.write(f"Ping to {PING_IP}: FAILED\n")
+
+        if domain_avg is not None:
+            f.write(f"Ping to {PING_DOMAIN}: {domain_avg:.0f} ms avg\n")
+        else:
+            f.write(f"Ping to {PING_DOMAIN}: FAILED\n")
+
+        if ip_avg is not None and domain_avg is not None:
+            diff = domain_avg - ip_avg
+            f.write(f"Difference: {diff:.0f} ms (DNS overhead)\n")
+        else:
+            f.write("Difference: N/A\n")
+
+        f.write("\n")
+
+def main():
+    print("=" * 55)
+    print(f"🌐 Network Monitor — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("=" * 55)
+
+    print(f"\n📍 Pinging {PING_IP} (raw IP — no DNS)...")
+    ip_avg = ping_avg(PING_IP)
+    if ip_avg:
+        print(f"   ✓ Average: {ip_avg:.0f} ms")
+    else:
+        print(f"   ✗ Failed")
+
+    print(f"\n📍 Pinging {PING_DOMAIN} (needs DNS)...")
+    domain_avg = ping_avg(PING_DOMAIN)
+    if domain_avg:
+        print(f"   ✓ Average: {domain_avg:.0f} ms")
+    else:
+        print(f"   ✗ Failed")
+
+    if ip_avg is not None and domain_avg is not None:
+        diff = domain_avg - ip_avg
+        print(f"\n🔍 DNS overhead: {diff:.0f} ms")
+        if diff > 200:
+            print(f"   ⚠  DNS is SLOW — resolution is costing you {diff:.0f} ms")
+        elif diff > 100:
+            print(f"   ⚠  DNS overhead is noticeable ({diff:.0f} ms)")
+        else:
+            print(f"   ✓ DNS overhead is normal")
+
+    log_result(ip_avg, domain_avg)
+    print(f"\n📄 Logged to {LOG_FILE}")
+    print("=" * 55)
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,87 @@
+"""Measure download and upload speed using curl. No installs needed."""
+import subprocess
+import time
+import os
+from config import SPEED_TIMEOUT
+
+
+# --- Reliable endpoints ---
+# Cloudflare's speed test backend — accepts POSTs from anywhere, no auth
+DOWNLOAD_URLS = [
+    "https://speed.cloudflare.com/__down?bytes=10000000",   # 10 MB
+    "http://speedtest.tele2.net/10MB.zip",                  # fallback
+]
+
+UPLOAD_URLS = [
+    "https://speed.cloudflare.com/__up",                    # primary
+]
+
+
+def _try_download():
+    """Try each URL until one works. Return (mbps, bytes, url) or (None, 0, None)."""
+    for url in DOWNLOAD_URLS:
+        try:
+            start = time.time()
+            result = subprocess.run(
+                ["curl", "-s", "-o", "/dev/null",
+                 "-w", "%{size_download}",
+                 "--max-time", str(SPEED_TIMEOUT),
+                 url],
+                capture_output=True, text=True,
+                timeout=SPEED_TIMEOUT + 5
+            )
+            elapsed = time.time() - start
+            size = int(result.stdout.strip() or 0)
+            if size > 0 and elapsed > 0:
+                mbps = round((size * 8) / (elapsed * 1_000_000), 2)
+                return mbps, size, url
+        except Exception:
+            continue
+    return None, 0, None
+
+
+def _try_upload():
+    """Upload 5 MB of zeros. Return (mbps, bytes, url) or (None, 0, None)."""
+    tmp = "/tmp/nm_upload.bin"
+    try:
+        subprocess.run(
+            ["dd", "if=/dev/zero", "of=" + tmp, "bs=1M", "count=5"],
+            capture_output=True, timeout=10
+        )
+        for url in UPLOAD_URLS:
+            try:
+                start = time.time()
+                result = subprocess.run(
+                    ["curl", "-s", "-o", "/dev/null",
+                     "-w", "%{size_upload}",
+                     "-X", "POST",
+                     "--data-binary", "@" + tmp,
+                     "--max-time", str(SPEED_TIMEOUT),
+                     "-H", "Content-Type: application/octet-stream",
+                     url],
+                    capture_output=True, text=True,
+                    timeout=SPEED_TIMEOUT + 5
+                )
+                elapsed = time.time() - start
+                size = int(result.stdout.strip() or 0)
+                if size > 0 and elapsed > 0:
+                    mbps = round((size * 8) / (elapsed * 1_000_000), 2)
+                    return mbps, size, url
+            except Exception:
+                continue
+        return None, 0, None
+    finally:
+        try:
+            os.remove(tmp)
+        except Exception:
+            pass
+
+
+def download_speed_mbps():
+    mbps, _, _ = _try_download()
+    return mbps
+
+
+def upload_speed_mbps():
+    mbps, _, _ = _try_upload()
+    return mbps
