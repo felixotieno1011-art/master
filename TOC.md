@@ -21,7 +21,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 2.2 TCP/IP Model 📱
 - [x] 2.3 IP Addressing & Subnetting 📱
 - [x] 2.4 Routers, Switches, Hubs 📱🔁
-- [ ] 2.5 Firewalls & Network Security 📱🔁
+- [x] 2.5 Firewalls & Network Security 📱🔁
 - [ ] 2.6 DNS, DHCP, NAT 📱🔁
 - [ ] 2.7 VPNs & Tunneling 📱🔁
 - [ ] 2.8 Wireless Networking 📱

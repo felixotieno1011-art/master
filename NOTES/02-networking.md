@@ -154,3 +154,48 @@ All Trucks In Nairobi
 - My router prefers HTTPS (port 443) for admin
 - It returned encrypted bytes on HTTP (port 80)
 - HTTP response was garbled = encrypted TLS data
+## 2.5 Firewalls & Network Security
+
+### What is a firewall
+A filter between two networks that decides which traffic is allowed or blocked.
+
+### 3 types
+1. Packet Filter  - checks each packet alone (IP, port)
+2. Stateful       - remembers connections, smarter
+3. Application    - inspects apps (deep packet inspection)
+4. Next-Gen (NGFW) - everything + AI
+
+### Ports (important)
+- 22  = SSH (remote terminal)
+- 53  = DNS
+- 80  = HTTP
+- 443 = HTTPS
+- 3306, 5432 = databases
+- 8000, 3000 = custom apps
+
+### Firewall actions
+- ALLOW = let through
+- DENY  = reject (attacker knows)
+- DROP  = silently ignore (attacker doesn't know)
+
+### My router's firewall behavior
+- Blocks all INBOUND by default
+- Allows all OUTBOUND
+- Remembers connections (stateful)
+- This is why you can browse freely but hackers can't reach you
+
+### Commands I ran
+- iptables -L                     -> blocked by Android (no root)
+- curl http://google.com:22       -> timed out (DROP, not REJECT)
+- bash /dev/tcp/google.com/PORT   -> probed Google's ports
+- Built mini-firewall.py           -> simulated firewall rules
+
+### Google's firewall probe results
+- Port 80:  OPEN (public)
+- Port 443: OPEN (public)
+- Port 22:  BLOCKED (SSH not exposed)
+- Port 3306: BLOCKED (MySQL not exposed)
+- Port 8000: BLOCKED (custom not exposed)
+
+### Key insight
+DROP is more secure than REJECT because the attacker learns nothing.
