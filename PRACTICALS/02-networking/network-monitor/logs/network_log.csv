@@ -1,3 +1,0 @@
-timestamp,conn,isp,google_avg,google_loss,google_jitter,cloudflare_avg,quad9_avg,opendns_avg,download_mbps,upload_mbps
-2026-10-02T19:43:11.485140,MOBILE,AS33771 Safaricom Limited,60.663,0.0,12.861,53.229,68.542,100.806,5.67,
-2026-10-02T19:48:39.515544,MOBILE,AS33771 Safaricom Limited,47.656,0.0,4.209,46.844,69.758,91.362,17.12,

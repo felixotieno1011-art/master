@@ -6,13 +6,16 @@ venv/
 
 # Node
 node_modules/
-npm-debug.log
 
 # OS
 .DS_Store
-Thumbs.db
 
 # Secrets
 *.key
 *.pem
 secrets/
+
+# Network monitor logs (generated)
+PRACTICALS/02-networking/network-monitor/logs/
+PRACTICALS/02-networking/network-monitor/reports/
+PRACTICALS/02-networking/**/*.log
