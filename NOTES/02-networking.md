@@ -317,3 +317,17 @@ DROP is more secure than REJECT because the attacker learns nothing.
 - 2.4 GHz = slower, longer range
 - 5 GHz   = faster, shorter range
 - WiFi slows when devices CONGEST the channel
+### 2.9 — Final understanding
+- ping     = reachability + latency + packet loss
+- mtr      = continuous traceroute + ping
+- dig      = DNS resolution details
+- nmap     = port scanning + host discovery
+- curl     = HTTP test + response codes
+- traceroute = one-shot path
+
+### Diagnosed github.com today
+- DNS: 20.87.245.0 ✅ (Azure-hosted)
+- Ping: 105 ms, 0% loss ✅
+- HTTP: 200 OK ✅
+- Edge server: southafricanorth
+- Same redirect pattern as google (301)

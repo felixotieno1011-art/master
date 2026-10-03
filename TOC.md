@@ -25,7 +25,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 2.6 DNS, DHCP, NAT 📱🔁
 - [x] 2.7 VPNs,proxies & Tunneling 📱🔁
 - [x] 2.8 Wireless Networking 📱
-- [ ] 2.9 Network Troubleshooting Tools 📱
+- [x] 2.9 Network Troubleshooting Tools 📱
 - [ ] 2.10 Cloud Networking 📱💻
 - [ ] 2.11 Network Protocols (FTP, SSH, SMTP) 📱
 - [ ] 2.12 Load Balancing 📱🔁
