@@ -281,3 +281,39 @@ DROP is more secure than REJECT because the attacker learns nothing.
 - python mini_tunnel.py server / client "msg"         -> tunnel
 - base64 file.txt                                     -> wrapped data
 - base64 -d < <(base64 file.txt)                     -> unwrapped data
+## 2.8 Wireless Networking
+
+### WiFi uses radio waves
+- 2.4 GHz = slower, longer range, more interference
+- 5 GHz   = faster, shorter range, cleaner
+- 6 GHz   = fastest, shortest, newest (WiFi 6E)
+
+### Channels
+- WiFi networks broadcast on channels
+- 2.4 GHz has 14 channels, only 1, 6, 11 don't overlap
+- 5 GHz has many more channels → cleaner
+- If two networks use the same channel = interference
+
+### Security standards
+- WEP   = broken, don't use
+- WPA   = weak, old
+- WPA2  = good, current standard (AES encryption)
+- WPA3  = best, newest, stronger handshake
+
+### Why WiFi gets slow
+- Congestion: many devices share one channel, take turns
+- Interference: microwave, Bluetooth, walls
+- Distance from router = weaker signal
+- Same channel as neighbors = waiting
+
+### Signal strength (RSSI)
+- -30 dBm = perfect
+- -50 dBm = excellent
+- -60 dBm = good
+- -70 dBm = fair
+- -80 dBm = poor
+- -90 dBm = unusable
+### My own words for 2.8
+- 2.4 GHz = slower, longer range
+- 5 GHz   = faster, shorter range
+- WiFi slows when devices CONGEST the channel
