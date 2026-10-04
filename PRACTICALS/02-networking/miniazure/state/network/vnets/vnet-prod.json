@@ -1,0 +1,23 @@
+{
+  "id": "/subscriptions/local/resourceGroups/prod/providers/Microsoft.Network/virtualNetworks/vnet-prod",
+  "name": "vnet-prod",
+  "type": "Microsoft.Network/virtualNetworks",
+  "resourceGroup": "prod",
+  "location": "eastus",
+  "cidr": "10.10.0.0/16",
+  "subnets": {
+    "web": {
+      "name": "web",
+      "cidr": "10.10.1.0/24",
+      "ips_used": {},
+      "created": "2026-10-03T18:47:42"
+    },
+    "data": {
+      "name": "data",
+      "cidr": "10.10.2.0/24",
+      "ips_used": {},
+      "created": "2026-10-03T18:47:42"
+    }
+  },
+  "created": "2026-10-03T18:47:42"
+}

@@ -1,0 +1,13 @@
+{
+  "alarmName": "HighLoginAlert",
+  "namespace": "MyApp",
+  "metricName": "LoginCount",
+  "statistic": "Average",
+  "threshold": 50.0,
+  "comparisonOperator": "GreaterThanThreshold",
+  "evaluationPeriods": 1,
+  "stateValue": "OK",
+  "stateReason": "Average=43.667 GreaterThanThreshold 50.0",
+  "created": "2026-10-03T20:29:13",
+  "stateUpdated": "2026-10-03T20:29:17"
+}

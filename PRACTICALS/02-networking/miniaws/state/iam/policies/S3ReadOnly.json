@@ -1,0 +1,18 @@
+{
+  "policyName": "S3ReadOnly",
+  "arn": "arn:aws:iam::437401175396:policy/S3ReadOnly",
+  "document": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ],
+        "Resource": "*"
+      }
+    ]
+  },
+  "created": "2026-10-03T20:15:38"
+}

@@ -1,0 +1,17 @@
+{
+  "vm": "web1",
+  "breaks": [
+    {
+      "type": "disk-full",
+      "symptom": "VM disk is full",
+      "injected": "2026-10-03T18:38:22",
+      "resolved": "2026-10-03T18:38:24"
+    },
+    {
+      "type": "service-down",
+      "symptom": "Process is not responding to heartbeat",
+      "injected": "2026-10-03T18:43:23",
+      "resolved": "2026-10-03T18:43:25"
+    }
+  ]
+}

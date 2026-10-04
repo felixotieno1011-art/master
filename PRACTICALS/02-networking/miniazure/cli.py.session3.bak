@@ -1,0 +1,361 @@
+#!/usr/bin/env python3
+"""MiniAzure CLI — group, vm, storage."""
+import json
+import os
+import sys
+
+import utils
+from core import resource_group as rg
+from core import vm as vmm
+from core import storage
+
+
+USAGE = """
+miniazure — a tiny local version of Azure's CLI
+
+USAGE:
+  miniazure <command> <subcommand> [options]
+
+GROUP COMMANDS:
+  group create <name> [--region <region>] [--tags k=v,k=v]
+  group list
+  group show <name>
+  group delete <name>
+
+VM COMMANDS:
+  vm create <name> --group <group> [--size small|medium|large]
+  vm list [--group <group>]
+  vm show <name>
+  vm start <name>
+  vm stop <name>
+  vm restart <name>
+  vm delete <name>
+  vm stats <name>
+  vm logs <name>
+
+STORAGE COMMANDS:
+  storage create <account> --group <group> [--region <region>]
+  storage list
+  storage show <account>
+  storage delete <account>
+  storage container create <account> <container>
+  storage container list <account>
+  storage container delete <account> <container>
+  storage upload <account> <container> <local_file> [--as <blob_name>]
+  storage blob list <account> <container>
+  storage blob delete <account> <container> <blob>
+
+BLOB SERVER:
+  python -m core.blob_server        # runs on http://localhost:8080
+
+EXAMPLES:
+  miniazure group create demo --region eastus
+  miniazure vm create web1 --group demo --size small
+  miniazure storage create myacct --group demo
+  miniazure storage container create myacct photos
+  miniazure storage upload myacct photos ./img.jpg --as photo.jpg
+"""
+
+
+def parse_flags(args):
+    flags = {}
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a.startswith("--"):
+            if "=" in a:
+                k, v = a[2:].split("=", 1)
+                flags[k] = v
+            else:
+                k = a[2:]
+                if i + 1 < len(args) and not args[i + 1].startswith("--"):
+                    flags[k] = args[i + 1]
+                    i += 1
+                else:
+                    flags[k] = True
+        i += 1
+    return flags
+
+
+def print_row(cells, widths):
+    print(" ".join(str(c).ljust(w) for c, w in zip(cells, widths)))
+
+
+# ---------- GROUP ----------
+
+def cmd_group(args):
+    if not args:
+        print(USAGE); return 1
+    sub, rest = args[0], args[1:]
+
+    if sub == "create":
+        if not rest:
+            print(utils.err("name required")); return 1
+        name = rest[0]
+        flags = parse_flags(rest[1:])
+        tags = {}
+        if "tags" in flags and isinstance(flags["tags"], str):
+            for pair in flags["tags"].split(","):
+                if "=" in pair:
+                    k, v = pair.split("=", 1)
+                    tags[k.strip()] = v.strip()
+        ok_, msg = rg.create(name, region=flags.get("region"), tags=tags)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
+    if sub == "list":
+        groups = rg.list_all()
+        if not groups:
+            print(utils.warn("no resource groups")); return 0
+        print_row(["NAME", "REGION", "CREATED"], [20, 15, 20])
+        print("-" * 58)
+        for g in groups:
+            print_row([g["name"], g["location"], g["created"]], [20, 15, 20])
+        return 0
+
+    if sub == "show":
+        if not rest:
+            print(utils.err("name required")); return 1
+        data = rg.get(rest[0])
+        if not data:
+            print(utils.err(f"resource group '{rest[0]}' not found")); return 1
+        print(json.dumps(data, indent=2)); return 0
+
+    if sub == "delete":
+        if not rest:
+            print(utils.err("name required")); return 1
+        ok_, msg = rg.delete(rest[0])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
+    print(utils.err(f"unknown group subcommand: {sub}")); return 1
+
+
+# ---------- VM ----------
+
+def cmd_vm(args):
+    if not args:
+        print(USAGE); return 1
+    sub, rest = args[0], args[1:]
+
+    if sub == "create":
+        if not rest:
+            print(utils.err("name required")); return 1
+        name = rest[0]
+        flags = parse_flags(rest[1:])
+        group = flags.get("group")
+        size = flags.get("size") or "small"
+        if not group:
+            print(utils.err("--group is required")); return 1
+        ok_, msg = vmm.create(name, group=group, size=size)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
+    if sub == "list":
+        flags = parse_flags(rest)
+        group = flags.get("group") if isinstance(flags.get("group"), str) else None
+        vms = vmm.list_all(group=group)
+        if not vms:
+            print(utils.warn("no VMs")); return 0
+        print_row(["NAME", "GROUP", "SIZE", "STATE", "PID"], [14, 14, 8, 10, 8])
+        print("-" * 58)
+        for v in vms:
+            st = vmm.status(v["name"]) or {}
+            print_row([v["name"], v.get("resourceGroup"), v.get("size"),
+                       st.get("state"), st.get("pid") or "-"],
+                      [14, 14, 8, 10, 8])
+        return 0
+
+    if sub == "show":
+        if not rest:
+            print(utils.err("name required")); return 1
+        data = vmm.get(rest[0])
+        if not data:
+            print(utils.err(f"VM '{rest[0]}' not found")); return 1
+        out = dict(data)
+        out["runtime"] = vmm.status(rest[0])
+        print(json.dumps(out, indent=2)); return 0
+
+    if sub in ("start", "stop", "restart", "delete"):
+        if not rest:
+            print(utils.err("name required")); return 1
+        fn = getattr(vmm, sub)
+        ok_, msg = fn(rest[0])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
+    if sub == "stats":
+        if not rest:
+            print(utils.err("name required")); return 1
+        st = vmm.status(rest[0])
+        if not st:
+            print(utils.err(f"VM '{rest[0]}' not found")); return 1
+        print(f"VM:      {st['name']}")
+        print(f"State:   {st['state']}")
+        print(f"Size:    {st['size']}")
+        print(f"Group:   {st['group']}")
+        print(f"PID:     {st['pid'] or '-'}")
+        print(f"Uptime:  {st['uptime_sec']} s")
+        if st["state"] == "RUNNING" and st["pid"]:
+            proc = vmm.read_proc_stats(st["pid"])
+            if proc:
+                mem_mb = proc.get("memory_kb", 0) / 1024
+                print(f"Memory:  {mem_mb:.1f} MB (real from /proc)")
+                print(f"Proc:    {proc.get('proc_state')} (R=running, S=sleeping)")
+        return 0
+
+    if sub == "logs":
+        if not rest:
+            print(utils.err("name required")); return 1
+        print(vmm.vm_runtime.get_log(rest[0], lines=30) or "(no logs)")
+        return 0
+
+    print(utils.err(f"unknown vm subcommand: {sub}")); return 1
+
+
+# ---------- STORAGE ----------
+
+def cmd_storage(args):
+    if not args:
+        print(USAGE); return 1
+    sub, rest = args[0], args[1:]
+
+    if sub == "create":
+        if not rest:
+            print(utils.err("account name required")); return 1
+        name = rest[0]
+        flags = parse_flags(rest[1:])
+        group = flags.get("group")
+        if not group:
+            print(utils.err("--group is required")); return 1
+        ok_, msg = storage.create_account(name, group=group,
+                                          region=flags.get("region"))
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
+    if sub == "list":
+        accounts = storage.list_accounts()
+        if not accounts:
+            print(utils.warn("no storage accounts")); return 0
+        print_row(["NAME", "GROUP", "REGION", "CREATED"], [18, 14, 14, 20])
+        print("-" * 68)
+        for a in accounts:
+            print_row([a["name"], a["resourceGroup"], a["location"], a["created"]],
+                      [18, 14, 14, 20])
+        return 0
+
+    if sub == "show":
+        if not rest:
+            print(utils.err("name required")); return 1
+        data = storage.get_account(rest[0])
+        if not data:
+            print(utils.err(f"storage account '{rest[0]}' not found")); return 1
+        print(json.dumps(data, indent=2)); return 0
+
+    if sub == "delete":
+        if not rest:
+            print(utils.err("name required")); return 1
+        ok_, msg = storage.delete_account(rest[0])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
+    if sub == "container":
+        if not rest:
+            print(utils.err("container subcommand required")); return 1
+        csub, crest = rest[0], rest[1:]
+
+        if csub == "create":
+            if len(crest) < 2:
+                print(utils.err("usage: storage container create <account> <container>")); return 1
+            ok_, msg = storage.create_container(crest[0], crest[1])
+            print(utils.ok(msg) if ok_ else utils.err(msg))
+            return 0 if ok_ else 1
+
+        if csub == "list":
+            if not crest:
+                print(utils.err("account name required")); return 1
+            containers = storage.list_containers(crest[0])
+            if containers is None:
+                print(utils.err(f"storage account '{crest[0]}' not found")); return 1
+            if not containers:
+                print(utils.warn("no containers")); return 0
+            print(f"CONTAINERS in {crest[0]}:")
+            for c in containers:
+                print(f"  - {c}")
+            return 0
+
+        if csub == "delete":
+            if len(crest) < 2:
+                print(utils.err("usage: storage container delete <account> <container>")); return 1
+            ok_, msg = storage.delete_container(crest[0], crest[1])
+            print(utils.ok(msg) if ok_ else utils.err(msg))
+            return 0 if ok_ else 1
+
+        print(utils.err(f"unknown container subcommand: {csub}")); return 1
+
+    if sub == "upload":
+        if len(rest) < 3:
+            print(utils.err("usage: storage upload <account> <container> <local_file> [--as <blob>]")); return 1
+        account, container, local = rest[0], rest[1], rest[2]
+        flags = parse_flags(rest[3:])
+        blob_name = flags.get("as") if isinstance(flags.get("as"), str) else os.path.basename(local)
+        ok_, msg = storage.upload_blob(account, container, blob_name, local)
+        if ok_:
+            print(utils.ok(f"uploaded. URL: {msg}"))
+        else:
+            print(utils.err(msg))
+        return 0 if ok_ else 1
+
+    if sub == "blob":
+        if not rest:
+            print(utils.err("blob subcommand required")); return 1
+        bsub, brest = rest[0], rest[1:]
+
+        if bsub == "list":
+            if len(brest) < 2:
+                print(utils.err("usage: storage blob list <account> <container>")); return 1
+            blobs = storage.list_blobs(brest[0], brest[1])
+            if blobs is None:
+                print(utils.err("container not found")); return 1
+            if not blobs:
+                print(utils.warn("no blobs")); return 0
+            print_row(["NAME", "SIZE", "UPLOADED"], [30, 12, 20])
+            print("-" * 64)
+            for b in blobs:
+                print_row([b["name"], b["size"], b["uploaded"]], [30, 12, 20])
+            return 0
+
+        if bsub == "delete":
+            if len(brest) < 3:
+                print(utils.err("usage: storage blob delete <account> <container> <blob>")); return 1
+            ok_, msg = storage.delete_blob(brest[0], brest[1], brest[2])
+            print(utils.ok(msg) if ok_ else utils.err(msg))
+            return 0 if ok_ else 1
+
+        print(utils.err(f"unknown blob subcommand: {bsub}")); return 1
+
+    print(utils.err(f"unknown storage subcommand: {sub}")); return 1
+
+
+# ---------- MAIN ----------
+
+def main():
+    args = sys.argv[1:]
+    if not args or args[0] in ("-h", "--help", "help"):
+        print(USAGE); return 0
+
+    cmd = args[0]
+    if cmd == "group":
+        return cmd_group(args[1:])
+    if cmd == "vm":
+        return cmd_vm(args[1:])
+    if cmd == "storage":
+        return cmd_storage(args[1:])
+
+    print(utils.err(f"unknown command: {cmd}"))
+    print(USAGE)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

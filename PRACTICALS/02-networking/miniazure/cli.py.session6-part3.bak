@@ -1,0 +1,739 @@
+#!/usr/bin/env python3
+"""MiniAzure CLI — full."""
+import json
+import os
+import sys
+
+import utils
+from core import resource_group as rg
+from core import vm as vmm
+from core import storage
+from core import network as netw
+from core import iam
+from core import breakage
+from core import monitor
+from core import deploy
+
+
+USAGE = """
+miniazure — a tiny local version of Azure's CLI
+
+IAM:
+  login <username> | logout | whoami
+  user create <name> [--role reader|contributor|admin]
+  user list | user delete <name> | user role <name> <role>
+  audit [--limit N]
+
+GROUP:
+  group create <name> [--region <r>] [--tags k=v,k=v]
+  group list | group show <name> | group delete <name>
+
+VM:
+  vm create <name> --group <g> [--size small|medium|large]
+  vm list | vm show <name> | vm start/stop/restart/delete <name>
+  vm stats <name> | vm logs <name>
+  vm attach <name> --vnet <v> --subnet <s> | vm detach <name> --vnet <v> --subnet <s>
+
+STORAGE:
+  storage create <acct> --group <g> | storage list | storage show <acct>
+  storage container create <acct> <cont> | storage container list <acct>
+  storage upload <acct> <cont> <file> [--as <blob>]
+  storage blob list <acct> <cont> | storage blob delete <acct> <cont> <blob>
+
+NETWORK:
+  network vnet create <name> --group <g> --cidr <c>
+  network vnet list | network vnet show <name> | network vnet delete <name>
+  network subnet create <vnet> <name> --cidr <c>
+  network subnet list <vnet> | network subnet delete <vnet> <name>
+  network topology
+
+BREAK / FIX:
+  break <vm> --type <type>
+  fix <vm> | diagnose <vm> | status
+
+MONITOR:
+  monitor start [--interval N] [--max M]
+  monitor once | monitor stop | monitor status | monitor alerts [--limit N]
+
+DEPLOY:
+  apply <plan.yaml>
+
+BLOB SERVER:
+  python -m core.blob_server
+"""
+
+
+def parse_flags(args):
+    flags = {}
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a.startswith("--"):
+            if "=" in a:
+                k, v = a[2:].split("=", 1); flags[k] = v
+            else:
+                k = a[2:]
+                if i + 1 < len(args) and not args[i + 1].startswith("--"):
+                    flags[k] = args[i + 1]; i += 1
+                else:
+                    flags[k] = True
+        i += 1
+    return flags
+
+
+def print_row(cells, widths):
+    print(" ".join(str(c).ljust(w) for c, w in zip(cells, widths)))
+
+
+def require(action, detail=""):
+    allowed, reason = iam.can(action)
+    if not allowed:
+        print(utils.err(reason))
+        iam.audit(action, detail, success=False)
+        return False
+    return True
+
+
+def audit_ok(action, detail=""):
+    iam.audit(action, detail, success=True)
+
+
+# ---------- IAM ----------
+
+def cmd_login(args):
+    if not args:
+        print(utils.err("usage: login <username>")); return 1
+    ok_, msg = iam.login(args[0])
+    print(utils.ok(msg) if ok_ else utils.err(msg))
+    return 0 if ok_ else 1
+
+
+def cmd_logout(args):
+    iam.logout()
+    print(utils.ok("logged out")); return 0
+
+
+def cmd_whoami(args):
+    user = iam.get_current_user()
+    if not user:
+        print(utils.warn("not logged in")); return 0
+    data = iam.get_user(user) or {}
+    print(f"👤 {user}   role: {data.get('role','?')}")
+    return 0
+
+
+def cmd_user(args):
+    if not args:
+        print(USAGE); return 1
+    sub, rest = args[0], args[1:]
+    if sub == "create":
+        if not rest:
+            print(utils.err("username required")); return 1
+        if not require("user.create"): return 1
+        flags = parse_flags(rest[1:])
+        role = flags.get("role") or "reader"
+        ok_, msg = iam.create_user(rest[0], role)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: audit_ok("user.create", f"{rest[0]}/{role}")
+        return 0 if ok_ else 1
+    if sub == "list":
+        if not require("user.list"): return 1
+        users = iam.list_users()
+        if not users:
+            print(utils.warn("no users")); return 0
+        print_row(["NAME", "ROLE", "CREATED"], [20, 14, 20])
+        print("-" * 56)
+        for u in users:
+            print_row([u["name"], u["role"], u["created"]], [20, 14, 20])
+        return 0
+    if sub == "delete":
+        if not rest:
+            print(utils.err("username required")); return 1
+        if not require("user.delete"): return 1
+        ok_, msg = iam.delete_user(rest[0])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: audit_ok("user.delete", rest[0])
+        return 0 if ok_ else 1
+    if sub == "role":
+        if len(rest) < 2:
+            print(utils.err("usage: user role <username> <role>")); return 1
+        if not require("user.role"): return 1
+        ok_, msg = iam.set_role(rest[0], rest[1])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: audit_ok("user.role", f"{rest[0]}->{rest[1]}")
+        return 0 if ok_ else 1
+    print(utils.err(f"unknown user subcommand: {sub}")); return 1
+
+
+def cmd_audit(args):
+    flags = parse_flags(args)
+    limit = int(flags.get("limit", 30)) if isinstance(flags.get("limit"), str) else 30
+    lines = iam.read_audit(limit)
+    if not lines:
+        print(utils.warn("(no audit entries)")); return 0
+    print(f"Last {len(lines)} audit entries:")
+    print("-" * 70)
+    for l in lines:
+        print(l)
+    return 0
+
+
+# ---------- GROUP ----------
+
+def cmd_group(args):
+    if not args:
+        print(USAGE); return 1
+    sub, rest = args[0], args[1:]
+    if sub == "create":
+        if not rest:
+            print(utils.err("name required")); return 1
+        if not require("group.create", rest[0]): return 1
+        flags = parse_flags(rest[1:])
+        tags = {}
+        if "tags" in flags and isinstance(flags["tags"], str):
+            for pair in flags["tags"].split(","):
+                if "=" in pair:
+                    k, v = pair.split("=", 1)
+                    tags[k.strip()] = v.strip()
+        ok_, msg = rg.create(rest[0], region=flags.get("region"), tags=tags)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: audit_ok("group.create", rest[0])
+        return 0 if ok_ else 1
+    if sub == "list":
+        if not require("group.list"): return 1
+        groups = rg.list_all()
+        if not groups:
+            print(utils.warn("no resource groups")); return 0
+        print_row(["NAME", "REGION", "CREATED"], [20, 15, 20])
+        print("-" * 58)
+        for g in groups:
+            print_row([g["name"], g["location"], g["created"]], [20, 15, 20])
+        return 0
+    if sub == "show":
+        if not rest:
+            print(utils.err("name required")); return 1
+        if not require("group.show", rest[0]): return 1
+        data = rg.get(rest[0])
+        if not data:
+            print(utils.err(f"resource group '{rest[0]}' not found")); return 1
+        print(json.dumps(data, indent=2)); return 0
+    if sub == "delete":
+        if not rest:
+            print(utils.err("name required")); return 1
+        if not require("group.delete", rest[0]): return 1
+        ok_, msg = rg.delete(rest[0])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: audit_ok("group.delete", rest[0])
+        return 0 if ok_ else 1
+    print(utils.err(f"unknown group subcommand: {sub}")); return 1
+
+
+# ---------- VM ----------
+
+def cmd_vm(args):
+    if not args:
+        print(USAGE); return 1
+    sub, rest = args[0], args[1:]
+    if sub == "create":
+        if not rest:
+            print(utils.err("name required")); return 1
+        if not require("vm.create", rest[0]): return 1
+        flags = parse_flags(rest[1:])
+        group = flags.get("group")
+        size = flags.get("size") or "small"
+        if not group:
+            print(utils.err("--group is required")); return 1
+        ok_, msg = vmm.create(rest[0], group=group, size=size)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: audit_ok("vm.create", f"{rest[0]}/{size}")
+        return 0 if ok_ else 1
+    if sub == "list":
+        if not require("vm.list"): return 1
+        flags = parse_flags(rest)
+        group = flags.get("group") if isinstance(flags.get("group"), str) else None
+        vms = vmm.list_all(group=group)
+        if not vms:
+            print(utils.warn("no VMs")); return 0
+        print_row(["NAME", "GROUP", "SIZE", "STATE", "PID", "IP"], [12, 12, 8, 10, 8, 14])
+        print("-" * 66)
+        for v in vms:
+            st = vmm.status(v["name"]) or {}
+            ip = (v.get("network") or {}).get("ip", "-")
+            print_row([v["name"], v.get("resourceGroup"), v.get("size"),
+                       st.get("state"), st.get("pid") or "-", ip],
+                      [12, 12, 8, 10, 8, 14])
+        return 0
+    if sub == "show":
+        if not rest:
+            print(utils.err("name required")); return 1
+        if not require("vm.show", rest[0]): return 1
+        data = vmm.get(rest[0])
+        if not data:
+            print(utils.err(f"VM '{rest[0]}' not found")); return 1
+        out = dict(data)
+        out["runtime"] = vmm.status(rest[0])
+        print(json.dumps(out, indent=2)); return 0
+    if sub in ("start", "stop", "restart", "delete"):
+        if not rest:
+            print(utils.err("name required")); return 1
+        if not require(f"vm.{sub}", rest[0]): return 1
+        fn = getattr(vmm, sub)
+        ok_, msg = fn(rest[0])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: audit_ok(f"vm.{sub}", rest[0])
+        return 0 if ok_ else 1
+    if sub == "stats":
+        if not rest:
+            print(utils.err("name required")); return 1
+        if not require("vm.stats", rest[0]): return 1
+        st = vmm.status(rest[0])
+        if not st:
+            print(utils.err(f"VM '{rest[0]}' not found")); return 1
+        print(f"VM:      {st['name']}")
+        print(f"State:   {st['state']}")
+        print(f"Size:    {st['size']}")
+        print(f"Group:   {st['group']}")
+        print(f"PID:     {st['pid'] or '-'}")
+        print(f"Uptime:  {st['uptime_sec']} s")
+        if st["state"] == "RUNNING" and st["pid"]:
+            proc = vmm.read_proc_stats(st["pid"])
+            if proc:
+                mem_mb = proc.get("memory_kb", 0) / 1024
+                print(f"Memory:  {mem_mb:.1f} MB (real from /proc)")
+                print(f"Proc:    {proc.get('proc_state')} (R=running, S=sleeping)")
+        return 0
+    if sub == "logs":
+        if not rest:
+            print(utils.err("name required")); return 1
+        if not require("vm.logs", rest[0]): return 1
+        print(vmm.vm_runtime.get_log(rest[0], lines=30) or "(no logs)")
+        return 0
+    if sub == "attach":
+        if not rest:
+            print(utils.err("usage: vm attach <vm> --vnet <v> --subnet <s>")); return 1
+        if not require("vm.attach", rest[0]): return 1
+        flags = parse_flags(rest[1:])
+        vnet = flags.get("vnet"); subnet = flags.get("subnet")
+        if not vnet or not subnet:
+            print(utils.err("--vnet and --subnet required")); return 1
+        ok_, msg = netw.attach_vm(rest[0], vnet, subnet)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: audit_ok("vm.attach", f"{rest[0]}->{vnet}/{subnet}")
+        return 0 if ok_ else 1
+    if sub == "detach":
+        if not rest:
+            print(utils.err("usage: vm detach <vm> --vnet <v> --subnet <s>")); return 1
+        if not require("vm.detach", rest[0]): return 1
+        flags = parse_flags(rest[1:])
+        vnet = flags.get("vnet"); subnet = flags.get("subnet")
+        if not vnet or not subnet:
+            print(utils.err("--vnet and --subnet required")); return 1
+        ok_, msg = netw.detach_vm(rest[0], vnet, subnet)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: audit_ok("vm.detach", rest[0])
+        return 0 if ok_ else 1
+    print(utils.err(f"unknown vm subcommand: {sub}")); return 1
+
+
+# ---------- STORAGE ----------
+
+def cmd_storage(args):
+    if not args:
+        print(USAGE); return 1
+    sub, rest = args[0], args[1:]
+    if sub == "create":
+        if not rest:
+            print(utils.err("account name required")); return 1
+        if not require("storage.create", rest[0]): return 1
+        flags = parse_flags(rest[1:])
+        group = flags.get("group")
+        if not group:
+            print(utils.err("--group is required")); return 1
+        ok_, msg = storage.create_account(rest[0], group=group,
+                                          region=flags.get("region"))
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: audit_ok("storage.create", rest[0])
+        return 0 if ok_ else 1
+    if sub == "list":
+        if not require("storage.list"): return 1
+        accounts = storage.list_accounts()
+        if not accounts:
+            print(utils.warn("no storage accounts")); return 0
+        print_row(["NAME", "GROUP", "REGION", "CREATED"], [18, 14, 14, 20])
+        print("-" * 68)
+        for a in accounts:
+            print_row([a["name"], a["resourceGroup"], a["location"], a["created"]],
+                      [18, 14, 14, 20])
+        return 0
+    if sub == "show":
+        if not rest:
+            print(utils.err("name required")); return 1
+        if not require("storage.show", rest[0]): return 1
+        data = storage.get_account(rest[0])
+        if not data:
+            print(utils.err(f"storage account '{rest[0]}' not found")); return 1
+        print(json.dumps(data, indent=2)); return 0
+    if sub == "delete":
+        if not rest:
+            print(utils.err("name required")); return 1
+        if not require("storage.delete", rest[0]): return 1
+        ok_, msg = storage.delete_account(rest[0])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: audit_ok("storage.delete", rest[0])
+        return 0 if ok_ else 1
+    if sub == "container":
+        if not rest:
+            print(utils.err("container subcommand required")); return 1
+        csub, crest = rest[0], rest[1:]
+        if csub == "create":
+            if len(crest) < 2:
+                print(utils.err("usage: storage container create <acct> <cont>")); return 1
+            if not require("storage.container.create"): return 1
+            ok_, msg = storage.create_container(crest[0], crest[1])
+            print(utils.ok(msg) if ok_ else utils.err(msg))
+            if ok_: audit_ok("storage.container.create", f"{crest[0]}/{crest[1]}")
+            return 0 if ok_ else 1
+        if csub == "list":
+            if not crest:
+                print(utils.err("account name required")); return 1
+            if not require("storage.container.list"): return 1
+            containers = storage.list_containers(crest[0])
+            if containers is None:
+                print(utils.err(f"storage account '{crest[0]}' not found")); return 1
+            if not containers:
+                print(utils.warn("no containers")); return 0
+            print(f"CONTAINERS in {crest[0]}:")
+            for c in containers:
+                print(f"  - {c}")
+            return 0
+        if csub == "delete":
+            if len(crest) < 2:
+                print(utils.err("usage: storage container delete <acct> <cont>")); return 1
+            if not require("storage.container.delete"): return 1
+            ok_, msg = storage.delete_container(crest[0], crest[1])
+            print(utils.ok(msg) if ok_ else utils.err(msg))
+            if ok_: audit_ok("storage.container.delete", f"{crest[0]}/{crest[1]}")
+            return 0 if ok_ else 1
+        print(utils.err(f"unknown container subcommand: {csub}")); return 1
+    if sub == "upload":
+        if len(rest) < 3:
+            print(utils.err("usage: storage upload <acct> <cont> <file> [--as <blob>]")); return 1
+        if not require("storage.upload"): return 1
+        flags = parse_flags(rest[3:])
+        blob_name = flags.get("as") if isinstance(flags.get("as"), str) else os.path.basename(rest[2])
+        ok_, msg = storage.upload_blob(rest[0], rest[1], blob_name, rest[2])
+        if ok_:
+            print(utils.ok(f"uploaded. URL: {msg}"))
+            audit_ok("storage.upload", f"{rest[0]}/{rest[1]}/{blob_name}")
+        else:
+            print(utils.err(msg))
+        return 0 if ok_ else 1
+    if sub == "blob":
+        if not rest:
+            print(utils.err("blob subcommand required")); return 1
+        bsub, brest = rest[0], rest[1:]
+        if bsub == "list":
+            if len(brest) < 2:
+                print(utils.err("usage: storage blob list <acct> <cont>")); return 1
+            if not require("storage.blob.list"): return 1
+            blobs = storage.list_blobs(brest[0], brest[1])
+            if blobs is None:
+                print(utils.err("container not found")); return 1
+            if not blobs:
+                print(utils.warn("no blobs")); return 0
+            print_row(["NAME", "SIZE", "UPLOADED"], [30, 12, 20])
+            print("-" * 64)
+            for b in blobs:
+                print_row([b["name"], b["size"], b["uploaded"]], [30, 12, 20])
+            return 0
+        if bsub == "delete":
+            if len(brest) < 3:
+                print(utils.err("usage: storage blob delete <acct> <cont> <blob>")); return 1
+            if not require("storage.blob.delete"): return 1
+            ok_, msg = storage.delete_blob(brest[0], brest[1], brest[2])
+            print(utils.ok(msg) if ok_ else utils.err(msg))
+            if ok_: audit_ok("storage.blob.delete", f"{brest[0]}/{brest[1]}/{brest[2]}")
+            return 0 if ok_ else 1
+        print(utils.err(f"unknown blob subcommand: {bsub}")); return 1
+    print(utils.err(f"unknown storage subcommand: {sub}")); return 1
+
+
+# ---------- NETWORK ----------
+
+def cmd_network(args):
+    if not args:
+        print(USAGE); return 1
+    sub, rest = args[0], args[1:]
+    if sub == "vnet":
+        if not rest:
+            print(utils.err("vnet subcommand required")); return 1
+        vsub, vrest = rest[0], rest[1:]
+        if vsub == "create":
+            if not vrest:
+                print(utils.err("usage: network vnet create <name> --group <g> --cidr <c>")); return 1
+            if not require("network.vnet.create", vrest[0]): return 1
+            flags = parse_flags(vrest[1:])
+            group = flags.get("group"); cidr = flags.get("cidr")
+            if not group or not cidr:
+                print(utils.err("--group and --cidr required")); return 1
+            ok_, msg = netw.create_vnet(vrest[0], group, cidr)
+            print(utils.ok(msg) if ok_ else utils.err(msg))
+            if ok_: audit_ok("network.vnet.create", vrest[0])
+            return 0 if ok_ else 1
+        if vsub == "list":
+            if not require("network.vnet.list"): return 1
+            vnets = netw.list_vnets()
+            if not vnets:
+                print(utils.warn("no vnets")); return 0
+            print_row(["NAME", "GROUP", "CIDR", "SUBNETS"], [16, 14, 18, 10])
+            print("-" * 60)
+            for v in vnets:
+                print_row([v["name"], v["resourceGroup"], v["cidr"],
+                           len(v.get("subnets", {}))],
+                          [16, 14, 18, 10])
+            return 0
+        if vsub == "show":
+            if not vrest:
+                print(utils.err("name required")); return 1
+            if not require("network.vnet.show"): return 1
+            data = netw.get_vnet(vrest[0])
+            if not data:
+                print(utils.err(f"vnet '{vrest[0]}' not found")); return 1
+            print(json.dumps(data, indent=2)); return 0
+        if vsub == "delete":
+            if not vrest:
+                print(utils.err("name required")); return 1
+            if not require("network.vnet.delete", vrest[0]): return 1
+            ok_, msg = netw.delete_vnet(vrest[0])
+            print(utils.ok(msg) if ok_ else utils.err(msg))
+            if ok_: audit_ok("network.vnet.delete", vrest[0])
+            return 0 if ok_ else 1
+        print(utils.err(f"unknown vnet subcommand: {vsub}")); return 1
+    if sub == "subnet":
+        if not rest:
+            print(utils.err("subnet subcommand required")); return 1
+        ssub, srest = rest[0], rest[1:]
+        if ssub == "create":
+            if len(srest) < 2:
+                print(utils.err("usage: network subnet create <vnet> <name> --cidr <c>")); return 1
+            if not require("network.subnet.create"): return 1
+            flags = parse_flags(srest[2:])
+            cidr = flags.get("cidr")
+            if not cidr:
+                print(utils.err("--cidr required")); return 1
+            ok_, msg = netw.create_subnet(srest[0], srest[1], cidr)
+            print(utils.ok(msg) if ok_ else utils.err(msg))
+            if ok_: audit_ok("network.subnet.create", f"{srest[0]}/{srest[1]}")
+            return 0 if ok_ else 1
+        if ssub == "list":
+            if not srest:
+                print(utils.err("vnet name required")); return 1
+            if not require("network.subnet.list"): return 1
+            subs = netw.list_subnets(srest[0])
+            if subs is None:
+                print(utils.err(f"vnet '{srest[0]}' not found")); return 1
+            if not subs:
+                print(utils.warn("no subnets")); return 0
+            print(f"SUBNETS in {srest[0]}:")
+            for name, data in subs.items():
+                ips = len(data.get("ips_used", {}))
+                print(f"  - {name:<12} {data['cidr']:<18} {ips} VM(s)")
+            return 0
+        if ssub == "delete":
+            if len(srest) < 2:
+                print(utils.err("usage: network subnet delete <vnet> <name>")); return 1
+            if not require("network.subnet.delete"): return 1
+            ok_, msg = netw.delete_subnet(srest[0], srest[1])
+            print(utils.ok(msg) if ok_ else utils.err(msg))
+            if ok_: audit_ok("network.subnet.delete", f"{srest[0]}/{srest[1]}")
+            return 0 if ok_ else 1
+        print(utils.err(f"unknown subnet subcommand: {ssub}")); return 1
+    if sub == "topology":
+        if not require("network.topology"): return 1
+        topo = netw.show_topology()
+        if not topo:
+            print(utils.warn("no networks")); return 0
+        for v in topo:
+            print(f"🌐 {v['name']}  ({v['cidr']})  [{v['group']}]")
+            for s in v["subnets"]:
+                print(f"   📦 {s['name']}  {s['cidr']}")
+                for vm in s["vms"]:
+                    print(f"      💻 {vm['name']:<12} {vm['ip']}")
+        return 0
+    print(utils.err(f"unknown network subcommand: {sub}")); return 1
+
+
+# ---------- BREAK / FIX ----------
+
+def cmd_break(args):
+    if not args:
+        print(utils.err("usage: break <vm> --type <type>")); return 1
+    if not require("vm.break"): return 1
+    flags = parse_flags(args[1:])
+    btype = flags.get("type")
+    if not btype:
+        print(utils.err("--type required"))
+        print("       valid types: " + ", ".join(breakage.SCENARIOS.keys()))
+        return 1
+    ok_, msg = breakage.inject(args[0], btype)
+    print(utils.ok(msg) if ok_ else utils.err(msg))
+    if ok_: audit_ok("vm.break", f"{args[0]}/{btype}")
+    return 0 if ok_ else 1
+
+
+def cmd_fix(args):
+    if not args:
+        print(utils.err("usage: fix <vm>")); return 1
+    if not require("vm.fix"): return 1
+    ok_, messages = breakage.auto_fix(args[0])
+    for m in messages:
+        print(utils.ok(m))
+    audit_ok("vm.fix", args[0])
+    return 0 if ok_ else 1
+
+
+def cmd_diagnose(args):
+    if not args:
+        print(utils.err("usage: diagnose <vm>")); return 1
+    if not require("vm.diagnose"): return 1
+    d = breakage.diagnose(args[0])
+    if not d:
+        print(utils.err(f"VM '{args[0]}' not found")); return 1
+    print(f"🔍 Diagnosing VM '{d['vm']}'...")
+    print(f"   State:  {d['state']}")
+    print(f"   Uptime: {d['uptime_sec']}s")
+    print()
+    if d["healthy"]:
+        print(utils.ok("VM is HEALTHY — no issues detected"))
+    else:
+        print(utils.err(f"VM has {len(d['issues'])} issue(s):"))
+        for i in d["issues"]:
+            print(f"   ⚠  {i['type']:<20} {i['symptom']}")
+            print(f"      detected: {i['detected_at']}")
+    return 0
+
+
+def cmd_status(args):
+    if not require("vm.list"): return 1
+    vms = vmm.list_all()
+    if not vms:
+        print(utils.warn("no VMs")); return 0
+    print("📊 CLOUD STATUS")
+    print("=" * 60)
+    for v in vms:
+        st = vmm.status(v["name"]) or {}
+        d = breakage.diagnose(v["name"]) or {"healthy": True, "issues": []}
+        icon = "✅" if d["healthy"] and st.get("state") == "RUNNING" else "⚠️"
+        print(f"  {icon} {v['name']:<14} {st.get('state','?'):<10} "
+              f"issues: {len(d['issues'])}")
+    print("=" * 60)
+    return 0
+
+
+# ---------- MONITOR ----------
+
+def cmd_monitor(args):
+    if not args:
+        print(utils.err("usage: monitor start|stop|status|alerts|once")); return 1
+    sub, rest = args[0], args[1:]
+    if sub == "start":
+        if not require("monitor.start"): return 1
+        interval = 15; max_iter = None
+        flags = parse_flags(rest)
+        if isinstance(flags.get("interval"), str): interval = int(flags["interval"])
+        if isinstance(flags.get("max"), str): max_iter = int(flags["max"])
+        print(f"▶️  Starting monitor loop (interval {interval}s). Ctrl+C to stop.")
+        audit_ok("monitor.start", f"interval={interval}")
+        monitor.start_loop(interval_sec=interval, max_iterations=max_iter)
+        return 0
+    if sub == "once":
+        if not require("monitor.start"): return 1
+        snap = monitor.check_once()
+        print(f"✅ Ran one check: {len(snap['vms'])} VMs, {snap['issues']} issue(s)")
+        return 0
+    if sub == "stop":
+        if not require("monitor.stop"): return 1
+        monitor.stop_marker()
+        print(utils.ok("monitor marked stopped"))
+        audit_ok("monitor.stop")
+        return 0
+    if sub == "status":
+        if not require("monitor.status"): return 1
+        st = monitor.status()
+        running = "✅ RUNNING" if st["running"] else "⏹  STOPPED"
+        print(f"📊 Monitor: {running}")
+        if st["started"]: print(f"   Started:     {st['started']}")
+        if st["stopped"]: print(f"   Last stop:   {st['stopped']}")
+        print(f"   Interval:    {st.get('interval') or '-'}s")
+        print(f"   Checks run:  {st.get('checks', 0)}")
+        if st.get("last_check"): print(f"   Last check:  {st['last_check']}")
+        return 0
+    if sub == "alerts":
+        if not require("monitor.alerts"): return 1
+        flags = parse_flags(rest)
+        limit = int(flags.get("limit", 30)) if isinstance(flags.get("limit"), str) else 30
+        alerts = monitor.read_alerts(limit)
+        if not alerts:
+            print(utils.warn("(no alerts)")); return 0
+        print(f"Last {len(alerts)} alerts:")
+        print("-" * 70)
+        for a in alerts:
+            print(a)
+        return 0
+    print(utils.err(f"unknown monitor subcommand: {sub}")); return 1
+
+
+# ---------- DEPLOY ----------
+
+def cmd_apply(args):
+    if not args:
+        print(utils.err("usage: apply <plan.yaml>")); return 1
+    if not require("deploy.apply"): return 1
+    path = args[0]
+    print(f"🔄 Applying plan: {path}")
+    ok_, summary = deploy.apply_plan(path)
+    if not ok_ and "total" not in summary:
+        print(utils.err(summary if isinstance(summary, str) else "apply failed"))
+        return 1
+
+    for rtype, rname, action, ok_, msg in summary["details"]:
+        icon = "✅" if ok_ else "❌"
+        act = f"[{action}]"
+        print(f"  {icon} {act:<8} {rtype:<10} {rname:<16} {msg}")
+
+    print()
+    print(f"📊 Summary: {summary['created']} created, "
+          f"{summary['skipped']} skipped, {summary['failed']} failed")
+    audit_ok("deploy.apply", f"{path} c={summary['created']} s={summary['skipped']}")
+    return 0 if summary["failed"] == 0 else 1
+
+
+# ---------- MAIN ----------
+
+def main():
+    args = sys.argv[1:]
+    if not args or args[0] in ("-h", "--help", "help"):
+        print(USAGE); return 0
+    cmd = args[0]
+    if cmd == "login":    return cmd_login(args[1:])
+    if cmd == "logout":   return cmd_logout(args[1:])
+    if cmd == "whoami":   return cmd_whoami(args[1:])
+    if cmd == "user":     return cmd_user(args[1:])
+    if cmd == "audit":    return cmd_audit(args[1:])
+    if cmd == "group":    return cmd_group(args[1:])
+    if cmd == "vm":       return cmd_vm(args[1:])
+    if cmd == "storage":  return cmd_storage(args[1:])
+    if cmd == "network":  return cmd_network(args[1:])
+    if cmd == "break":    return cmd_break(args[1:])
+    if cmd == "fix":      return cmd_fix(args[1:])
+    if cmd == "diagnose": return cmd_diagnose(args[1:])
+    if cmd == "status":   return cmd_status(args[1:])
+    if cmd == "monitor":  return cmd_monitor(args[1:])
+    if cmd == "apply":    return cmd_apply(args[1:])
+    print(utils.err(f"unknown command: {cmd}"))
+    print(USAGE)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

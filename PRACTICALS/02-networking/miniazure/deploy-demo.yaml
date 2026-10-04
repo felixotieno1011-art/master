@@ -1,0 +1,28 @@
+resources:
+  - type: group
+    name: prod
+    region: eastus
+
+  - type: vnet
+    name: vnet-prod
+    group: prod
+    cidr: 10.10.0.0/16
+
+  - type: subnet
+    vnet: vnet-prod
+    name: web
+    cidr: 10.10.1.0/24
+
+  - type: subnet
+    vnet: vnet-prod
+    name: data
+    cidr: 10.10.2.0/24
+
+  - type: vm
+    name: prod-web1
+    group: prod
+    size: small
+
+  - type: storage
+    name: prodstore
+    group: prod

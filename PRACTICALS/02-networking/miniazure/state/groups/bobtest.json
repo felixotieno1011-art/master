@@ -1,0 +1,12 @@
+{
+  "id": "/subscriptions/local/resourceGroups/bobtest",
+  "name": "bobtest",
+  "type": "Microsoft.Resources/resourceGroups",
+  "location": "eastus",
+  "tags": {},
+  "properties": {
+    "provisioningState": "Succeeded"
+  },
+  "created": "2026-10-03T18:30:00",
+  "createdBy": "miniazure-cli"
+}

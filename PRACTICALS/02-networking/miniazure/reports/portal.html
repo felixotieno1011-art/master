@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MiniAzure Portal</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, sans-serif;
+         background: #0f172a; color: #e2e8f0; margin: 0;
+         padding: 20px; line-height: 1.5; }
+  .container { max-width: 1000px; margin: auto; }
+  h1 { color: #38bdf8; margin: 0 0 4px 0; font-size: 28px; }
+  h2 { color: #38bdf8; margin-top: 28px; padding-bottom: 8px;
+       border-bottom: 1px solid #334155; font-size: 18px; }
+  .meta { color: #94a3b8; font-size: 13px; margin-bottom: 20px; }
+  .card { background: #1e293b; border-radius: 12px;
+          padding: 18px; margin: 14px 0; }
+  .stats { display: grid; gap: 12px;
+           grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  .stat { background: #1e293b; border-radius: 10px;
+          padding: 16px; text-align: center; }
+  .stat-num { font-size: 28px; font-weight: bold; color: #38bdf8; }
+  .stat-lbl { font-size: 12px; color: #94a3b8;
+              text-transform: uppercase; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  th, td { text-align: left; padding: 9px 10px;
+           border-bottom: 1px solid #334155; font-size: 14px; }
+  th { color: #94a3b8; font-weight: 600; font-size: 12px;
+       text-transform: uppercase; }
+  tr:last-child td { border-bottom: none; }
+  .ok { color: #4ade80; font-weight: bold; }
+  .warn { color: #fbbf24; font-weight: bold; }
+  .bad { color: #f87171; font-weight: bold; }
+  .dim { color: #94a3b8; }
+  .small { font-size: 12px; }
+  .vnet { font-size: 16px; margin-top: 8px; }
+  .subnet { margin-left: 20px; }
+  .vmnode { margin-left: 40px; font-size: 14px; }
+  .footer { margin-top: 40px; color: #64748b; font-size: 12px;
+            text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>☁️ MiniAzure Portal</h1>
+  <p class="meta">Generated 2026-10-03 18:54:17</p>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num">3</div>
+      <div class="stat-lbl">Resource Groups</div></div>
+    <div class="stat"><div class="stat-num">2</div>
+      <div class="stat-lbl">VMs</div></div>
+    <div class="stat"><div class="stat-num">0</div>
+      <div class="stat-lbl">Running</div></div>
+    <div class="stat"><div class="stat-num">2</div>
+      <div class="stat-lbl">Storage Accounts</div></div>
+    <div class="stat"><div class="stat-num">2</div>
+      <div class="stat-lbl">VNets</div></div>
+    <div class="stat"><div class="stat-num bad">2</div>
+      <div class="stat-lbl">Active Issues</div></div>
+  </div>
+
+  <h2>💻 Virtual Machines</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Group</th><th>Size</th>
+            <th>State</th><th>PID</th><th>IP</th><th>Uptime</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>prod-web1</b> <span class="bad">⚠ 1 issue(s)</span></td>
+          <td>prod</td>
+          <td>small</td>
+          <td><span class="warn">STOPPED</span></td>
+          <td>6366</td>
+          <td>-</td>
+          <td>210s</td>
+        </tr>
+        <tr>
+          <td><b>web1</b> <span class="bad">⚠ 1 issue(s)</span></td>
+          <td>demo</td>
+          <td>small</td>
+          <td><span class="warn">STOPPED</span></td>
+          <td>4765</td>
+          <td>10.0.1.5</td>
+          <td>468s</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <h2>🌐 Network Topology</h2>
+  <div class="card"><div class="vnet">🌐 <b>vnet-prod</b> <span class="dim">(10.10.0.0/16)</span></div><div class="subnet">📦 web <span class="dim">10.10.1.0/24</span></div><div class="subnet">📦 data <span class="dim">10.10.2.0/24</span></div><div class="vnet">🌐 <b>vnet1</b> <span class="dim">(10.0.0.0/16)</span></div><div class="subnet">📦 web <span class="dim">10.0.1.0/24</span></div><div class="vmnode">💻 web1 <span class="ok">10.0.1.5</span></div><div class="subnet">📦 data <span class="dim">10.0.2.0/24</span></div></div>
+
+  <h2>📦 Storage Accounts</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Name</th><th>Group</th><th>Region</th>
+             <th>Containers</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>myacct</b></td>
+          <td>demo</td>
+          <td>eastus</td>
+          <td class="dim small">photos</td>
+        </tr>
+        <tr>
+          <td><b>prodstore</b></td>
+          <td>prod</td>
+          <td>eastus</td>
+          <td class="dim small">(none)</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <h2>📁 Resource Groups</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Name</th><th>Region</th><th>Created</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>bobtest</b></td>
+          <td>eastus</td>
+          <td class="dim small">2026-10-03T18:30:00</td>
+        </tr>
+        <tr>
+          <td><b>demo</b></td>
+          <td>eastus</td>
+          <td class="dim small">2026-10-03T17:11:48</td>
+        </tr>
+        <tr>
+          <td><b>prod</b></td>
+          <td>eastus</td>
+          <td class="dim small">2026-10-03T18:47:42</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <h2>👤 Users</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Name</th><th>Role</th><th>Created</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>admin</b></td>
+          <td>admin</td>
+          <td class="dim small">2026-10-03T18:27:29</td>
+        </tr>
+        <tr>
+          <td><b>alice</b></td>
+          <td>reader</td>
+          <td class="dim small">2026-10-03T18:29:36</td>
+        </tr>
+        <tr>
+          <td><b>bob</b></td>
+          <td>contributor</td>
+          <td class="dim small">2026-10-03T18:29:37</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <h2>🚨 Recent Alerts</h2>
+  <div class="card"><div class="bad small">2026-10-03T18:43:23 [ALERT  ] VM &#x27;web1&#x27; has issue &#x27;service-down&#x27;</div><div class="dim small">2026-10-03T18:43:27 [INFO   ] monitor started (interval 3s)</div><div class="dim small">2026-10-03T18:43:33 [INFO   ] monitor stopped</div></div>
+
+  <h2>📋 Recent Audit Entries</h2>
+  <div class="card"><div class="bad small">2026-10-03T18:31:09 [DENIED] alice      group.create              test</div><div class="dim small">2026-10-03T18:38:22 [OK] admin      vm.break                  web1/disk-full</div><div class="dim small">2026-10-03T18:38:24 [OK] admin      vm.fix                    web1</div><div class="dim small">2026-10-03T18:43:23 [OK] admin      vm.break                  web1/service-down</div><div class="dim small">2026-10-03T18:43:25 [OK] admin      vm.fix                    web1</div><div class="dim small">2026-10-03T18:43:27 [OK] admin      monitor.start             interval=3</div><div class="dim small">2026-10-03T18:47:42 [OK] admin      deploy.apply              deploy-demo.yaml c=6 s=0</div><div class="dim small">2026-10-03T18:48:06 [OK] admin      deploy.apply              deploy-demo.yaml c=0 s=6</div><div class="dim small">2026-10-03T18:48:29 [OK] admin      deploy.apply              deploy-demo.yaml c=0 s=6</div><div class="dim small">2026-10-03T18:48:29 [OK] admin      deploy.apply              deploy-demo.yaml c=0 s=6</div></div>
+
+  <p class="footer">MiniAzure v1.0 — portal.py</p>
+</div>
+</body>
+</html>

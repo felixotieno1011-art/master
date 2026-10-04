@@ -1,0 +1,34 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "TestVPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.99.0.0/16"
+      }
+    },
+    "TestSubnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {"Ref": "TestVPC"},
+        "CidrBlock": "10.99.1.0/24"
+      }
+    },
+    "TestIGW": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {}
+    },
+    "TestBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "cfn-test-unique-20261003"
+      }
+    },
+    "TestUser": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "UserName": "cfn-test-user"
+      }
+    }
+  }
+}

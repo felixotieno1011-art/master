@@ -1,0 +1,8 @@
+{
+  "running": false,
+  "started": "2026-10-03T18:43:27",
+  "checks": 3,
+  "interval": 3,
+  "last_check": "2026-10-03T18:43:33",
+  "stopped": "2026-10-03T18:43:33"
+}

@@ -13,3 +13,22 @@
   * Rent a VPS (DigitalOcean $5/month)
   * Set up WireGuard server + client
   * Connect from phone
+## Cloud Computing Deep Dive
+- Status: PARKED — needs dedicated time
+- Why: Bigger than I imagined. Deserves its own focused journey.
+- What I already know:
+  * Cloud = rented computers in data centers
+  * Big 3: AWS, Azure, GCP
+  * Regions + Availability Zones (redundancy)
+  * VPCs, subnets, public/private split
+  * Firebase runs on GCP
+- What I want to learn deeply:
+  * Real AWS console (EC2, S3, IAM, RDS, Lambda)
+  * Real Azure (VMs, Resource Groups, Storage)
+  * Real GCP (Compute, Cloud Storage, BigQuery)
+  * Multi-cloud networking
+  * Cost optimization
+  * Kubernetes, Terraform, CI/CD
+- Plan: Dedicated 2-3 week focused learning block
+- Resume at: Topic 7.10 (Cloud Platforms) — will do real hands-on then
+- Optional: Build mini-AWS/Azure/GCP simulators first

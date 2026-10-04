@@ -1,0 +1,121 @@
+"""CloudWatch — AWS's metrics, alarms, and logs.
+
+Storage:
+  state/cloudwatch/metrics/<namespace>/<metric>.json
+  state/cloudwatch/alarms/<name>.json
+  state/cloudwatch/logs/<log-group-with-slashes-encoded>.log
+"""
+import json
+import os
+import statistics
+from datetime import datetime, timedelta
+
+import config
+from utils import now_iso, read_json, write_json, delete_file, ensure_dir
+from core import account
+
+
+CW_DIR       = os.path.join(config.STATE_DIR, "cloudwatch")
+METRICS_DIR  = os.path.join(CW_DIR, "metrics")
+ALARMS_DIR   = os.path.join(CW_DIR, "alarms")
+LOGS_DIR     = os.path.join(CW_DIR, "logs")
+
+
+def _metric_path(namespace, metric_name):
+    ns_safe = namespace.replace("/", "_")
+    return os.path.join(METRICS_DIR, ns_safe, f"{metric_name}.json")
+
+
+def _alarm_path(name):
+    return os.path.join(ALARMS_DIR, f"{name}.json")
+
+
+def _log_path(log_group):
+    """Encode slashes in the log group name so it's a single filename."""
+    safe = log_group.replace("/", "__")
+    return os.path.join(LOGS_DIR, f"{safe}.log")
+
+
+def _decode_log_group(filename):
+    """Reverse the encoding for listing."""
+    base = filename[:-4] if filename.endswith(".log") else filename
+    return base.replace("__", "/")
+
+
+# ---------- Metrics ----------
+
+def put_metric_data(namespace, metric_name, value, unit="None", dimensions=None):
+    if not isinstance(value, (int, float)):
+        return False, "value must be a number"
+
+    dims = dimensions or {}
+    path = _metric_path(namespace, metric_name)
+    existing = read_json(path) or {
+        "namespace": namespace,
+        "metricName": metric_name,
+        "unit": unit,
+        "datapoints": [],
+    }
+    existing["unit"] = unit
+
+    existing["datapoints"].append({
+        "timestamp": now_iso(),
+        "value": float(value),
+        "dimensions": dims,
+    })
+    existing["datapoints"] = existing["datapoints"][-500:]
+
+    write_json(path, existing)
+    return True, f"put metric {namespace}/{metric_name} = {value}"
+
+
+def list_metrics(namespace=None):
+    ensure_dir(METRICS_DIR)
+    out = []
+    for ns_dir in sorted(os.listdir(METRICS_DIR)):
+        full_ns = os.path.join(METRICS_DIR, ns_dir)
+        if not os.path.isdir(full_ns):
+            continue
+        real_ns = ns_dir.replace("_", "/")
+        if namespace and real_ns != namespace:
+            continue
+        for f in sorted(os.listdir(full_ns)):
+            if f.endswith(".json"):
+                d = read_json(os.path.join(full_ns, f))
+                if d:
+                    out.append({
+                        "namespace": d["namespace"],
+                        "metricName": d["metricName"],
+                        "datapoints": len(d["datapoints"]),
+                        "unit": d.get("unit", "None"),
+                    })
+    return out
+
+
+def _get_datapoints(namespace, metric_name):
+    d = read_json(_metric_path(namespace, metric_name))
+    return d["datapoints"] if d else []
+
+
+def get_metric_statistics(namespace, metric_name, period_sec=300, stat="Average"):
+    dps = _get_datapoints(namespace, metric_name)
+    if not dps:
+        return None
+    values = [d["value"] for d in dps]
+
+    if stat == "Sum":         agg = sum(values)
+    elif stat == "Average":   agg = statistics.mean(values)
+    elif stat == "Min":       agg = min(values)
+    elif stat == "Max":       agg = max(values)
+    elif stat == "SampleCount": agg = len(values)
+    else:
+        return None
+
+    return {
+        "namespace": namespace,
+        "metricName": metric_name,
+        "statistic": stat,
+        "sampleCount": len(values),
+        "value": round(agg, 3),
+        "datapoints": dps,
+    }

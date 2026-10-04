@@ -1,0 +1,15 @@
+{
+  "routeTableId": "rtb-751550eae6764beca",
+  "vpcId": "vpc-20bfb6c1a6e54dd78",
+  "region": "af-south-1",
+  "isMain": true,
+  "routes": [
+    {
+      "destinationCidrBlock": "local",
+      "gatewayId": "local",
+      "state": "active"
+    }
+  ],
+  "associations": [],
+  "created": "2026-10-03T20:51:52"
+}

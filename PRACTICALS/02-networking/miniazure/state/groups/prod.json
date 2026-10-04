@@ -1,0 +1,12 @@
+{
+  "id": "/subscriptions/local/resourceGroups/prod",
+  "name": "prod",
+  "type": "Microsoft.Resources/resourceGroups",
+  "location": "eastus",
+  "tags": {},
+  "properties": {
+    "provisioningState": "Succeeded"
+  },
+  "created": "2026-10-03T18:47:42",
+  "createdBy": "miniazure-cli"
+}

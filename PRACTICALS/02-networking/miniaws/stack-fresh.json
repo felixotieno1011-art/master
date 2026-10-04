@@ -1,0 +1,18 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "FreshVPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.77.0.0/16"
+      }
+    },
+    "FreshSubnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {"Ref": "FreshVPC"},
+        "CidrBlock": "10.77.1.0/24"
+      }
+    }
+  }
+}

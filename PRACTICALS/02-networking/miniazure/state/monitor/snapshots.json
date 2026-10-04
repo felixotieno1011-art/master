@@ -1,0 +1,82 @@
+[
+  {
+    "time": "2026-10-03T18:43:22",
+    "vms": [
+      {
+        "name": "web1",
+        "state": "RUNNING",
+        "pid": 28777,
+        "uptime_sec": 1279,
+        "issues": []
+      }
+    ],
+    "issues": 0
+  },
+  {
+    "time": "2026-10-03T18:43:23",
+    "vms": [
+      {
+        "name": "web1",
+        "state": "RUNNING",
+        "pid": 28777,
+        "uptime_sec": 1281,
+        "issues": [
+          "service-down"
+        ]
+      }
+    ],
+    "issues": 1
+  },
+  {
+    "time": "2026-10-03T18:43:26",
+    "vms": [
+      {
+        "name": "web1",
+        "state": "RUNNING",
+        "pid": 4765,
+        "uptime_sec": 0,
+        "issues": []
+      }
+    ],
+    "issues": 0
+  },
+  {
+    "time": "2026-10-03T18:43:27",
+    "vms": [
+      {
+        "name": "web1",
+        "state": "RUNNING",
+        "pid": 4765,
+        "uptime_sec": 1,
+        "issues": []
+      }
+    ],
+    "issues": 0
+  },
+  {
+    "time": "2026-10-03T18:43:30",
+    "vms": [
+      {
+        "name": "web1",
+        "state": "RUNNING",
+        "pid": 4765,
+        "uptime_sec": 4,
+        "issues": []
+      }
+    ],
+    "issues": 0
+  },
+  {
+    "time": "2026-10-03T18:43:33",
+    "vms": [
+      {
+        "name": "web1",
+        "state": "RUNNING",
+        "pid": 4765,
+        "uptime_sec": 7,
+        "issues": []
+      }
+    ],
+    "issues": 0
+  }
+]

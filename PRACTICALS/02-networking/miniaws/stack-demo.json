@@ -1,0 +1,34 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "MyVPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.50.0.0/16"
+      }
+    },
+    "MySubnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {"Ref": "MyVPC"},
+        "CidrBlock": "10.50.1.0/24"
+      }
+    },
+    "MyIGW": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {}
+    },
+    "MyBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "cfn-demo-bucket-xyz-unique"
+      }
+    },
+    "MyUser": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "UserName": "cfn-demo-user"
+      }
+    }
+  }
+}

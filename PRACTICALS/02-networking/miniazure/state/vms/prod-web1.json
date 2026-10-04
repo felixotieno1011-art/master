@@ -1,0 +1,17 @@
+{
+  "id": "/subscriptions/local/resourceGroups/prod/providers/Microsoft.Compute/virtualMachines/prod-web1",
+  "name": "prod-web1",
+  "type": "Microsoft.Compute/virtualMachines",
+  "location": "eastus",
+  "resourceGroup": "prod",
+  "size": "small",
+  "hardware": {
+    "vcpus": 1,
+    "memoryMB": 2048,
+    "diskGB": 30
+  },
+  "properties": {
+    "provisioningState": "Succeeded"
+  },
+  "created": "2026-10-03T18:47:42"
+}

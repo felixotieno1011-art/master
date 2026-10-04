@@ -1,0 +1,17 @@
+{
+  "id": "/subscriptions/local/resourceGroups/prod/providers/Microsoft.Storage/storageAccounts/prodstore",
+  "name": "prodstore",
+  "type": "Microsoft.Storage/storageAccounts",
+  "location": "eastus",
+  "resourceGroup": "prod",
+  "sku": "Standard_LRS",
+  "kind": "StorageV2",
+  "properties": {
+    "provisioningState": "Succeeded",
+    "accessTier": "Hot"
+  },
+  "primaryEndpoints": {
+    "blob": "http://localhost:8080/prodstore"
+  },
+  "created": "2026-10-03T18:47:42"
+}

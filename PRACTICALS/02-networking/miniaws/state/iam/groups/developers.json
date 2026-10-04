@@ -1,0 +1,12 @@
+{
+  "groupName": "developers",
+  "arn": "arn:aws:iam::437401175396:group/developers",
+  "created": "2026-10-03T20:15:49",
+  "attachedPolicies": [
+    "S3ReadOnly"
+  ],
+  "members": [
+    "alice",
+    "bob"
+  ]
+}

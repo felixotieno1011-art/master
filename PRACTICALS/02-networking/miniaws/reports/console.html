@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MiniAWS Console</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, sans-serif;
+         background: #0f172a; color: #e2e8f0; margin: 0;
+         padding: 20px; line-height: 1.5; }
+  .container { max-width: 1000px; margin: auto; }
+  h1 { color: #ff9900; margin: 0 0 4px 0; font-size: 28px; }
+  h2 { color: #38bdf8; margin-top: 28px; padding-bottom: 8px;
+       border-bottom: 1px solid #334155; font-size: 18px; }
+  .meta { color: #94a3b8; font-size: 13px; margin-bottom: 20px; }
+  .card { background: #1e293b; border-radius: 12px;
+          padding: 18px; margin: 14px 0; }
+  .stats { display: grid; gap: 12px;
+           grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  .stat { background: #1e293b; border-radius: 10px;
+          padding: 16px; text-align: center; }
+  .stat-num { font-size: 28px; font-weight: bold; color: #ff9900; }
+  .stat-lbl { font-size: 12px; color: #94a3b8;
+              text-transform: uppercase; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  th, td { text-align: left; padding: 9px 10px;
+           border-bottom: 1px solid #334155; font-size: 14px; }
+  th { color: #94a3b8; font-weight: 600; font-size: 12px;
+       text-transform: uppercase; }
+  tr:last-child td { border-bottom: none; }
+  .ok { color: #4ade80; font-weight: bold; }
+  .warn { color: #fbbf24; font-weight: bold; }
+  .bad { color: #f87171; font-weight: bold; }
+  .dim { color: #94a3b8; }
+  .small { font-size: 12px; }
+  .footer { margin-top: 40px; color: #64748b; font-size: 12px;
+            text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🅰️ MiniAWS Console</h1>
+  <p class="meta">
+    Account 437401175396 ·
+    Region af-south-1 ·
+    Generated 2026-10-03 20:40:57
+  </p>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num">2</div>
+      <div class="stat-lbl">EC2 Instances</div></div>
+    <div class="stat"><div class="stat-num">1</div>
+      <div class="stat-lbl">Running</div></div>
+    <div class="stat"><div class="stat-num">1</div>
+      <div class="stat-lbl">S3 Buckets</div></div>
+    <div class="stat"><div class="stat-num">1</div>
+      <div class="stat-lbl">VPCs</div></div>
+    <div class="stat"><div class="stat-num">2</div>
+      <div class="stat-lbl">IAM Users</div></div>
+    <div class="stat"><div class="stat-num ">0</div>
+      <div class="stat-lbl">Alarms Firing</div></div>
+  </div>
+
+  <h2>💻 EC2 Instances</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Instance ID</th><th>Name</th><th>Type</th>
+             <th>State</th><th>Region</th><th>Uptime</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>i-088a4c87a6f241a3b</b></td>
+          <td>monitor-test</td>
+          <td>t3.micro</td>
+          <td><span class="ok">running</span></td>
+          <td>af-south-1</td>
+          <td>976s</td>
+        </tr>
+        <tr>
+          <td><b>i-ffb6de3a48054ff7a</b></td>
+          <td>web-server</td>
+          <td>t3.micro</td>
+          <td><span class="bad">terminated</span></td>
+          <td>af-south-1</td>
+          <td>0s</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <h2>🪣 S3 Buckets</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Bucket</th><th>Region</th><th>Objects</th><th>Created</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>my-first-bucket</b></td>
+          <td>af-south-1</td>
+          <td>3</td>
+          <td class="dim small">2026-10-03T19:34:26</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <h2>🌐 VPCs</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>VPC ID</th><th>CIDR</th><th>Region</th><th>Subnets</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>vpc-d08f19b96ad041168</b></td>
+          <td>10.0.0.0/16</td>
+          <td>af-south-1</td>
+          <td class="dim small">subnet-0c22b... (10.0.1.0/24), subnet-ee4c0... (10.0.2.0/24)</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <h2>👤 IAM Users</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>User</th><th>ARN</th><th>Policies</th><th>Groups</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>alice</b></td>
+          <td class="dim small">arn:aws:iam::437401175396:user/alice</td>
+          <td>1</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td><b>bob</b></td>
+          <td class="dim small">arn:aws:iam::437401175396:user/bob</td>
+          <td>0</td>
+          <td>1</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <h2>🚨 CloudWatch Alarms</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Alarm</th><th>Metric</th><th>State</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>HighLoginAlert</b></td>
+          <td>LoginCount</td>
+          <td><span class="ok">OK</span></td>
+          <td class="dim small">Average=43.667 GreaterThanThreshold 50.0</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <h2>📊 CloudWatch Metrics</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Namespace</th><th>Metric</th><th>Datapoints</th><th>Unit</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>AWS/EC2</td>
+          <td><b>CPUUtilization</b></td>
+          <td>6</td>
+          <td>Percent</td>
+        </tr>
+        <tr>
+          <td>AWS/EC2</td>
+          <td><b>MemoryUsedMB</b></td>
+          <td>6</td>
+          <td>Megabytes</td>
+        </tr>
+        <tr>
+          <td>AWS/EC2</td>
+          <td><b>MemoryUtilization</b></td>
+          <td>6</td>
+          <td>Percent</td>
+        </tr>
+        <tr>
+          <td>MyApp</td>
+          <td><b>LoginCount</b></td>
+          <td>9</td>
+          <td>Count</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <h2>📝 CloudWatch Log Groups</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Log Group</th><th>Events</th><th>Bytes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>miniaws/agent</b></td>
+          <td>4</td>
+          <td>216</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+  <p class="footer">MiniAWS v1.0 — console.py</p>
+</div>
+</body>
+</html>

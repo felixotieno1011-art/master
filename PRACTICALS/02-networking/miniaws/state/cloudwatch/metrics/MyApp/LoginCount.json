@@ -1,0 +1,52 @@
+{
+  "namespace": "MyApp",
+  "metricName": "LoginCount",
+  "unit": "Count",
+  "datapoints": [
+    {
+      "timestamp": "2026-10-03T20:24:48",
+      "value": 42.0,
+      "dimensions": {}
+    },
+    {
+      "timestamp": "2026-10-03T20:24:49",
+      "value": 38.0,
+      "dimensions": {}
+    },
+    {
+      "timestamp": "2026-10-03T20:24:49",
+      "value": 51.0,
+      "dimensions": {}
+    },
+    {
+      "timestamp": "2026-10-03T20:28:04",
+      "value": 42.0,
+      "dimensions": {}
+    },
+    {
+      "timestamp": "2026-10-03T20:28:04",
+      "value": 38.0,
+      "dimensions": {}
+    },
+    {
+      "timestamp": "2026-10-03T20:28:05",
+      "value": 51.0,
+      "dimensions": {}
+    },
+    {
+      "timestamp": "2026-10-03T20:29:11",
+      "value": 42.0,
+      "dimensions": {}
+    },
+    {
+      "timestamp": "2026-10-03T20:29:12",
+      "value": 38.0,
+      "dimensions": {}
+    },
+    {
+      "timestamp": "2026-10-03T20:29:12",
+      "value": 51.0,
+      "dimensions": {}
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-## 2.1 The OSI Model
+/## 2.1 The OSI Model
 
 ### What it is
 A 7-layer model showing how data moves through a network.
@@ -331,3 +331,51 @@ DROP is more secure than REJECT because the attacker learns nothing.
 - HTTP: 200 OK ✅
 - Edge server: southafricanorth
 - Same redirect pattern as google (301)
+g## 2.11 Network Protocols
+
+### The essential protocols
+- HTTP/HTTPS  : ports 80/443  - websites
+- FTP         : ports 20/21   - file transfer (unencrypted, old)
+- SFTP        : over SSH      - file transfer (encrypted, modern)
+- SSH         : port 22       - remote control of servers (encrypted)
+- SMTP        : ports 25/587/465 - send email
+- IMAP        : port 143      - receive email (modern)
+- POP3        : port 110      - receive email (old)
+- Telnet      : port 23       - old remote shell (unencrypted, dead)
+- SNMP        : port 161      - network monitoring
+
+### Port cheat sheet (memorize these)
+22  = SSH
+23  = Telnet
+25  = SMTP
+53  = DNS
+80  = HTTP
+110 = POP3
+143 = IMAP
+443 = HTTPS
+587 = SMTP submission
+
+### Why SSH matters
+- It's THE dev tool for controlling servers
+- Used every single day
+- Encrypted, secure
+- Can also: transfer files (SCP/SFTP), tunnel traffic
+
+### Real tests I ran
+- github.com:22   SSH     ✅ Open (but auth denied without key)
+- github.com:80   HTTP    ✅ Open
+- github.com:443  HTTPS   ✅ Open
+- smtp.gmail.com:25 SMTP  ✅ Open
+- ftp.gnu.org:21  FTP     ✅ Open
+
+### SSH test result
+- Connected to GitHub's SSH on port 22 ✅
+- Server reset connection because no SSH key configured
+- This is expected behavior
+- GitHub edge region: southafricanorth (same server as HTTP)
+### My own words for 2.11
+- SSH  = remote Linux terminal access from far away (port 22)
+- FTP  = old file transfer (unencrypted)
+- SFTP = modern file transfer over SSH (encrypted)
+- SMTP = sends emails
+- The most important dev protocol: SSH

@@ -1,0 +1,9 @@
+{
+  "account_id": "437401175396",
+  "initialized": "2026-10-03T19:21:17",
+  "region": "af-south-1",
+  "tags": {
+    "env": "production",
+    "owner": "kelvin"
+  }
+}

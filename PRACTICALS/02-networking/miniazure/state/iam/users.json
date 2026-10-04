@@ -1,0 +1,20 @@
+{
+  "users": {
+    "admin": {
+      "name": "admin",
+      "role": "admin",
+      "created": "2026-10-03T18:27:29",
+      "note": "auto-created default user"
+    },
+    "alice": {
+      "name": "alice",
+      "role": "reader",
+      "created": "2026-10-03T18:29:36"
+    },
+    "bob": {
+      "name": "bob",
+      "role": "contributor",
+      "created": "2026-10-03T18:29:37"
+    }
+  }
+}

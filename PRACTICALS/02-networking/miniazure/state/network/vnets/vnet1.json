@@ -1,0 +1,25 @@
+{
+  "id": "/subscriptions/local/resourceGroups/demo/providers/Microsoft.Network/virtualNetworks/vnet1",
+  "name": "vnet1",
+  "type": "Microsoft.Network/virtualNetworks",
+  "resourceGroup": "demo",
+  "location": "eastus",
+  "cidr": "10.0.0.0/16",
+  "subnets": {
+    "web": {
+      "name": "web",
+      "cidr": "10.0.1.0/24",
+      "ips_used": {
+        "web1": "10.0.1.5"
+      },
+      "created": "2026-10-03T18:22:00"
+    },
+    "data": {
+      "name": "data",
+      "cidr": "10.0.2.0/24",
+      "ips_used": {},
+      "created": "2026-10-03T18:22:00"
+    }
+  },
+  "created": "2026-10-03T18:21:59"
+}

@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+"""MiniAzure CLI — a tiny local version of the `az` command."""
+import sys
+
+import utils
+from core import resource_group as rg
+
+
+USAGE = """
+miniazure — a tiny local version of Azure's CLI
+
+USAGE:
+  miniazure <command> <subcommand> [options]
+
+COMMANDS:
+  group create <name> [--region <region>] [--tags k=v,k=v]
+  group list
+  group show <name>
+  group delete <name>
+
+EXAMPLES:
+  miniazure group create mygroup --region eastus
+  miniazure group list
+  miniazure group show mygroup
+  miniazure group delete mygroup
+"""
+
+
+def parse_flags(args):
+    """Very small flag parser: --key value  --key=value"""
+    flags = {}
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a.startswith("--"):
+            if "=" in a:
+                k, v = a[2:].split("=", 1)
+                flags[k] = v
+            else:
+                k = a[2:]
+                if i + 1 < len(args) and not args[i + 1].startswith("--"):
+                    flags[k] = args[i + 1]
+                    i += 1
+                else:
+                    flags[k] = True
+        i += 1
+    return flags
+
+
+def cmd_group(args):
+    if not args:
+        print(USAGE)
+        return 1
+
+    sub = args[0]
+    rest = args[1:]
+
+    if sub == "create":
+        if not rest:
+            print(utils.err("name required: miniazure group create <name>"))
+            return 1
+        name = rest[0]
+        flags = parse_flags(rest[1:])
+        region = flags.get("region") or None
+
+        tags = {}
+        if "tags" in flags and isinstance(flags["tags"], str):
+            for pair in flags["tags"].split(","):
+                if "=" in pair:
+                    k, v = pair.split("=", 1)
+                    tags[k.strip()] = v.strip()
+
+        ok_, msg = rg.create(name, region=region, tags=tags)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
+    if sub == "list":
+        groups = rg.list_all()
+        if not groups:
+            print(utils.warn("no resource groups. Try: miniazure group create demo"))
+            return 0
+        print(f"{'NAME':<20} {'REGION':<15} {'CREATED':<20}")
+        print("-" * 58)
+        for g in groups:
+            print(f"{g['name']:<20} {g['location']:<15} {g['created']:<20}")
+        return 0
+
+    if sub == "show":
+        if not rest:
+            print(utils.err("name required: miniazure group show <name>"))
+            return 1
+        data = rg.get(rest[0])
+        if not data:
+            print(utils.err(f"resource group '{rest[0]}' not found"))
+            return 1
+        import json
+        print(json.dumps(data, indent=2))
+        return 0
+
+    if sub == "delete":
+        if not rest:
+            print(utils.err("name required: miniazure group delete <name>"))
+            return 1
+        ok_, msg = rg.delete(rest[0])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
+    print(utils.err(f"unknown group subcommand: {sub}"))
+    print(USAGE)
+    return 1
+
+
+def main():
+    args = sys.argv[1:]
+    if not args or args[0] in ("-h", "--help", "help"):
+        print(USAGE)
+        return 0
+
+    cmd = args[0]
+    if cmd == "group":
+        return cmd_group(args[1:])
+
+    print(utils.err(f"unknown command: {cmd}"))
+    print(USAGE)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,15 @@
+{
+  "subnetId": "subnet-0c22bac25afc4b858",
+  "arn": "arn:aws:ec2:af-south-1:437401175396:subnet/subnet-0c22bac25afc4b858",
+  "vpcId": "vpc-d08f19b96ad041168",
+  "cidrBlock": "10.0.1.0/24",
+  "region": "af-south-1",
+  "availabilityZone": "af-south-1a",
+  "availableIpCount": 251,
+  "state": "available",
+  "mapPublicIpOnLaunch": false,
+  "tags": {
+    "Name": "public-1"
+  },
+  "created": "2026-10-03T19:41:40"
+}

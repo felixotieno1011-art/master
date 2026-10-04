@@ -1,0 +1,10 @@
+{
+  "userName": "proving-user",
+  "arn": "arn:aws:iam::437401175396:user/proving-user",
+  "userId": "AIDA437401175396",
+  "path": "/",
+  "created": "2026-10-03T20:57:40",
+  "tags": {},
+  "attachedPolicies": [],
+  "groups": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "/subscriptions/local/resourceGroups/demo/providers/Microsoft.Storage/storageAccounts/myacct",
+  "name": "myacct",
+  "type": "Microsoft.Storage/storageAccounts",
+  "location": "eastus",
+  "resourceGroup": "demo",
+  "sku": "Standard_LRS",
+  "kind": "StorageV2",
+  "properties": {
+    "provisioningState": "Succeeded",
+    "accessTier": "Hot"
+  },
+  "primaryEndpoints": {
+    "blob": "http://localhost:8080/myacct"
+  },
+  "created": "2026-10-03T18:09:26"
+}

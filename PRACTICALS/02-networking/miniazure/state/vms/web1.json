@@ -1,0 +1,23 @@
+{
+  "id": "/subscriptions/local/resourceGroups/demo/providers/Microsoft.Compute/virtualMachines/web1",
+  "name": "web1",
+  "type": "Microsoft.Compute/virtualMachines",
+  "location": "eastus",
+  "resourceGroup": "demo",
+  "size": "small",
+  "hardware": {
+    "vcpus": 1,
+    "memoryMB": 2048,
+    "diskGB": 30
+  },
+  "properties": {
+    "provisioningState": "Succeeded"
+  },
+  "created": "2026-10-03T18:22:01",
+  "network": {
+    "vnet": "vnet1",
+    "subnet": "web",
+    "ip": "10.0.1.5",
+    "cidr": "10.0.1.0/24"
+  }
+}

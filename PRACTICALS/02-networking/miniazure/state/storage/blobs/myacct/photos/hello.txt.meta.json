@@ -1,0 +1,9 @@
+{
+  "name": "hello.txt",
+  "account": "myacct",
+  "container": "photos",
+  "size": 13,
+  "url": "http://localhost:8080/myacct/photos/hello.txt",
+  "uploaded": "2026-10-03T18:09:27",
+  "contentType": "text/plain"
+}
