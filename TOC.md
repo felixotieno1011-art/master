@@ -26,7 +26,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 2.7 VPNs,proxies & Tunneling 📱🔁
 - [x] 2.8 Wireless Networking 📱
 - [x] 2.9 Network Troubleshooting Tools 📱
-- [ ] 2.10 Cloud Networking 📱💻
+- [x] 2.10 Cloud Networking 📱💻
 - [x] 2.11 Network Protocols (FTP, SSH, SMTP) 📱
 - [ ] 2.12 Load Balancing 📱🔁
 - [ ] 2.13 Network Security (IDS/IPS) 📱
