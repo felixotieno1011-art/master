@@ -379,3 +379,41 @@ g## 2.11 Network Protocols
 - SFTP = modern file transfer over SSH (encrypted)
 - SMTP = sends emails
 - The most important dev protocol: SSH
+## 2.12 Load Balancing
+
+### What it does
+Sits in front of servers, distributes incoming requests across them.
+
+### The 4 algorithms
+1. Round Robin       - Server 1 → 2 → 3 → 1 → 2 → 3
+2. Least Connections - Server with fewest active connections
+3. IP Hash           - Same user → same server (sticky sessions)
+4. Weighted          - Bigger servers get more traffic
+
+### Why it matters
+- No single server gets overwhelmed
+- If a server dies, others keep working (failover)
+- Can scale to millions of users
+
+### Health checks
+- LB periodically tests each server ("you alive?")
+- If server fails → marked DOWN → traffic rerouted
+- When recovered → added back automatically
+
+### Layer 4 vs Layer 7
+- Layer 4: Transport (TCP/UDP), fast, blind
+- Layer 7: Application (HTTP), slower, smart (can route by URL)
+
+### Real tools
+- Nginx, HAProxy, AWS ELB/ALB/NLB, Azure LB, GCP LB
+
+### I built
+- load_balancer.py — simulation with all 4 algorithms + failover
+- mini_lb.py       — real HTTP load balancer with round-robin
+- Saw backend-A → B → C → A → B → C cycling perfectly
+### My own words for 2.12
+- Load balancer = decides which server gets each request
+- Algorithms: Round Robin, Least Connections, IP Hash, Weighted
+- Layer 4 = TCP/UDP (blind), Layer 7 = HTTP (smart)
+- Health check = "are you alive?" test
+- Why: scale to millions + survive server failures

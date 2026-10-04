@@ -1,0 +1,257 @@
+#!/data/data/com.termux/files/usr/bin/bash
+# aws — MiniAWS wrapper with real AWS syntax.
+
+cd /data/data/com.termux/files/home/master/PRACTICALS/02-networking/miniaws
+
+SERVICE="$1"
+
+# --- Version ---
+if [ "$SERVICE" = "--version" ] || [ "$SERVICE" = "-v" ]; then
+  echo "aws-cli/2.13.0 (miniaws/1.0) Python/3.11.4 Linux"
+  exit 0
+fi
+
+# --- Main help ---
+if [ -z "$SERVICE" ] || [ "$SERVICE" = "help" ] || [ "$SERVICE" = "--help" ] || [ "$SERVICE" = "-h" ]; then
+  cat << 'HELPTEXT'
+AWS()                                                              AWS()
+
+NAME
+       aws - MiniAWS command line interface
+
+DESCRIPTION
+       A local teaching implementation of the AWS CLI.
+       Use this to practice real AWS commands safely.
+
+AVAILABLE SERVICES
+       ec2              Amazon Elastic Compute Cloud
+       s3               Amazon Simple Storage Service
+       iam              AWS Identity and Access Management
+       cloudwatch       Amazon CloudWatch
+       cloudformation   AWS CloudFormation
+       sts              AWS Security Token Service
+       configure        Set up your AWS credentials
+       billing          Show simulated cost summary
+
+USAGE
+       aws <service> <command> [options]
+
+       For help on a specific service:
+         aws ec2 help
+         aws s3 help
+         aws iam help
+
+       For version:
+         aws --version
+HELPTEXT
+  exit 0
+fi
+
+ACTION="$2"
+shift 2 2>/dev/null
+
+# Extract --region and --output overrides from remaining args
+REGION_OVERRIDE=""
+OUTPUT_OVERRIDE=""
+NEW_ARGS=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --region)
+      REGION_OVERRIDE="$2"
+      shift 2
+      ;;
+    --region=*)
+      REGION_OVERRIDE="${1#--region=}"
+      shift
+      ;;
+    --output)
+      OUTPUT_OVERRIDE="$2"
+      shift 2
+      ;;
+    --output=*)
+      OUTPUT_OVERRIDE="${1#--output=}"
+      shift
+      ;;
+    *)
+      NEW_ARGS+=("$1")
+      shift
+      ;;
+  esac
+done
+
+# Set overrides as environment variables for Python code
+if [ -n "$REGION_OVERRIDE" ]; then
+  export MINIAWS_REGION_OVERRIDE="$REGION_OVERRIDE"
+fi
+if [ -n "$OUTPUT_OVERRIDE" ]; then
+  export MINIAWS_OUTPUT_OVERRIDE="$OUTPUT_OVERRIDE"
+fi
+
+# Restore positional args (only ones we did not consume)
+if [ ${#NEW_ARGS[@]} -gt 0 ]; then
+  set -- "${NEW_ARGS[@]}"
+else
+  set --
+fi
+# JSON output mode? Route to json_output.py for supported commands
+if [ "$MINIAWS_OUTPUT_OVERRIDE" = "json" ]; then
+  # Map service + action to a JSON handler key
+  JSON_KEY=""
+  case "$SERVICE/$ACTION" in
+    ec2/describe-vpcs)                 JSON_KEY="describe-vpcs" ;;
+    ec2/describe-subnets)              JSON_KEY="describe-subnets" ;;
+    ec2/describe-internet-gateways)    JSON_KEY="describe-internet-gateways" ;;
+    ec2/describe-route-tables)         JSON_KEY="describe-route-tables" ;;
+    ec2/describe-instances)            JSON_KEY="describe-instances" ;;
+    s3/ls)                             JSON_KEY="list-buckets" ;;
+    iam/list-users)                    JSON_KEY="list-users" ;;
+    cloudwatch/list-alarms)            JSON_KEY="list-alarms" ;;
+  esac
+  if [ -n "$JSON_KEY" ]; then
+    python "$PWD/lib/json_output.py" "$JSON_KEY"
+    exit $?
+  fi
+fi
+
+case "$SERVICE" in
+  billing)
+    case "$ACTION" in
+      show)   python "$PWD/lib/billing.py" show ;;
+      total)  python "$PWD/lib/billing.py" total ;;
+      reset)  python "$PWD/lib/billing.py" reset ;;
+      "")     python "$PWD/lib/billing.py" show ;;
+      *)      python "$PWD/lib/billing.py" "$ACTION" ;;
+    esac
+    exit $?
+    ;;
+  ec2)
+    case "$ACTION" in
+      describe-vpcs)               python vpc_cli.py describe-vpcs "$@" ;;
+      create-vpc)                  python vpc_cli.py create-vpc "$@" ;;
+      delete-vpc)                  python vpc_cli.py delete-vpc "$@" ;;
+      describe-subnets)            python vpc_cli.py describe-subnets "$@" ;;
+      create-subnet)               python vpc_cli.py create-subnet "$@" ;;
+      delete-subnet)               python vpc_cli.py delete-subnet "$@" ;;
+      describe-internet-gateways)  python vpc_cli.py describe-internet-gateways "$@" ;;
+      create-internet-gateway)     python vpc_cli.py create-internet-gateway "$@" ;;
+      attach-internet-gateway)     python vpc_cli.py attach-internet-gateway "$@" ;;
+      detach-internet-gateway)     python vpc_cli.py detach-internet-gateway "$@" ;;
+      delete-internet-gateway)     python vpc_cli.py delete-internet-gateway "$@" ;;
+      describe-route-tables)       python vpc_cli.py describe-route-tables "$@" ;;
+      add-internet-route)          python vpc_cli.py add-internet-route "$@" ;;
+      associate-subnet)            python vpc_cli.py associate-subnet "$@" ;;
+      run-instances)               python cli.py ec2 run-instances "$@" ;;
+      describe-instances)          python cli.py ec2 describe-instances "$@" ;;
+      describe-instance)           python cli.py ec2 describe-instance "$@" ;;
+      start-instances)             python cli.py ec2 start-instances "$@" ;;
+      stop-instances)              python cli.py ec2 stop-instances "$@" ;;
+      reboot-instances)            python cli.py ec2 reboot-instances "$@" ;;
+      terminate-instances)         python cli.py ec2 terminate-instances "$@" ;;
+      *)
+        echo "❌ aws ec2: unknown command: $ACTION"
+        exit 1
+        ;;
+    esac
+    ;;
+  s3)
+    case "$ACTION" in
+      mb)   python cli.py s3 mb "$@" ;;
+      ls)   python cli.py s3 ls "$@" ;;
+      cp)   python cli.py s3 cp "$@" ;;
+      rm)   python cli.py s3 rm "$@" ;;
+      rb)   python cli.py s3 rb "$@" ;;
+      *) echo "❌ aws s3: unknown: $ACTION"; exit 1 ;;
+    esac
+    ;;
+  iam)              python iam_cli.py "$ACTION" "$@" ;;
+  cloudwatch)       python cw_cli.py "$ACTION" "$@" ;;
+  cloudformation)   python cfn_cli.py "$ACTION" "$@" ;;
+  sts)
+    case "$ACTION" in
+      get-caller-identity)  python cli.py account show ;;
+      *) echo "❌ aws sts: unknown: $ACTION"; exit 1 ;;
+    esac
+    ;;
+  configure)
+    case "$ACTION" in
+      set)
+        KEY="$1"
+        VALUE="$2"
+        if [ -z "$KEY" ] || [ -z "$VALUE" ]; then
+          echo "usage: aws configure set <key> <value>"
+          echo "  keys: region, output, aws_access_key_id, aws_secret_access_key"
+          exit 1
+        fi
+        python3 -c "
+import sys, os
+sys.path.insert(0, '$PWD')
+from core import account
+key = '$KEY'
+value = '$VALUE'
+if key in ('aws_access_key_id', 'aws_secret_access_key'):
+    path = os.path.expanduser('~/.aws/credentials')
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    lines = ['[default]']
+    if os.path.isfile(path):
+        with open(path) as f:
+            for line in f:
+                line = line.rstrip()
+                if line and not line.startswith('['):
+                    k, _, v = line.partition('=')
+                    if k.strip() != key:
+                        lines.append(line)
+    lines.append(f'{key} = {value}')
+    with open(path, 'w') as f:
+        f.write('\n'.join(lines) + '\n')
+    print(f'✅ set {key} in ~/.aws/credentials')
+elif key in ('region', 'output'):
+    account._write_aws_config({key: value})
+    print(f'✅ set {key} = {value} in ~/.aws/config')
+else:
+    print(f'❌ unknown key: {key}')
+    sys.exit(1)
+"
+        ;;
+      get)
+        KEY="$1"
+        if [ -z "$KEY" ]; then
+          echo "usage: aws configure get <key>"
+          exit 1
+        fi
+        python3 -c "
+import sys, os
+sys.path.insert(0, '$PWD')
+from core import account
+key = '$KEY'
+if key in ('aws_access_key_id', 'aws_secret_access_key'):
+    path = os.path.expanduser('~/.aws/credentials')
+    if os.path.isfile(path):
+        with open(path) as f:
+            for line in f:
+                k, _, v = line.partition('=')
+                if k.strip() == key:
+                    print(v.strip())
+                    sys.exit(0)
+    print('')
+elif key in ('region', 'output'):
+    cfg = account._read_aws_config()
+    print(cfg.get(key, ''))
+else:
+    print(f'❌ unknown key: {key}')
+    sys.exit(1)
+"
+        ;;
+      list)
+        python3 "$PWD/lib/configure_list.py"
+        ;;
+      *)
+        echo "usage: aws configure <set|get|list> [key] [value]"
+        exit 1
+        ;;
+    esac
+    ;;
+  *)
+    echo "❌ aws: unknown service: $SERVICE"
+    exit 1
+    ;;
+esac

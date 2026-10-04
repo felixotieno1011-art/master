@@ -1,0 +1,124 @@
+# -*- coding: utf-8 -*-
+import datetime
+
+def render_dashboard(instances_list=None):
+    if instances_list is None:
+        instances_list = [
+            {"id": "i-088a4c87a6f241a3b", "name": "monitor-test", "type": "t3.micro", "state": "running", "uptime": "2816s"},
+            {"id": "i-ffb6de3a48054ff7a", "name": "web-server", "type": "t3.micro", "state": "terminated", "uptime": "0s"}
+        ]
+        
+    total_instances = len(instances_list)
+    running_instances = sum(1 for i in instances_list if i['state'] == 'running')
+    
+    html = f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MiniAWS Console Mobile</title>
+  <style>
+    body {{ background-color: #0f141c; color: #eaeded; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; font-size: 14px; -webkit-font-smoothing: antialiased; }}
+    header {{ background-color: #161b22; border-bottom: 1px solid #2b303a; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }}
+    .aws-badge {{ background-color: #ff9900; color: #0f141c; font-weight: 900; padding: 2px 6px; border-radius: 4px; font-size: 11px; letter-spacing: 0.5px; margin-right: 8px; }}
+    .header-meta {{ font-size: 10px; color: #a1a8b3; font-family: monospace; margin-top: 2px; }}
+    main {{ padding: 16px; max-width: 100%; box-sizing: border-box; }}
+    h2 {{ font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #a1a8b3; margin: 20px 0 10px 0; }}
+    .metrics-grid {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }}
+    .metric-card {{ background-color: #161b22; border: 1px solid #2b303a; padding: 12px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; min-height: 70px; box-sizing: border-box; }}
+    .metric-label {{ font-size: 11px; font-weight: 500; color: #a1a8b3; text-transform: uppercase; }}
+    .metric-value-row {{ display: flex; align-items: baseline; justify-content: space-between; margin-top: 4px; }}
+    .metric-num {{ font-size: 22px; font-weight: 600; color: #f1f2f4; }}
+    .badge-sub {{ font-size: 10px; font-weight: bold; color: #037f0c; background-color: #122918; padding: 2px 6px; border-radius: 4px; border: 1px solid #194021; }}
+    .resource-card {{ background-color: #161b22; border: 1px solid #2b303a; border-radius: 8px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }}
+    .card-header {{ background-color: #1c232d; padding: 10px 12px; border-bottom: 1px solid #2b303a; display: flex; justify-content: space-between; align-items: center; }}
+    .instance-name {{ font-weight: bold; color: #f1f2f4; }}
+    .instance-type {{ font-size: 11px; font-family: monospace; color: #8791a1; margin-left: 6px; }}
+    .status-pill {{ font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 12px; display: inline-flex; align-items: center; }}
+    .status-pill::before {{ content: ""; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; }}
+    .status-running {{ color: #037f0c; background-color: #122918; border: 1px solid #194021; }}
+    .status-running::before {{ background-color: #037f0c; }}
+    .status-terminated {{ color: #d13212; background-color: #2c1512; border: 1px solid #4e1c14; }}
+    .status-terminated::before {{ background-color: #d13212; }}
+    .card-body {{ padding: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 8px; }}
+    .data-label {{ font-size: 11px; color: #8791a1; margin: 0 0 2px 0; }}
+    .data-value {{ font-size: 13px; margin: 0; font-weight: 500; color: #f1f2f4; }}
+    .font-code {{ font-family: monospace; color: #529cca; word-break: break-all; }}
+    .terminated-fade {{ opacity: 0.6; }}
+  </style>
+</head>
+<body>
+  <header>
+    <div style="display: flex; align-items: center;">
+      <span class="aws-badge">AWS</span>
+      <div>
+        <div style="font-weight: bold; font-size: 14px; color: #f1f2f4;">MiniAWS Console</div>
+        <div class="header-meta">Acct: 437401175396 &bull; af-south-1</div>
+      </div>
+    </div>
+    <div style="font-size: 10px; color: #529cca; background: #192534; padding: 4px 8px; border-radius: 12px; border: 1px solid #233852; font-family: monospace;">
+      2026-10-04 22:46:23
+    </div>
+  </header>
+  <main>
+    <h2>Service Overview</h2>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-label">EC2 Instances</span>
+        <div class="metric-value-row">
+          <span class="metric-num">{total_instances}</span>
+          <span class="badge-sub">{running_instances} Running</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">S3 Buckets</span>
+        <div class="metric-value-row"><span class="metric-num" style="color: #6c7685;">0</span></div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">VPCs</span>
+        <div class="metric-value-row"><span class="metric-num" style="color: #6c7685;">0</span></div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">IAM Users</span>
+        <div class="metric-value-row"><span class="metric-num">2</span></div>
+      </div>
+    </div>
+    <h2>EC2 Resources</h2>'''
+    
+    for instance in instances_list:
+        is_running = instance["state"] == "running"
+        card_class = "resource-card" if is_running else "resource-card terminated-fade"
+        status_class = "status-pill status-running" if is_running else "status-pill status-terminated"
+        id_style = "" if is_running else 'style="color: #6c7685;"'
+        uptime_style = "" if is_running else 'style="color: #6c7685;"'
+        name_style = "" if is_running else 'style="color: #a1a8b3;"'
+        
+        html += f'''
+    <div class="{card_class}">
+      <div class="card-header">
+        <div>
+          <span class="instance-name" {name_style}>{instance["name"]}</span>
+          <span class="instance-type">{instance["type"]}</span>
+        </div>
+        <span class="{status_class}">{instance["state"]}</span>
+      </div>
+      <div class="card-body">
+        <div>
+          <p class="data-label">Instance ID</p>
+          <p class="data-value font-code" {id_style}>{instance["id"]}</p>
+        </div>
+        <div>
+          <p class="data-label">Uptime Metrics</p>
+          <p class="data-value" {uptime_style}>{instance["uptime"]}</p>
+        </div>
+      </div>
+    </div>'''
+        
+    html += '''
+  </main>
+</body>
+</html>'''
+    return html
+
+if __name__ == '__main__':
+    print(render_dashboard())

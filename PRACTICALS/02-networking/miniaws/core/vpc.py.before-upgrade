@@ -97,21 +97,9 @@ def delete_vpc(vpc_id):
     v = get_vpc(vpc_id)
     if not v:
         return False, f"VPC {vpc_id} not found"
-
     # Refuse if subnets exist
     for s in list_subnets(vpc_id=vpc_id):
         return False, f"VPC has subnets (e.g. {s['subnetId']}). Delete them first."
-
-    # Cascade delete: remove route tables belonging to this VPC
-    if os.path.isdir(ROUTE_TABLES_DIR):
-        for fname in os.listdir(ROUTE_TABLES_DIR):
-            if not fname.endswith(".json"):
-                continue
-            rt_path = os.path.join(ROUTE_TABLES_DIR, fname)
-            rt = read_json(rt_path)
-            if rt and rt.get("vpcId") == vpc_id:
-                delete_file(rt_path)
-
     delete_file(_vpc_path(vpc_id))
     return True, f"deleted VPC {vpc_id}"
 

@@ -44,7 +44,7 @@
   <p class="meta">
     Account 437401175396 ·
     Region af-south-1 ·
-    Generated 2026-10-03 20:40:57
+    Generated 2026-10-04 15:12:53
   </p>
 
   <div class="stats">
@@ -54,9 +54,9 @@
       <div class="stat-lbl">Running</div></div>
     <div class="stat"><div class="stat-num">1</div>
       <div class="stat-lbl">S3 Buckets</div></div>
-    <div class="stat"><div class="stat-num">1</div>
+    <div class="stat"><div class="stat-num">6</div>
       <div class="stat-lbl">VPCs</div></div>
-    <div class="stat"><div class="stat-num">2</div>
+    <div class="stat"><div class="stat-num">3</div>
       <div class="stat-lbl">IAM Users</div></div>
     <div class="stat"><div class="stat-num ">0</div>
       <div class="stat-lbl">Alarms Firing</div></div>
@@ -74,7 +74,7 @@
           <td>t3.micro</td>
           <td><span class="ok">running</span></td>
           <td>af-south-1</td>
-          <td>976s</td>
+          <td>2816s</td>
         </tr>
         <tr>
           <td><b>i-ffb6de3a48054ff7a</b></td>
@@ -93,10 +93,10 @@
       <thead><tr><th>Bucket</th><th>Region</th><th>Objects</th><th>Created</th></tr></thead>
       <tbody>
         <tr>
-          <td><b>my-first-bucket</b></td>
+          <td><b>proving-it-works-2026</b></td>
           <td>af-south-1</td>
-          <td>3</td>
-          <td class="dim small">2026-10-03T19:34:26</td>
+          <td>0</td>
+          <td class="dim small">2026-10-03T20:57:39</td>
         </tr></tbody>
     </table>
   </div>
@@ -107,10 +107,40 @@
       <thead><tr><th>VPC ID</th><th>CIDR</th><th>Region</th><th>Subnets</th></tr></thead>
       <tbody>
         <tr>
+          <td><b>vpc-4dbdcf7940844e92b</b></td>
+          <td>172.17.0.0/20</td>
+          <td>af-south-1</td>
+          <td class="dim small">(none)</td>
+        </tr>
+        <tr>
+          <td><b>vpc-9b3f6117dd4742e29</b></td>
+          <td>10.88.0.0/16</td>
+          <td>af-south-1</td>
+          <td class="dim small">(none)</td>
+        </tr>
+        <tr>
+          <td><b>vpc-ade4cbe613b34e59b</b></td>
+          <td>10.77.0.0/16</td>
+          <td>af-south-1</td>
+          <td class="dim small">subnet-06edb... (10.77.1.0/24)</td>
+        </tr>
+        <tr>
           <td><b>vpc-d08f19b96ad041168</b></td>
           <td>10.0.0.0/16</td>
           <td>af-south-1</td>
           <td class="dim small">subnet-0c22b... (10.0.1.0/24), subnet-ee4c0... (10.0.2.0/24)</td>
+        </tr>
+        <tr>
+          <td><b>vpc-f0a8d7158d4a4c50b</b></td>
+          <td>172.16.0.0/24</td>
+          <td>af-south-1</td>
+          <td class="dim small">(none)</td>
+        </tr>
+        <tr>
+          <td><b>vpc-fb0844db72364866a</b></td>
+          <td>10.60.0.0/16</td>
+          <td>af-south-1</td>
+          <td class="dim small">subnet-3acd7... (10.60.1.0/24), subnet-4522c... (10.60.2.0/24)</td>
         </tr></tbody>
     </table>
   </div>
@@ -131,6 +161,12 @@
           <td class="dim small">arn:aws:iam::437401175396:user/bob</td>
           <td>0</td>
           <td>1</td>
+        </tr>
+        <tr>
+          <td><b>proving-user</b></td>
+          <td class="dim small">arn:aws:iam::437401175396:user/proving-user</td>
+          <td>0</td>
+          <td>0</td>
         </tr></tbody>
     </table>
   </div>

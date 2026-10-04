@@ -1,4 +1,4 @@
-"""AWS Console — browser dashboard for MiniAWS."""
+"""MiniAWS Console — mobile-optimized browser dashboard."""
 import html
 import os
 from datetime import datetime
@@ -10,312 +10,669 @@ def _esc(s):
     return html.escape(str(s))
 
 
-def _gather():
-    """Collect all state for the dashboard."""
-    acct = account.summary()
-    instances = ec2.list_all()
-    buckets = s3.ls_buckets()
-    vpcs = vpc.list_vpcs()
-    subnets = vpc.list_subnets()
-    igws = vpc.list_internet_gateways()
-    rts = vpc.list_route_tables()
-    users = iam.list_users()
-    groups = iam.list_groups()
-    policies = iam.list_policies()
-    alarms = cloudwatch.list_alarms()
-    metrics = cloudwatch.list_metrics()
-    log_groups = cloudwatch.describe_log_groups()
+# ---------- Shared CSS (mobile-first) ----------
 
-    # EC2 runtime state
-    inst_data = []
-    for i in instances:
+BASE_CSS = """
+* { box-sizing: border-box; }
+body {
+  background: #0f141c;
+  color: #eaeded;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin: 0; padding: 0; font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+header {
+  background: #161b22; border-bottom: 1px solid #2b303a;
+  padding: 12px 16px; display: flex; justify-content: space-between;
+  align-items: center; position: sticky; top: 0; z-index: 100;
+}
+.aws-badge {
+  background: #ff9900; color: #0f141c; font-weight: 900;
+  padding: 2px 6px; border-radius: 4px; font-size: 11px;
+  letter-spacing: 0.5px; margin-right: 8px;
+}
+.header-meta { font-size: 10px; color: #a1a8b3; font-family: monospace; margin-top: 2px; }
+main { padding: 16px; max-width: 100%; box-sizing: border-box; }
+h2 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+  color: #a1a8b3; margin: 20px 0 10px 0;
+}
+.metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.metric-card {
+  background: #161b22; border: 1px solid #2b303a; padding: 12px;
+  border-radius: 8px; display: flex; flex-direction: column;
+  justify-content: space-between; min-height: 70px;
+}
+.metric-label { font-size: 11px; font-weight: 500; color: #a1a8b3; text-transform: uppercase; }
+.metric-value-row { display: flex; align-items: baseline; justify-content: space-between; margin-top: 4px; }
+.metric-num { font-size: 22px; font-weight: 600; color: #f1f2f4; }
+.metric-num.dim { color: #6c7685; }
+.badge-sub {
+  font-size: 10px; font-weight: bold; color: #037f0c;
+  background: #122918; padding: 2px 6px; border-radius: 4px;
+  border: 1px solid #194021;
+}
+.resource-card {
+  background: #161b22; border: 1px solid #2b303a; border-radius: 8px;
+  margin-bottom: 12px; overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+.card-header {
+  background: #1c232d; padding: 10px 12px; border-bottom: 1px solid #2b303a;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.resource-title { font-weight: bold; color: #f1f2f4; word-break: break-all; }
+.resource-title a { color: #529cca; text-decoration: none; }
+.resource-type { font-size: 11px; font-family: monospace; color: #8791a1; margin-left: 6px; }
+.status-pill {
+  font-size: 11px; font-weight: bold; padding: 2px 8px;
+  border-radius: 12px; display: inline-flex; align-items: center;
+  white-space: nowrap;
+}
+.status-pill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  margin-right: 6px;
+}
+.status-running { color: #037f0c; background: #122918; border: 1px solid #194021; }
+.status-running::before { background: #037f0c; }
+.status-stopped { color: #b7791f; background: #2c2412; border: 1px solid #4e3d14; }
+.status-stopped::before { background: #b7791f; }
+.status-terminated { color: #d13212; background: #2c1512; border: 1px solid #4e1c14; }
+.status-terminated::before { background: #d13212; }
+.status-ok { color: #037f0c; background: #122918; border: 1px solid #194021; }
+.status-ok::before { background: #037f0c; }
+.status-alarm { color: #d13212; background: #2c1512; border: 1px solid #4e1c14; }
+.status-alarm::before { background: #d13212; }
+.status-info { color: #529cca; background: #192534; border: 1px solid #233852; }
+.status-info::before { background: #529cca; }
+.card-body {
+  padding: 12px; display: grid;
+  grid-template-columns: repeat(2, 1fr); gap: 12px 8px;
+}
+.data-label { font-size: 11px; color: #8791a1; margin: 0 0 2px 0; }
+.data-value { font-size: 13px; margin: 0; font-weight: 500; color: #f1f2f4; word-break: break-all; }
+.font-code { font-family: monospace; color: #529cca; word-break: break-all; }
+.dim { color: #6c7685; }
+.terminated-fade { opacity: 0.6; }
+.empty-msg { padding: 16px; color: #8791a1; font-style: italic; font-size: 13px; }
+.detail-row {
+  display: flex; justify-content: space-between; padding: 8px 0;
+  border-bottom: 1px solid #2b303a; font-size: 13px;
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-label { color: #8791a1; }
+.detail-value { color: #f1f2f4; font-weight: 500; word-break: break-all; text-align: right; }
+a { color: #529cca; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.back {
+  display: inline-block; color: #529cca; text-decoration: none;
+  margin-bottom: 16px; font-weight: 600; font-size: 13px;
+}
+pre {
+  background: #0a0f1a; padding: 12px; border-radius: 8px;
+  overflow-x: auto; font-size: 11px; color: #cbd5e1;
+}
+"""
+
+
+def _page(title, body_html, subtitle=""):
+    """Full page wrapper."""
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{_esc(title)}</title>
+  <style>{BASE_CSS}</style>
+</head>
+<body>
+  <header>
+    <div style="display:flex;align-items:center;">
+      <span class="aws-badge">AWS</span>
+      <div>
+        <div style="font-weight:bold;font-size:14px;color:#f1f2f4;">MiniAWS Console</div>
+        <div class="header-meta">{_esc(subtitle)}</div>
+      </div>
+    </div>
+  </header>
+  <main>
+    {body_html}
+  </main>
+</body>
+</html>"""
+
+
+def _status_class(state):
+    s = (state or "").lower()
+    if s in ("running", "available", "ok"):
+        return "status-running"
+    if s in ("stopped", "stopping", "insufficient_data"):
+        return "status-stopped"
+    if s in ("terminated", "alarm", "failed"):
+        return "status-terminated"
+    return "status-info"
+
+
+# ---------- Gather real state ----------
+
+def _gather():
+    """Read all state from MiniAWS services."""
+    acct = account.summary()
+
+    inst_list = ec2.list_all()
+    bucket_list = s3.ls_buckets()
+    vpc_list = vpc.list_vpcs()
+    subnet_list = vpc.list_subnets()
+    igw_list = vpc.list_internet_gateways()
+    user_list = iam.list_users()
+    alarm_list = cloudwatch.list_alarms()
+    metric_list = cloudwatch.list_metrics()
+    loggroups = cloudwatch.describe_log_groups()
+
+    instances = []
+    for i in inst_list:
         st = ec2.status(i["instance_id"]) or {}
-        inst_data.append({
+        instances.append({
             "id": i["instance_id"],
             "name": (i.get("tags") or {}).get("Name", "-"),
-            "type": i.get("instance_type"),
-            "state": st.get("state") or i.get("state"),
-            "region": i.get("region"),
+            "type": i.get("instance_type", "-"),
+            "state": st.get("state") or i.get("state", "-"),
+            "region": i.get("region", "-"),
             "pid": st.get("pid"),
-            "uptime": st.get("uptime_sec", 0),
+            "uptime": f"{st.get('uptime_sec', 0)}s",
         })
 
-    # S3 with object counts
-    bucket_data = []
-    for b in buckets:
+    buckets = []
+    for b in bucket_list:
         objs = s3.list_objects(b["name"]) or []
-        bucket_data.append({
+        buckets.append({
             "name": b["name"],
-            "region": b.get("region"),
+            "region": b.get("region", "-"),
             "objects": len(objs),
-            "created": b.get("created", "?"),
+            "created": b.get("created", "-"),
         })
 
-    # VPCs with subnet counts
-    vpc_data = []
-    for v in vpcs:
-        vpc_data.append({
+    vpcs = []
+    for v in vpc_list:
+        subs = [s for s in subnet_list if s["vpcId"] == v["vpcId"]]
+        igws = [g for g in igw_list if v["vpcId"] in g.get("attachments", [])]
+        vpcs.append({
             "id": v["vpcId"],
             "cidr": v["cidrBlock"],
-            "region": v["region"],
-            "subnets": [s for s in subnets if s["vpcId"] == v["vpcId"]],
+            "region": v.get("region", "-"),
+            "subnets": subs,
+            "igw_count": len(igws),
         })
 
     return {
         "account": acct,
-        "instances": inst_data,
-        "buckets": bucket_data,
-        "vpcs": vpc_data,
-        "igws": igws,
-        "rts": rts,
-        "users": users,
-        "groups": groups,
-        "policies": policies,
-        "alarms": alarms,
-        "metrics": metrics,
-        "log_groups": log_groups,
+        "instances": instances,
+        "buckets": buckets,
+        "vpcs": vpcs,
+        "users": user_list,
+        "alarms": alarm_list,
+        "metrics": metric_list,
+        "loggroups": loggroups,
         "generated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
 
-def _state_class(state):
-    if state == "running" or state == "available" or state == "OK":
-        return "ok"
-    if state == "stopped" or state == "INSUFFICIENT_DATA":
-        return "warn"
-    return "bad"
-
+# ---------- Main dashboard ----------
 
 def generate_html():
     d = _gather()
+    acct = d["account"]
 
-    # EC2 rows
-    ec2_rows = ""
+    running = sum(1 for i in d["instances"] if i["state"] == "running")
+    firing = sum(1 for a in d["alarms"] if a["stateValue"] == "ALARM")
+
+    # EC2 cards
+    ec2_html = ""
     for i in d["instances"]:
-        ec2_rows += f"""
-        <tr>
-          <td><b>{_esc(i['id'])}</b></td>
-          <td>{_esc(i['name'])}</td>
-          <td>{_esc(i['type'])}</td>
-          <td><span class="{_state_class(i['state'])}">{_esc(i['state'])}</span></td>
-          <td>{_esc(i['region'])}</td>
-          <td>{i['uptime']}s</td>
-        </tr>"""
-    if not ec2_rows:
-        ec2_rows = '<tr><td colspan="6" class="dim">No instances</td></tr>'
+        is_run = i["state"] == "running"
+        fade = "" if is_run else " terminated-fade"
+        status_cls = _status_class(i["state"])
+        ec2_html += f"""
+        <div class="resource-card{fade}">
+          <div class="card-header">
+            <div>
+              <span class="resource-title">{_esc(i['name'])}</span>
+              <span class="resource-type">{_esc(i['type'])}</span>
+            </div>
+            <span class="status-pill {status_cls}">{_esc(i['state'])}</span>
+          </div>
+          <div class="card-body">
+            <div>
+              <p class="data-label">Instance ID</p>
+              <p class="data-value font-code"><a href="/ec2/{i['id']}">{_esc(i['id'])}</a></p>
+            </div>
+            <div>
+              <p class="data-label">Region</p>
+              <p class="data-value">{_esc(i['region'])}</p>
+            </div>
+            <div>
+              <p class="data-label">Uptime</p>
+              <p class="data-value">{_esc(i['uptime'])}</p>
+            </div>
+            <div>
+              <p class="data-label">PID</p>
+              <p class="data-value">{_esc(i['pid'] or '-')}</p>
+            </div>
+          </div>
+        </div>"""
+    if not ec2_html:
+        ec2_html = '<div class="resource-card"><div class="empty-msg">No EC2 instances</div></div>'
 
-    # S3 rows
-    s3_rows = ""
+    # S3 cards
+    s3_html = ""
     for b in d["buckets"]:
-        s3_rows += f"""
-        <tr>
-          <td><b>{_esc(b['name'])}</b></td>
-          <td>{_esc(b['region'])}</td>
-          <td>{b['objects']}</td>
-          <td class="dim small">{_esc(b['created'])}</td>
-        </tr>"""
-    if not s3_rows:
-        s3_rows = '<tr><td colspan="4" class="dim">No buckets</td></tr>'
+        s3_html += f"""
+        <div class="resource-card">
+          <div class="card-header">
+            <div><span class="resource-title"><a href="/s3/{b['name']}">{_esc(b['name'])}</a></span></div>
+            <span class="status-pill status-ok">{b['objects']} obj</span>
+          </div>
+          <div class="card-body">
+            <div><p class="data-label">Region</p><p class="data-value">{_esc(b['region'])}</p></div>
+            <div><p class="data-label">Created</p><p class="data-value dim">{_esc(b['created'])}</p></div>
+          </div>
+        </div>"""
+    if not s3_html:
+        s3_html = '<div class="resource-card"><div class="empty-msg">No S3 buckets</div></div>'
 
-    # VPC rows
-    vpc_rows = ""
+    # VPC cards
+    vpc_html = ""
     for v in d["vpcs"]:
-        sub_list = ", ".join(f"{s['subnetId'][:12]}... ({s['cidrBlock']})" for s in v["subnets"]) or "(none)"
-        vpc_rows += f"""
-        <tr>
-          <td><b>{_esc(v['id'])}</b></td>
-          <td>{_esc(v['cidr'])}</td>
-          <td>{_esc(v['region'])}</td>
-          <td class="dim small">{_esc(sub_list)}</td>
-        </tr>"""
-    if not vpc_rows:
-        vpc_rows = '<tr><td colspan="4" class="dim">No VPCs</td></tr>'
+        subs_str = ", ".join(s["subnetId"][:16] + "…" for s in v["subnets"]) or "no subnets"
+        vpc_html += f"""
+        <div class="resource-card">
+          <div class="card-header">
+            <div><span class="resource-title"><a href="/vpc/{v['id']}">{_esc(v['id'])}</a></span></div>
+            <span class="status-pill status-ok">{len(v['subnets'])} subnets</span>
+          </div>
+          <div class="card-body">
+            <div><p class="data-label">CIDR</p><p class="data-value">{_esc(v['cidr'])}</p></div>
+            <div><p class="data-label">Region</p><p class="data-value">{_esc(v['region'])}</p></div>
+            <div><p class="data-label">IGW</p><p class="data-value">{'attached' if v['igw_count'] else 'none'}</p></div>
+            <div><p class="data-label">Subnets</p><p class="data-value dim">{_esc(subs_str)}</p></div>
+          </div>
+        </div>"""
+    if not vpc_html:
+        vpc_html = '<div class="resource-card"><div class="empty-msg">No VPCs</div></div>'
 
-    # IAM users
-    user_rows = ""
+    # IAM cards
+    iam_html = ""
     for u in d["users"]:
-        user_rows += f"""
-        <tr>
-          <td><b>{_esc(u['userName'])}</b></td>
-          <td class="dim small">{_esc(u['arn'])}</td>
-          <td>{len(u.get('attachedPolicies', []))}</td>
-          <td>{len(u.get('groups', []))}</td>
-        </tr>"""
-    if not user_rows:
-        user_rows = '<tr><td colspan="4" class="dim">No users</td></tr>'
+        iam_html += f"""
+        <div class="resource-card">
+          <div class="card-header">
+            <div><span class="resource-title"><a href="/iam/{u['userName']}">{_esc(u['userName'])}</a></span></div>
+            <span class="status-pill status-info">{len(u.get('attachedPolicies', []))} policies</span>
+          </div>
+          <div class="card-body">
+            <div style="grid-column: 1 / -1;"><p class="data-label">ARN</p><p class="data-value font-code">{_esc(u['arn'])}</p></div>
+            <div><p class="data-label">Groups</p><p class="data-value">{len(u.get('groups', []))}</p></div>
+            <div><p class="data-label">Created</p><p class="data-value dim">{_esc(u.get('created','-'))}</p></div>
+          </div>
+        </div>"""
+    if not iam_html:
+        iam_html = '<div class="resource-card"><div class="empty-msg">No IAM users</div></div>'
 
     # Alarms
-    alarm_rows = ""
+    alarm_html = ""
     for a in d["alarms"]:
-        alarm_rows += f"""
-        <tr>
-          <td><b>{_esc(a['alarmName'])}</b></td>
-          <td>{_esc(a['metricName'])}</td>
-          <td><span class="{_state_class(a['stateValue'])}">{_esc(a['stateValue'])}</span></td>
-          <td class="dim small">{_esc(a.get('stateReason',''))[:60]}</td>
-        </tr>"""
-    if not alarm_rows:
-        alarm_rows = '<tr><td colspan="4" class="dim">No alarms</td></tr>'
+        cls = _status_class(a["stateValue"])
+        alarm_html += f"""
+        <div class="resource-card">
+          <div class="card-header">
+            <div><span class="resource-title"><a href="/alarm/{a['alarmName']}">{_esc(a['alarmName'])}</a></span>
+            <span class="resource-type">{_esc(a['metricName'])}</span></div>
+            <span class="status-pill {cls}">{_esc(a['stateValue'])}</span>
+          </div>
+          <div class="card-body">
+            <div style="grid-column:1/-1;"><p class="data-label">Reason</p><p class="data-value dim">{_esc(a.get('stateReason','-'))}</p></div>
+          </div>
+        </div>"""
+    if not alarm_html:
+        alarm_html = '<div class="resource-card"><div class="empty-msg">No alarms</div></div>'
 
-    # Metrics summary
-    metric_rows = ""
-    for m in d["metrics"][:20]:
-        metric_rows += f"""
-        <tr>
-          <td>{_esc(m['namespace'])}</td>
-          <td><b>{_esc(m['metricName'])}</b></td>
-          <td>{m['datapoints']}</td>
-          <td>{_esc(m['unit'])}</td>
-        </tr>"""
-    if not metric_rows:
-        metric_rows = '<tr><td colspan="4" class="dim">No metrics</td></tr>'
+    # Metrics
+    metrics_html = ""
+    for m in d["metrics"][:15]:
+        key = f"{m['namespace']}/{m['metricName']}"
+        metrics_html += f"""
+        <div class="resource-card">
+          <div class="card-header">
+            <div><span class="resource-title"><a href="/metric/{m['namespace']}/{m['metricName']}">{_esc(m['metricName'])}</a></span>
+            <span class="resource-type">{_esc(m['namespace'])}</span></div>
+            <span class="status-pill status-info">{m['datapoints']} pts</span>
+          </div>
+        </div>"""
+    if not metrics_html:
+        metrics_html = '<div class="resource-card"><div class="empty-msg">No metrics</div></div>'
 
     # Log groups
-    log_rows = ""
-    for g in d["log_groups"]:
-        log_rows += f"""
-        <tr>
-          <td><b>{_esc(g['logGroupName'])}</b></td>
-          <td>{g['events']}</td>
-          <td>{g['storedBytes']}</td>
-        </tr>"""
-    if not log_rows:
-        log_rows = '<tr><td colspan="3" class="dim">No log groups</td></tr>'
+    logs_html = ""
+    for g in d["loggroups"]:
+        logs_html += f"""
+        <div class="resource-card">
+          <div class="card-header">
+            <div><span class="resource-title"><a href="/loggroup/{g['logGroupName']}">{_esc(g['logGroupName'])}</a></span></div>
+            <span class="status-pill status-info">{g['events']} events</span>
+          </div>
+        </div>"""
+    if not logs_html:
+        logs_html = '<div class="resource-card"><div class="empty-msg">No log groups</div></div>'
 
-    # Stats
-    running = sum(1 for i in d["instances"] if i["state"] == "running")
-    in_alarm = sum(1 for a in d["alarms"] if a["stateValue"] == "ALARM")
+    body = f"""
+    <h2>Service Overview</h2>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-label">EC2 Instances</span>
+        <div class="metric-value-row">
+          <span class="metric-num">{len(d['instances'])}</span>
+          <span class="badge-sub">{running} running</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">S3 Buckets</span>
+        <div class="metric-value-row"><span class="metric-num {'dim' if not d['buckets'] else ''}">{len(d['buckets'])}</span></div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">VPCs</span>
+        <div class="metric-value-row"><span class="metric-num {'dim' if not d['vpcs'] else ''}">{len(d['vpcs'])}</span></div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">IAM Users</span>
+        <div class="metric-value-row"><span class="metric-num {'dim' if not d['users'] else ''}">{len(d['users'])}</span></div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Alarms Firing</span>
+        <div class="metric-value-row"><span class="metric-num {'dim' if not firing else ''}">{firing}</span></div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Log Groups</span>
+        <div class="metric-value-row"><span class="metric-num {'dim' if not d['loggroups'] else ''}">{len(d['loggroups'])}</span></div>
+      </div>
+    </div>
 
-    page = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MiniAWS Console</title>
-<style>
-  * {{ box-sizing: border-box; }}
-  body {{ font-family: system-ui, -apple-system, sans-serif;
-         background: #0f172a; color: #e2e8f0; margin: 0;
-         padding: 20px; line-height: 1.5; }}
-  .container {{ max-width: 1000px; margin: auto; }}
-  h1 {{ color: #ff9900; margin: 0 0 4px 0; font-size: 28px; }}
-  h2 {{ color: #38bdf8; margin-top: 28px; padding-bottom: 8px;
-       border-bottom: 1px solid #334155; font-size: 18px; }}
-  .meta {{ color: #94a3b8; font-size: 13px; margin-bottom: 20px; }}
-  .card {{ background: #1e293b; border-radius: 12px;
-          padding: 18px; margin: 14px 0; }}
-  .stats {{ display: grid; gap: 12px;
-           grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }}
-  .stat {{ background: #1e293b; border-radius: 10px;
-          padding: 16px; text-align: center; }}
-  .stat-num {{ font-size: 28px; font-weight: bold; color: #ff9900; }}
-  .stat-lbl {{ font-size: 12px; color: #94a3b8;
-              text-transform: uppercase; margin-top: 4px; }}
-  table {{ width: 100%; border-collapse: collapse; margin-top: 8px; }}
-  th, td {{ text-align: left; padding: 9px 10px;
-           border-bottom: 1px solid #334155; font-size: 14px; }}
-  th {{ color: #94a3b8; font-weight: 600; font-size: 12px;
-       text-transform: uppercase; }}
-  tr:last-child td {{ border-bottom: none; }}
-  .ok {{ color: #4ade80; font-weight: bold; }}
-  .warn {{ color: #fbbf24; font-weight: bold; }}
-  .bad {{ color: #f87171; font-weight: bold; }}
-  .dim {{ color: #94a3b8; }}
-  .small {{ font-size: 12px; }}
-  .footer {{ margin-top: 40px; color: #64748b; font-size: 12px;
-            text-align: center; }}
-</style>
-</head>
-<body>
-<div class="container">
-  <h1>🅰️ MiniAWS Console</h1>
-  <p class="meta">
-    Account {d['account']['account_id']} ·
-    Region {d['account']['region']} ·
-    Generated {d['generated']}
-  </p>
+    <h2>EC2 Instances</h2>
+    {ec2_html}
 
-  <div class="stats">
-    <div class="stat"><div class="stat-num">{len(d['instances'])}</div>
-      <div class="stat-lbl">EC2 Instances</div></div>
-    <div class="stat"><div class="stat-num">{running}</div>
-      <div class="stat-lbl">Running</div></div>
-    <div class="stat"><div class="stat-num">{len(d['buckets'])}</div>
-      <div class="stat-lbl">S3 Buckets</div></div>
-    <div class="stat"><div class="stat-num">{len(d['vpcs'])}</div>
-      <div class="stat-lbl">VPCs</div></div>
-    <div class="stat"><div class="stat-num">{len(d['users'])}</div>
-      <div class="stat-lbl">IAM Users</div></div>
-    <div class="stat"><div class="stat-num {'bad' if in_alarm else ''}">{in_alarm}</div>
-      <div class="stat-lbl">Alarms Firing</div></div>
-  </div>
+    <h2>S3 Buckets</h2>
+    {s3_html}
 
-  <h2>💻 EC2 Instances</h2>
-  <div class="card">
-    <table>
-      <thead><tr><th>Instance ID</th><th>Name</th><th>Type</th>
-             <th>State</th><th>Region</th><th>Uptime</th></tr></thead>
-      <tbody>{ec2_rows}</tbody>
-    </table>
-  </div>
+    <h2>VPCs</h2>
+    {vpc_html}
 
-  <h2>🪣 S3 Buckets</h2>
-  <div class="card">
-    <table>
-      <thead><tr><th>Bucket</th><th>Region</th><th>Objects</th><th>Created</th></tr></thead>
-      <tbody>{s3_rows}</tbody>
-    </table>
-  </div>
+    <h2>IAM Users</h2>
+    {iam_html}
 
-  <h2>🌐 VPCs</h2>
-  <div class="card">
-    <table>
-      <thead><tr><th>VPC ID</th><th>CIDR</th><th>Region</th><th>Subnets</th></tr></thead>
-      <tbody>{vpc_rows}</tbody>
-    </table>
-  </div>
+    <h2>CloudWatch Alarms</h2>
+    {alarm_html}
 
-  <h2>👤 IAM Users</h2>
-  <div class="card">
-    <table>
-      <thead><tr><th>User</th><th>ARN</th><th>Policies</th><th>Groups</th></tr></thead>
-      <tbody>{user_rows}</tbody>
-    </table>
-  </div>
+    <h2>CloudWatch Metrics</h2>
+    {metrics_html}
 
-  <h2>🚨 CloudWatch Alarms</h2>
-  <div class="card">
-    <table>
-      <thead><tr><th>Alarm</th><th>Metric</th><th>State</th><th>Reason</th></tr></thead>
-      <tbody>{alarm_rows}</tbody>
-    </table>
-  </div>
+    <h2>CloudWatch Log Groups</h2>
+    {logs_html}
+    """
 
-  <h2>📊 CloudWatch Metrics</h2>
-  <div class="card">
-    <table>
-      <thead><tr><th>Namespace</th><th>Metric</th><th>Datapoints</th><th>Unit</th></tr></thead>
-      <tbody>{metric_rows}</tbody>
-    </table>
-  </div>
+    subtitle = f"{acct['account_id']} · {acct['region']} · {d['generated']}"
+    return _page("MiniAWS Console", body, subtitle=subtitle)
 
-  <h2>📝 CloudWatch Log Groups</h2>
-  <div class="card">
-    <table>
-      <thead><tr><th>Log Group</th><th>Events</th><th>Bytes</th></tr></thead>
-      <tbody>{log_rows}</tbody>
-    </table>
-  </div>
 
-  <p class="footer">MiniAWS v1.0 — console.py</p>
-</div>
-</body>
-</html>"""
-    return page
+# ---------- Detail pages ----------
 
+def _detail_page(title, subtitle, body_html):
+    return _page(title, f'<a class="back" href="/">← Back to Console</a>\n{body_html}', subtitle=subtitle)
+
+
+def render_not_found(path):
+    return _detail_page("Not Found", "404", f'<div class="resource-card"><div class="empty-msg">No page for: {_esc(path)}</div></div>')
+
+
+def render_vpc_detail(vpc_id):
+    v = vpc.get_vpc(vpc_id)
+    if not v:
+        return _detail_page("VPC Not Found", vpc_id, f'<div class="resource-card"><div class="empty-msg">No VPC with ID: {_esc(vpc_id)}</div></div>')
+
+    subnets = vpc.list_subnets(vpc_id=vpc_id)
+    rts = [rt for rt in vpc.list_route_tables() if rt.get("vpcId") == vpc_id]
+    igws = [g for g in vpc.list_internet_gateways() if vpc_id in g.get("attachments", [])]
+
+    subnet_cards = ""
+    for s in subnets:
+        name = (s.get("tags") or {}).get("Name", "-")
+        subnet_cards += f"""
+        <div class="resource-card">
+          <div class="card-header">
+            <div><span class="resource-title"><a href="/subnet/{s['subnetId']}">{_esc(s['subnetId'])}</a></span>
+            <span class="resource-type">{_esc(name)}</span></div>
+          </div>
+          <div class="card-body">
+            <div><p class="data-label">CIDR</p><p class="data-value font-code">{_esc(s['cidrBlock'])}</p></div>
+            <div><p class="data-label">AZ</p><p class="data-value dim">{_esc(s.get('availabilityZone','-'))}</p></div>
+          </div>
+        </div>"""
+    if not subnet_cards:
+        subnet_cards = '<div class="resource-card"><div class="empty-msg">No subnets</div></div>'
+
+    info_rows = f"""
+    <div class="resource-card">
+      <div class="card-body" style="grid-template-columns:1fr;">
+        <div class="detail-row"><span class="detail-label">VPC ID</span><span class="detail-value font-code">{_esc(v['vpcId'])}</span></div>
+        <div class="detail-row"><span class="detail-label">CIDR</span><span class="detail-value font-code">{_esc(v['cidrBlock'])}</span></div>
+        <div class="detail-row"><span class="detail-label">Region</span><span class="detail-value">{_esc(v.get('region','-'))}</span></div>
+        <div class="detail-row"><span class="detail-label">State</span><span class="detail-value">{_esc(v.get('state','-'))}</span></div>
+        <div class="detail-row"><span class="detail-label">Created</span><span class="detail-value dim">{_esc(v.get('created','-'))}</span></div>
+      </div>
+    </div>"""
+
+    igw_rows = ""
+    for g in igws:
+        igw_rows += f'<div class="detail-row"><span class="detail-label">IGW</span><span class="detail-value font-code">{_esc(g["internetGatewayId"])}</span></div>'
+    igw_card = f'<div class="resource-card"><div class="card-body" style="grid-template-columns:1fr;">{igw_rows}</div></div>' if igw_rows else '<div class="resource-card"><div class="empty-msg">No IGW attached</div></div>'
+
+    rt_cards = ""
+    for rt in rts:
+        rows = "".join(
+            f'<div class="detail-row"><span class="detail-label">{_esc(r["destinationCidrBlock"])}</span>'
+            f'<span class="detail-value font-code">→ {_esc(r["gatewayId"])}</span></div>'
+            for r in rt.get("routes", [])
+        )
+        rt_cards += f'<div class="resource-card"><div class="card-header"><span class="resource-title">{_esc(rt["routeTableId"])}</span></div><div class="card-body" style="grid-template-columns:1fr;">{rows}</div></div>'
+
+    body = f"""
+    <h2>Info</h2>{info_rows}
+    <h2>Subnets ({len(subnets)})</h2>{subnet_cards}
+    <h2>Internet Gateway</h2>{igw_card}
+    <h2>Route Tables</h2>{rt_cards or '<div class="resource-card"><div class="empty-msg">No route tables</div></div>'}
+    """
+    return _detail_page(f"VPC {vpc_id}", vpc_id, body)
+
+
+def render_subnet_detail(subnet_id):
+    s = vpc.get_subnet(subnet_id)
+    if not s:
+        return _detail_page("Subnet Not Found", subnet_id, f'<div class="resource-card"><div class="empty-msg">No subnet: {_esc(subnet_id)}</div></div>')
+
+    body = f"""
+    <div class="resource-card">
+      <div class="card-body" style="grid-template-columns:1fr;">
+        <div class="detail-row"><span class="detail-label">Subnet ID</span><span class="detail-value font-code">{_esc(s['subnetId'])}</span></div>
+        <div class="detail-row"><span class="detail-label">CIDR</span><span class="detail-value font-code">{_esc(s['cidrBlock'])}</span></div>
+        <div class="detail-row"><span class="detail-label">VPC</span><span class="detail-value font-code"><a href="/vpc/{s['vpcId']}">{_esc(s['vpcId'])}</a></span></div>
+        <div class="detail-row"><span class="detail-label">AZ</span><span class="detail-value">{_esc(s.get('availabilityZone','-'))}</span></div>
+        <div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">{(s.get('tags') or {}).get('Name','-')}</span></div>
+        <div class="detail-row"><span class="detail-label">State</span><span class="detail-value">{_esc(s.get('state','-'))}</span></div>
+      </div>
+    </div>
+    """
+    return _detail_page(f"Subnet {subnet_id}", subnet_id, body)
+
+
+def render_ec2_detail(instance_id):
+    i = ec2.get(instance_id)
+    if not i:
+        return _detail_page("Instance Not Found", instance_id, f'<div class="resource-card"><div class="empty-msg">No instance: {_esc(instance_id)}</div></div>')
+
+    st = ec2.status(instance_id) or {}
+    tags_html = "".join(
+        f'<div class="detail-row"><span class="detail-label">{_esc(k)}</span><span class="detail-value">{_esc(v)}</span></div>'
+        for k, v in (i.get("tags") or {}).items()
+    )
+
+    body = f"""
+    <div class="resource-card">
+      <div class="card-body" style="grid-template-columns:1fr;">
+        <div class="detail-row"><span class="detail-label">Instance ID</span><span class="detail-value font-code">{_esc(i['instance_id'])}</span></div>
+        <div class="detail-row"><span class="detail-label">Type</span><span class="detail-value">{_esc(i.get('instance_type','-'))}</span></div>
+        <div class="detail-row"><span class="detail-label">State</span><span class="detail-value">{_esc(st.get('state','-'))}</span></div>
+        <div class="detail-row"><span class="detail-label">PID</span><span class="detail-value font-code">{_esc(st.get('pid','-'))}</span></div>
+        <div class="detail-row"><span class="detail-label">Uptime</span><span class="detail-value">{st.get('uptime_sec', 0)}s</span></div>
+        <div class="detail-row"><span class="detail-label">Region</span><span class="detail-value">{_esc(i.get('region','-'))}</span></div>
+      </div>
+    </div>
+    <h2>Tags</h2>
+    <div class="resource-card"><div class="card-body" style="grid-template-columns:1fr;">{tags_html or '<div class="empty-msg">No tags</div>'}</div></div>
+    """
+    return _detail_page(f"EC2 {instance_id}", instance_id, body)
+
+
+def render_s3_detail(bucket_name):
+    b = s3.get_bucket(bucket_name)
+    if not b:
+        return _detail_page("Bucket Not Found", bucket_name, f'<div class="resource-card"><div class="empty-msg">No bucket: {_esc(bucket_name)}</div></div>')
+
+    objs = s3.list_objects(bucket_name) or []
+    obj_rows = "".join(
+        f'<div class="detail-row"><span class="detail-label font-code">{_esc(o["key"])}</span>'
+        f'<span class="detail-value dim">{o["size"]} bytes</span></div>'
+        for o in objs
+    )
+
+    body = f"""
+    <div class="resource-card">
+      <div class="card-body" style="grid-template-columns:1fr;">
+        <div class="detail-row"><span class="detail-label">Bucket</span><span class="detail-value">{_esc(b['name'])}</span></div>
+        <div class="detail-row"><span class="detail-label">Region</span><span class="detail-value">{_esc(b.get('region','-'))}</span></div>
+        <div class="detail-row"><span class="detail-label">Created</span><span class="detail-value dim">{_esc(b.get('created','-'))}</span></div>
+        <div class="detail-row"><span class="detail-label">Objects</span><span class="detail-value">{len(objs)}</span></div>
+      </div>
+    </div>
+    <h2>Objects</h2>
+    <div class="resource-card"><div class="card-body" style="grid-template-columns:1fr;">{obj_rows or '<div class="empty-msg">Empty bucket</div>'}</div></div>
+    """
+    return _detail_page(f"S3 {bucket_name}", bucket_name, body)
+
+
+def render_iam_detail(username):
+    u = iam.get_user(username)
+    if not u:
+        return _detail_page("User Not Found", username, f'<div class="resource-card"><div class="empty-msg">No user: {_esc(username)}</div></div>')
+
+    pol_rows = "".join(
+        f'<div class="detail-row"><span class="detail-label">{_esc(p)}</span><span class="detail-value">attached</span></div>'
+        for p in u.get("attachedPolicies", [])
+    )
+    grp_rows = "".join(
+        f'<div class="detail-row"><span class="detail-label">{_esc(g)}</span><span class="detail-value">member</span></div>'
+        for g in u.get("groups", [])
+    )
+
+    body = f"""
+    <div class="resource-card">
+      <div class="card-body" style="grid-template-columns:1fr;">
+        <div class="detail-row"><span class="detail-label">Username</span><span class="detail-value">{_esc(u['userName'])}</span></div>
+        <div class="detail-row"><span class="detail-label">ARN</span><span class="detail-value font-code" style="font-size:11px">{_esc(u['arn'])}</span></div>
+        <div class="detail-row"><span class="detail-label">Created</span><span class="detail-value dim">{_esc(u.get('created','-'))}</span></div>
+      </div>
+    </div>
+    <h2>Policies ({len(u.get('attachedPolicies', []))})</h2>
+    <div class="resource-card"><div class="card-body" style="grid-template-columns:1fr;">{pol_rows or '<div class="empty-msg">No policies</div>'}</div></div>
+    <h2>Groups ({len(u.get('groups', []))})</h2>
+    <div class="resource-card"><div class="card-body" style="grid-template-columns:1fr;">{grp_rows or '<div class="empty-msg">Not in any group</div>'}</div></div>
+    """
+    return _detail_page(f"IAM {username}", username, body)
+
+
+def render_alarm_detail(alarm_name):
+    alarms = cloudwatch.list_alarms()
+    a = next((x for x in alarms if x["alarmName"] == alarm_name), None)
+    if not a:
+        return _detail_page("Alarm Not Found", alarm_name, f'<div class="resource-card"><div class="empty-msg">No alarm: {_esc(alarm_name)}</div></div>')
+
+    body = f"""
+    <div class="resource-card">
+      <div class="card-body" style="grid-template-columns:1fr;">
+        <div class="detail-row"><span class="detail-label">Alarm</span><span class="detail-value">{_esc(a['alarmName'])}</span></div>
+        <div class="detail-row"><span class="detail-label">Namespace</span><span class="detail-value">{_esc(a['namespace'])}</span></div>
+        <div class="detail-row"><span class="detail-label">Metric</span><span class="detail-value">{_esc(a['metricName'])}</span></div>
+        <div class="detail-row"><span class="detail-label">Statistic</span><span class="detail-value">{_esc(a['statistic'])}</span></div>
+        <div class="detail-row"><span class="detail-label">Threshold</span><span class="detail-value">{_esc(a['threshold'])}</span></div>
+        <div class="detail-row"><span class="detail-label">Comparison</span><span class="detail-value">{_esc(a['comparisonOperator'])}</span></div>
+        <div class="detail-row"><span class="detail-label">State</span><span class="detail-value">{_esc(a['stateValue'])}</span></div>
+        <div class="detail-row"><span class="detail-label">Reason</span><span class="detail-value dim">{_esc(a.get('stateReason','-'))}</span></div>
+      </div>
+    </div>
+    """
+    return _detail_page(f"Alarm {alarm_name}", alarm_name, body)
+
+
+def render_metric_detail(namespace, metric_name):
+    stats = cloudwatch.get_metric_statistics(namespace, metric_name, stat="Average")
+    if not stats:
+        return _detail_page("Metric Not Found", f"{namespace}/{metric_name}", f'<div class="resource-card"><div class="empty-msg">No metric</div></div>')
+
+    dps = stats["datapoints"]
+    rows = "".join(
+        f'<div class="detail-row"><span class="detail-label font-code">{_esc(d["timestamp"][:19])}</span>'
+        f'<span class="detail-value">{d["value"]}</span></div>'
+        for d in dps[-30:]
+    )
+
+    body = f"""
+    <div class="resource-card">
+      <div class="card-body" style="grid-template-columns:1fr;">
+        <div class="detail-row"><span class="detail-label">Namespace</span><span class="detail-value">{_esc(namespace)}</span></div>
+        <div class="detail-row"><span class="detail-label">Metric</span><span class="detail-value">{_esc(metric_name)}</span></div>
+        <div class="detail-row"><span class="detail-label">Average</span><span class="detail-value">{stats['value']}</span></div>
+        <div class="detail-row"><span class="detail-label">Samples</span><span class="detail-value">{stats['sampleCount']}</span></div>
+      </div>
+    </div>
+    <h2>Datapoints</h2>
+    <div class="resource-card"><div class="card-body" style="grid-template-columns:1fr;">{rows or '<div class="empty-msg">No data</div>'}</div></div>
+    """
+    return _detail_page(f"Metric {metric_name}", f"{namespace}/{metric_name}", body)
+
+
+def render_loggroup_detail(name):
+    events = cloudwatch.get_log_events(name, limit=100)
+    if events is None:
+        return _detail_page("Log Group Not Found", name, f'<div class="resource-card"><div class="empty-msg">No log group: {_esc(name)}</div></div>')
+
+    lines = "".join(
+        f'<div style="font-family:monospace;font-size:11px;padding:6px 0;border-bottom:1px solid #2b303a;word-break:break-all">{_esc(e)}</div>'
+        for e in events
+    )
+
+    body = f"""
+    <div class="resource-card">
+      <div class="card-body" style="grid-template-columns:1fr;">
+        <div class="detail-row"><span class="detail-label">Log Group</span><span class="detail-value">{_esc(name)}</span></div>
+        <div class="detail-row"><span class="detail-label">Events</span><span class="detail-value">{len(events)}</span></div>
+      </div>
+    </div>
+    <h2>Recent Events</h2>
+    <div class="resource-card"><div class="card-body" style="grid-template-columns:1fr;">{lines or '<div class="empty-msg">Empty</div>'}</div></div>
+    """
+    return _detail_page(f"Logs {name}", name, body)
+
+
+# ---------- Save dashboard to file ----------
 
 def write_dashboard(path):
-    import os
     d = os.path.dirname(path)
     if d:
         os.makedirs(d, exist_ok=True)

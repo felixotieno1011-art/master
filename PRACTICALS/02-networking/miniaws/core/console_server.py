@@ -1,4 +1,4 @@
-"""Serve the MiniAWS Console over HTTP."""
+"""Serve the MiniAWS Console over HTTP with clickable detail pages."""
 import http.server
 import socketserver
 import sys
@@ -12,10 +12,35 @@ PORT_PREFERRED = 7000
 class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         try:
-            html = console.generate_html()
+            path = self.path.split("?")[0].rstrip("/")
+            if path == "":
+                html = console.generate_html()
+            elif path.startswith("/vpc/"):
+                html = console.render_vpc_detail(path[5:])
+            elif path.startswith("/subnet/"):
+                html = console.render_subnet_detail(path[8:])
+            elif path.startswith("/ec2/"):
+                html = console.render_ec2_detail(path[5:])
+            elif path.startswith("/s3/"):
+                html = console.render_s3_detail(path[4:])
+            elif path.startswith("/iam/"):
+                html = console.render_iam_detail(path[5:])
+            elif path.startswith("/alarm/"):
+                html = console.render_alarm_detail(path[7:])
+            elif path.startswith("/metric/"):
+                parts = path[8:].split("/", 1)
+                if len(parts) == 2:
+                    html = console.render_metric_detail(parts[0], parts[1])
+                else:
+                    html = console.render_not_found(path)
+            elif path.startswith("/loggroup/"):
+                html = console.render_loggroup_detail(path[10:])
+            else:
+                html = console.render_not_found(path)
         except Exception as e:
-            self.send_error(500, f"console failed: {e}")
-            return
+            import traceback
+            html = f"<h1>Error</h1><pre>{traceback.format_exc()}</pre>"
+
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(html.encode())))
