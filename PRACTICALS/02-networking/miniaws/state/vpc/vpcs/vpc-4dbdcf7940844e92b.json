@@ -1,0 +1,10 @@
+{
+  "vpcId": "vpc-4dbdcf7940844e92b",
+  "arn": "arn:aws:ec2:af-south-1:437401175396:vpc/vpc-4dbdcf7940844e92b",
+  "cidrBlock": "172.17.0.0/20",
+  "region": "af-south-1",
+  "state": "available",
+  "isDefault": false,
+  "tags": {},
+  "created": "2026-10-04T09:52:27"
+}
