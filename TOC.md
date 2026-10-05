@@ -31,7 +31,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 2.12 Load Balancing 📱🔁
 - [x] 2.13 Network Security (IDS/IPS) 📱
 - [x] 2.14 Network+ Certification Prep 📱
-- [ ] 2.15 Network Automation Basics (Python + Ansible) 📱🔁
+- [x] 2.15 Network Automation Basics (Python + Ansible) 📱🔁
 
 ## Part 3 — Programming Fundamentals
 - [ ] 3.1 How Programming Works 📱
@@ -159,7 +159,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 10.8 Deploy Everything 📱
 
 ## Part 11 — Specialization
-- [ ] 11.1 DevOps Engineer 📱💻
+- [ ] 11.1 xDevOps Engineer 📱💻
 - [ ] 11.2 Cloud Engineer 📱💻
 - [ ] 11.3 Cybersecurity Analyst 📱💻
 - [ ] 11.4 Site Reliability Engineer 📱💻

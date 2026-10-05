@@ -1,0 +1,7 @@
+--- task ---
+name: Included task - show date
+shell: date
+
+--- task ---
+name: Included task - show whoami
+shell: whoami

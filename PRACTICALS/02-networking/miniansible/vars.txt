@@ -1,0 +1,4 @@
+# Global variables — use them in tasks.txt as {{name}}
+greeting=hello from mini-ansible
+target_dir=~/mini-ansible-test
+who=Felix

@@ -1,0 +1,41 @@
+--- task ---
+name: Ping
+ping: any
+
+--- task ---
+name: Show vars still work
+debug: "Hello {{who}}"
+
+--- task ---
+name: Update test config
+copy: ./app.conf -> ~/mini-ansible-test/handled.conf
+notify: after-change
+
+--- task ---
+name: This handler runs only when the copy above changes
+handler: after-change
+debug: HANDLER FIRED - the copy task reported a change
+
+--- task ---
+name: Include another task file
+include: included.txt
+
+--- task ---
+name: Retry demo - command that succeeds
+shell: echo "succeeded on first try"
+retries: 3
+delay: 1
+
+--- task ---
+name: Force changed_when=always
+debug: this task always reports changed
+changed_when: always
+
+--- task ---
+name: Force changed_when=never
+shell: echo "this always reports ok even though it ran"
+changed_when: never
+
+--- task ---
+name: Show current directory
+shell: pwd

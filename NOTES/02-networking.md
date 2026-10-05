@@ -440,3 +440,56 @@ Sits in front of servers, distributes incoming requests across them.
 - Network+ certification exam (if I want it)
 - IT job interviews
 - Anything network-related
+### Network+ Hard Mode — Learning
+- 87% on recall, 70% on scenarios
+- Missed 3 scenario questions:
+  1. Subnet math with /26: 192.168.5.75 is in subnet 192.168.5.64-127
+  2. Traceroute diagnosis: latency jump between hops = problem starts there
+  3. SSH security: use keys, disable passwords
+- LESSON: scenarios > memorization
+## 2.15 Network Automation (mini-Ansible)
+
+### What Ansible does
+- Automates configuring servers via SSH
+- Uses playbooks (task lists) to describe desired state
+- Idempotent: running twice = same result, no re-doing
+
+### Core concepts
+1. Playbook    = list of tasks to run
+2. Inventory   = list of servers (hosts.txt)
+3. Variables   = values used in tasks (vars.txt)
+4. Handlers    = tasks that only run when notified
+5. Idempotency = "run twice, same result"
+
+### My experiments with mini-Ansible
+- Changed var: who=Alice → who=Felix, saw "Hello Felix"
+- Added task: "Show current directory" (pwd) → became task #9
+- Deleted file → copy task ran (changed), handler FIRED
+- Ran again → copy task said "already up to date", NO handler
+- Saw idempotency in action: run1 changed=2, run2 changed=1
+
+### The workflow
+1. Edit playbook.yml or vars.txt
+2. Run: python mini_ansible.py
+3. Read output (ok / changed / failed)
+4. Adjust if needed
+5. Repeat
+
+### Why Ansible matters
+- 1 admin can manage 5000 servers (vs ~20 manually)
+- Zero human error
+- Repeatable, version-controlled
+- Used by NASA, Mercedes, Coca-Cola
+- KES 250K-500K/month job skill
+
+### Real tools
+- Ansible (open source, Red Hat)
+- Ansible Tower / AWX (paid, with UI)
+- Terraform (for cloud infra)
+- Puppet, Chef, SaltStack (alternatives)
+### My own words for 2.15
+- Ansible automates config work across multiple servers
+- Playbook = file with tasks
+- Handler = task that only runs when notified
+- Idempotency = same result every run
+- Saves time + reduces errors
