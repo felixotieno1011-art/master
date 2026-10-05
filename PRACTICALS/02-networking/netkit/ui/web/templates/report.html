@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NETKIT — Report</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="logo">📄</span>
+    <div><h1>NETKIT Report</h1></div>
+  </div>
+  <div class="header-actions">
+    <a class="btn ghost" href="/">← Back</a>
+    <button class="btn" onclick="window.print()">Print / Save PDF</button>
+  </div>
+</header>
+<main>
+  <pre class="report">{{REPORT}}</pre>
+</main>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certificate of Achievement — Part 1 Foundations</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: #0a0e27;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .certificate {
+    max-width: 700px;
+    width: 100%;
+    background: linear-gradient(135deg, #fdfbf6 0%, #e8f0f5 100%);
+    border: 8px solid #4a90e2;
+    border-radius: 12px;
+    padding: 40px 30px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(74, 144, 226, 0.3);
+  }
+  .certificate::before {
+    content: '';
+    position: absolute;
+    top: 12px; left: 12px; right: 12px; bottom: 12px;
+    border: 2px solid #4a90e2;
+    border-radius: 6px;
+    pointer-events: none;
+  }
+  .inner { position: relative; z-index: 2; text-align: center; }
+  .seal {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #5ba0f0 0%, #2c6ac0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+    font-size: 40px;
+    box-shadow: 0 0 0 6px #fdfbf6, 0 0 0 8px #4a90e2, 0 8px 20px rgba(0,0,0,0.2);
+  }
+  h1 {
+    font-size: 32px;
+    color: #1a2a3a;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: #5a6a7a;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+  }
+  .presented {
+    font-size: 14px;
+    color: #555;
+    font-style: italic;
+    margin-bottom: 12px;
+  }
+  .name {
+    font-size: 42px;
+    color: #1a1a1a;
+    font-weight: 700;
+    font-style: italic;
+    border-bottom: 2px solid #4a90e2;
+    display: inline-block;
+    padding: 4px 30px;
+    margin-bottom: 24px;
+  }
+  .completion {
+    font-size: 16px;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    padding: 0 20px;
+  }
+  .completion strong {
+    color: #2c6ac0;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  .stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 24px 0;
+    padding: 20px 0;
+    border-top: 1px solid #b8d0e8;
+    border-bottom: 1px solid #b8d0e8;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .stat { flex: 1; min-width: 90px; }
+  .stat .num {
+    font-size: 24px;
+    color: #2c6ac0;
+    font-weight: 700;
+  }
+  .stat .label {
+    font-size: 10px;
+    color: #5a6a7a;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+  .quote {
+    font-style: italic;
+    color: #555;
+    font-size: 14px;
+    margin: 20px 0;
+    padding: 0 30px;
+    line-height: 1.6;
+  }
+  .topics {
+    font-size: 12px;
+    color: #444;
+    margin: 16px 20px;
+    line-height: 1.8;
+    text-align: left;
+  }
+  .topics strong {
+    color: #2c6ac0;
+    display: block;
+    text-align: center;
+    margin-bottom: 8px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #b8d0e8;
+    font-size: 11px;
+    color: #5a6a7a;
+  }
+  .footer div { flex: 1; text-align: center; }
+  .signature-line {
+    border-top: 1px solid #888;
+    margin: 0 8px 4px;
+    padding-top: 4px;
+  }
+</style>
+</head>
+<body>
+  <div class="certificate">
+    <div class="inner">
+      <div class="seal">🌐</div>
+
+      <h1>Certificate</h1>
+      <div class="subtitle">of Achievement</div>
+
+      <div class="presented">This certifies that</div>
+      <div class="name">Felix Otieno</div>
+
+      <div class="completion">
+        has successfully completed<br>
+        <strong>PART 1 — FOUNDATIONS</strong><br>
+        in the Master Fullstack &amp; Networking Journey
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="num">6</div>
+          <div class="label">Topics</div>
+        </div>
+        <div class="stat">
+          <div class="num">9/10</div>
+          <div class="label">Final MCQs</div>
+        </div>
+        <div class="stat">
+          <div class="num">100%</div>
+          <div class="label">Completion</div>
+        </div>
+        <div class="stat">
+          <div class="num">A+</div>
+          <div class="label">Avg Grade</div>
+        </div>
+      </div>
+
+      <div class="topics">
+        <strong>Topics Mastered</strong>
+        ✓ How the Internet Works &nbsp;·&nbsp; ✓ Client vs Server<br>
+        ✓ IP, DNS, HTTP &nbsp;·&nbsp; ✓ Command Line Basics<br>
+        ✓ Git &amp; GitHub &nbsp;·&nbsp; ✓ How Computers Work
+      </div>
+
+      <div class="quote">
+        "The first step is always the hardest.<br>
+        This one opened the door to everything else."
+      </div>
+
+      <div class="footer">
+        <div>
+          <div class="signature-line"></div>
+          <div>Date</div>
+        </div>
+        <div>
+          <div class="signature-line"></div>
+          <div>Achievement</div>
+        </div>
+        <div>
+          <div class="signature-line"></div>
+          <div>Signature</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

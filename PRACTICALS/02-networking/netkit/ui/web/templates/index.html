@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NETKIT — Networking Toolkit</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="logo">🛠️</span>
+    <div>
+      <h1>NETKIT</h1>
+      <p class="tagline">Your all-in-one networking toolkit</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <a class="btn ghost" href="/report" target="_blank">View Report</a>
+  </div>
+</header>
+
+<main>
+  <section class="grid" id="toolGrid"><!-- cards injected by app.js --></section>
+
+  <section class="panel" id="runner" hidden>
+    <div class="panel-header">
+      <h2 id="runnerTitle">Tool</h2>
+      <button class="btn ghost" id="closeRunner">✕ Close</button>
+    </div>
+    <div class="panel-body">
+      <div id="formArea"></div>
+      <div id="outputArea" class="output"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>© 2026 NETKIT · Only scan networks you own or have permission to test.</p>
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

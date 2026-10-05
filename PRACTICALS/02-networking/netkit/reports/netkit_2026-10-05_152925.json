@@ -1,0 +1,278 @@
+{
+  "app": "NETKIT",
+  "version": "2.0.0",
+  "started": "2026-10-05T15:29:25",
+  "entries": [
+    {
+      "time": "2026-10-05T15:29:25",
+      "tag": "PING",
+      "message": "8.8.8.8 \u2014 reachable, avg 44.624 ms",
+      "data": {
+        "target": "8.8.8.8",
+        "reachable": true,
+        "avg_ms": 44.624
+      }
+    },
+    {
+      "time": "2026-10-05T15:29:38",
+      "tag": "LB-SIM",
+      "message": "12 requests via roundrobin \u2014 {'Server-1': 4, 'Server-2': 4, 'Server-3': 4}",
+      "data": {
+        "ok": true,
+        "algorithm": "roundrobin",
+        "total": 12,
+        "counts": {
+          "Server-1": 4,
+          "Server-2": 4,
+          "Server-3": 4
+        },
+        "assignments": [
+          {
+            "request": 1,
+            "server": "Server-1"
+          },
+          {
+            "request": 2,
+            "server": "Server-2"
+          },
+          {
+            "request": 3,
+            "server": "Server-3"
+          },
+          {
+            "request": 4,
+            "server": "Server-1"
+          },
+          {
+            "request": 5,
+            "server": "Server-2"
+          },
+          {
+            "request": 6,
+            "server": "Server-3"
+          },
+          {
+            "request": 7,
+            "server": "Server-1"
+          },
+          {
+            "request": 8,
+            "server": "Server-2"
+          },
+          {
+            "request": 9,
+            "server": "Server-3"
+          },
+          {
+            "request": 10,
+            "server": "Server-1"
+          },
+          {
+            "request": 11,
+            "server": "Server-2"
+          },
+          {
+            "request": 12,
+            "server": "Server-3"
+          }
+        ]
+      }
+    },
+    {
+      "time": "2026-10-05T15:29:41",
+      "tag": "LB-SIM",
+      "message": "12 requests via roundrobin \u2014 {'Server-1': 4, 'Server-2': 4, 'Server-3': 4}",
+      "data": {
+        "ok": true,
+        "algorithm": "roundrobin",
+        "total": 12,
+        "counts": {
+          "Server-1": 4,
+          "Server-2": 4,
+          "Server-3": 4
+        },
+        "assignments": [
+          {
+            "request": 1,
+            "server": "Server-1"
+          },
+          {
+            "request": 2,
+            "server": "Server-2"
+          },
+          {
+            "request": 3,
+            "server": "Server-3"
+          },
+          {
+            "request": 4,
+            "server": "Server-1"
+          },
+          {
+            "request": 5,
+            "server": "Server-2"
+          },
+          {
+            "request": 6,
+            "server": "Server-3"
+          },
+          {
+            "request": 7,
+            "server": "Server-1"
+          },
+          {
+            "request": 8,
+            "server": "Server-2"
+          },
+          {
+            "request": 9,
+            "server": "Server-3"
+          },
+          {
+            "request": 10,
+            "server": "Server-1"
+          },
+          {
+            "request": 11,
+            "server": "Server-2"
+          },
+          {
+            "request": 12,
+            "server": "Server-3"
+          }
+        ]
+      }
+    },
+    {
+      "time": "2026-10-05T15:29:43",
+      "tag": "LB-SIM",
+      "message": "12 requests via roundrobin \u2014 {'Server-1': 4, 'Server-2': 4, 'Server-3': 4}",
+      "data": {
+        "ok": true,
+        "algorithm": "roundrobin",
+        "total": 12,
+        "counts": {
+          "Server-1": 4,
+          "Server-2": 4,
+          "Server-3": 4
+        },
+        "assignments": [
+          {
+            "request": 1,
+            "server": "Server-1"
+          },
+          {
+            "request": 2,
+            "server": "Server-2"
+          },
+          {
+            "request": 3,
+            "server": "Server-3"
+          },
+          {
+            "request": 4,
+            "server": "Server-1"
+          },
+          {
+            "request": 5,
+            "server": "Server-2"
+          },
+          {
+            "request": 6,
+            "server": "Server-3"
+          },
+          {
+            "request": 7,
+            "server": "Server-1"
+          },
+          {
+            "request": 8,
+            "server": "Server-2"
+          },
+          {
+            "request": 9,
+            "server": "Server-3"
+          },
+          {
+            "request": 10,
+            "server": "Server-1"
+          },
+          {
+            "request": 11,
+            "server": "Server-2"
+          },
+          {
+            "request": 12,
+            "server": "Server-3"
+          }
+        ]
+      }
+    },
+    {
+      "time": "2026-10-05T15:30:02",
+      "tag": "FIREWALL",
+      "message": "192.172.8.8 \u2014 allowed: [22, 80, 443, 3306, 5432]",
+      "data": {
+        "ok": true,
+        "target": "192.172.8.8",
+        "ip": "192.172.8.8",
+        "allowed": [
+          {
+            "port": 22,
+            "name": "SSH"
+          },
+          {
+            "port": 80,
+            "name": "HTTP"
+          },
+          {
+            "port": 443,
+            "name": "HTTPS"
+          },
+          {
+            "port": 3306,
+            "name": "MySQL"
+          },
+          {
+            "port": 5432,
+            "name": "PostgreSQL"
+          }
+        ],
+        "blocked": []
+      }
+    },
+    {
+      "time": "2026-10-05T15:30:05",
+      "tag": "FIREWALL",
+      "message": "192.172.8.8 \u2014 allowed: [22, 80, 443, 3306, 5432]",
+      "data": {
+        "ok": true,
+        "target": "192.172.8.8",
+        "ip": "192.172.8.8",
+        "allowed": [
+          {
+            "port": 22,
+            "name": "SSH"
+          },
+          {
+            "port": 80,
+            "name": "HTTP"
+          },
+          {
+            "port": 443,
+            "name": "HTTPS"
+          },
+          {
+            "port": 3306,
+            "name": "MySQL"
+          },
+          {
+            "port": 5432,
+            "name": "PostgreSQL"
+          }
+        ],
+        "blocked": []
+      }
+    }
+  ]
+}

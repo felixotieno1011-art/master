@@ -1,0 +1,37 @@
+{
+  "app": "NETKIT",
+  "version": "2.0.0",
+  "started": "2026-10-05T15:24:49",
+  "entries": [
+    {
+      "time": "2026-10-05T15:24:49",
+      "tag": "PING",
+      "message": "8.8.8.8 \u2014 reachable, avg 75.963 ms",
+      "data": {
+        "target": "8.8.8.8",
+        "reachable": true,
+        "avg_ms": 75.963
+      }
+    },
+    {
+      "time": "2026-10-05T15:25:11",
+      "tag": "DNS",
+      "message": "3 \u2014 FAILED",
+      "data": {
+        "ok": false,
+        "domain": "3",
+        "ip": null
+      }
+    },
+    {
+      "time": "2026-10-05T15:25:31",
+      "tag": "DNS",
+      "message": "github.com \u2192 20.87.245.0",
+      "data": {
+        "ok": true,
+        "domain": "github.com",
+        "ip": "20.87.245.0"
+      }
+    }
+  ]
+}

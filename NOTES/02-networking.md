@@ -493,3 +493,10 @@ Sits in front of servers, distributes incoming requests across them.
 - Handler = task that only runs when notified
 - Idempotency = same result every run
 - Saves time + reduces errors
+### Part 2 — Final MCQ Score: 9/10 (90%)
+
+Missed Q9: Traceroute latency jump means problem starts at that hop, not DNS
+
+Key memory hook: "Latency spike = problem starts there."
+
+Part 2 complete. Moving to Part 3 (Programming).
