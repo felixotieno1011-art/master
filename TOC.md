@@ -35,7 +35,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 
 ## Part 3 — Programming Fundamentals
 - [x] 3.1 How Programming Works 📱
-- [ ] 3.2 Variables, Types, Operators 📱
+- [x] 3.2 Variables, Types, Operators 📱
 - [ ] 3.3 Conditionals & Loops 📱
 - [ ] 3.4 Functions & Scope 📱
 - [ ] 3.5 Arrays & Objects 📱

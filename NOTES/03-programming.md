@@ -30,3 +30,48 @@ Wrote hello_program.py:
 ### Key insight
 Every program = input → process → output.
 Just different scales.
+## 3.2 Variables, Types, Operators
+
+### Variables
+- Named container for data: name = "Felix"
+- Rules: start with letter/_, case-sensitive, no reserved words
+- Convention: snake_case (my_name, not myName)
+
+### 5 Basic Types
+- int    : 5, 100, -3
+- float  : 3.14, 0.5
+- str    : "hello"
+- bool   : True, False
+- NoneType: None (nothing)
+
+### Type conversion
+- int("24")   → 24
+- float("3.14") → 3.14
+- str(24)     → "24"
+- bool(0)     → False, bool(1) → True
+
+### Arithmetic operators
++  add
+-  subtract
+*  multiply
+/  divide (returns float: 10/3 = 3.33...)
+// floor divide (returns int: 10//3 = 3)
+%  modulus (remainder: 10%3 = 1)
+** power (10**3 = 1000)
+
+### Comparison
+== equal, != not equal, > < >= <=
+
+### Logical
+and (both true), or (one true), not (opposite)
+
+### Common trap
+= assigns, == compares
+age = 24 → sets age
+age == 24 → asks "is age 24?"
+
+### My calculator.py
+- Takes 2 numbers
+- Shows all operations
+- Shows types
+- Shows comparisons & logic
