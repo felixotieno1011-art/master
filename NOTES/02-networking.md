@@ -424,3 +424,19 @@ Sits in front of servers, distributes incoming requests across them.
 - My mini-IDS: catches port scans with a 10s window
 - Slow scans evade (stayed under threshold)
 - Real security uses firewall + IDS + IPS together
+## 2.14 Network+ Prep
+
+### My Score: 26/30 (87%)
+- Real Network+ passing: ~72%
+- I would PASS the real exam
+
+### Things I missed:
+1. Private IP ranges: 10.x, 172.16-31.x, 192.168.x, 127.x
+2. Region vs AZ: Region = geographic area, AZ = data center in that area
+3. ping vs traceroute: ping = reachability, traceroute = path
+4. WPA = Wireless PROTECTED Access (not Public)
+
+### Ready for:
+- Network+ certification exam (if I want it)
+- IT job interviews
+- Anything network-related
