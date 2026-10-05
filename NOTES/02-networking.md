@@ -417,3 +417,10 @@ Sits in front of servers, distributes incoming requests across them.
 - Layer 4 = TCP/UDP (blind), Layer 7 = HTTP (smart)
 - Health check = "are you alive?" test
 - Why: scale to millions + survive server failures
+### My own words for 2.13
+- IDS detects, IPS detects + prevents
+- Signature = known patterns
+- Anomaly = unusual behavior
+- My mini-IDS: catches port scans with a 10s window
+- Slow scans evade (stayed under threshold)
+- Real security uses firewall + IDS + IPS together
