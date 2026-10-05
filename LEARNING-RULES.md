@@ -26,3 +26,36 @@ Activating my brain before learning = better retention.
 
 — Established: 2026-10-05
 — After completing Parts 1 & 2
+
+---
+
+## Rules 5-8 — Added 2026-10-05 (for Part 3+)
+
+### Rule 5 — Write, Don't Copy
+Every program = typed by ME. No paste. No copy.
+Even if I get syntax errors, I write it myself.
+
+### Rule 6 — Spec First
+Before coding, write plain-English steps.
+Example:
+  SPEC:
+  1. Ask user for name
+  2. Ask for a number
+  3. Double it
+  4. Print result
+  THEN: write the code.
+
+### Rule 7 — Break It To Learn It
+After writing working code, change ONE thing
+to break it. Read the error. Fix it.
+This trains my debugging muscle.
+
+### Rule 8 — Type 3 Times
+Any new pattern (if/for/while/function) gets typed
+Day 1, Day 2, Day 3. Muscle memory.
+
+### Every topic now has 2 phases:
+- PHASE A: Learn (I show you)
+- PHASE B: Drill (you write from memory)
+
+Topic is only ticked in TOC after BOTH phases.
