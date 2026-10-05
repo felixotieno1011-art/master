@@ -34,7 +34,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 2.15 Network Automation Basics (Python + Ansible) 📱🔁
 
 ## Part 3 — Programming Fundamentals
-- [ ] 3.1 How Programming Works 📱
+- [x] 3.1 How Programming Works 📱
 - [ ] 3.2 Variables, Types, Operators 📱
 - [ ] 3.3 Conditionals & Loops 📱
 - [ ] 3.4 Functions & Scope 📱
