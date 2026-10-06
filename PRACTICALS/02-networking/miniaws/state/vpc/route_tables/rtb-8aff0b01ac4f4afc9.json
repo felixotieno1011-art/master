@@ -1,7 +1,7 @@
 {
-  "routeTableId": "rtb-ca302df68d6b427e9",
-  "vpcId": "vpc-d49769ed81d046a79",
-  "region": "af-south-1",
+  "routeTableId": "rtb-8aff0b01ac4f4afc9",
+  "vpcId": "vpc-1e1592a320914c44a",
+  "region": "us-east-1",
   "isMain": true,
   "routes": [
     {
@@ -11,5 +11,5 @@
     }
   ],
   "associations": [],
-  "created": "2026-10-05T06:49:28"
+  "created": "2026-10-06T11:25:07"
 }

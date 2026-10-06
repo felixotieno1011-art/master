@@ -110,6 +110,12 @@ def describe_instances():
     }
 
 
+
+def describe_availability_zones():
+    from core import az, account
+    region = account.get_region()
+    return {"AvailabilityZones": az.get_az_details(region)}
+
 def list_buckets():
     buckets = s3_mod.ls_buckets()
     return {
@@ -159,6 +165,7 @@ def list_alarms():
 # Dispatch table
 HANDLERS = {
     "describe-vpcs": describe_vpcs,
+    "describe-availability-zones": describe_availability_zones,
     "describe-subnets": describe_subnets,
     "describe-internet-gateways": describe_internet_gateways,
     "describe-route-tables": describe_route_tables,

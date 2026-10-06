@@ -344,3 +344,62 @@ def associate_subnet(rt_id, subnet_id):
     rt.setdefault("associations", []).append(subnet_id)
     write_json(_rt_path(rt_id), rt)
     return True, f"associated subnet {subnet_id} with route table {rt_id}"
+
+
+def create_route_table(vpc_id, name=None):
+    """Create a new (non-main) route table for a VPC."""
+    v = get_vpc(vpc_id)
+    if not v:
+        return False, f"VPC {vpc_id} not found", None
+
+    region = account.get_region()
+    rt_id = new_id("rtb")
+
+    data = {
+        "routeTableId": rt_id,
+        "vpcId": vpc_id,
+        "region": region,
+        "isMain": False,
+        "routes": [
+            {"destinationCidrBlock": "local", "gatewayId": "local", "state": "active"},
+        ],
+        "associations": [],
+        "tags": {"Name": name} if name else {},
+        "created": now_iso(),
+    }
+    ensure_dir(ROUTE_TABLES_DIR)
+    write_json(_rt_path(rt_id), data)
+    return True, f"created route table {rt_id}", rt_id
+
+
+def add_nat_route(rt_id, nat_id):
+    """Add a 0.0.0.0/0 route via the given NAT Gateway."""
+    rt = get_route_table(rt_id)
+    if not rt:
+        return False, f"route table {rt_id} not found"
+
+    from core import nat
+    if not nat.get_nat_gateway(nat_id):
+        return False, f"NAT Gateway {nat_id} not found"
+
+    # Remove existing default route if any
+    rt["routes"] = [r for r in rt["routes"]
+                    if r.get("destinationCidrBlock") != "0.0.0.0/0"]
+    rt["routes"].append({
+        "destinationCidrBlock": "0.0.0.0/0",
+        "gatewayId": nat_id,
+        "state": "active",
+    })
+    write_json(_rt_path(rt_id), rt)
+    return True, f"added route 0.0.0.0/0 -> {nat_id}"
+
+
+def delete_route_table(rt_id):
+    """Delete a route table. Refuses if it's the main one."""
+    rt = get_route_table(rt_id)
+    if not rt:
+        return False, f"route table {rt_id} not found"
+    if rt.get("isMain"):
+        return False, f"cannot delete the main route table"
+    delete_file(_rt_path(rt_id))
+    return True, f"deleted route table {rt_id}"

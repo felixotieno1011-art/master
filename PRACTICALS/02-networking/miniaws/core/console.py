@@ -3,7 +3,7 @@ import html
 import os
 from datetime import datetime
 
-from core import account, ec2, s3, vpc, iam, cloudwatch
+from core import account, ec2, s3, vpc, iam, cloudwatch, nat, sg, nat, sg
 
 
 def _esc(s):
@@ -168,6 +168,12 @@ def _gather():
     alarm_list = cloudwatch.list_alarms()
     metric_list = cloudwatch.list_metrics()
     loggroups = cloudwatch.describe_log_groups()
+    route_table_list = vpc.list_route_tables()
+    nat_list = nat.list_nat_gateways()
+    sg_list = sg.list_security_groups()
+    route_table_list = vpc.list_route_tables()
+    nat_list = nat.list_nat_gateways()
+    sg_list = sg.list_security_groups()
 
     instances = []
     for i in inst_list:
@@ -213,6 +219,12 @@ def _gather():
         "alarms": alarm_list,
         "metrics": metric_list,
         "loggroups": loggroups,
+        "route_tables": route_table_list,
+        "nats": nat_list,
+        "security_groups": sg_list,
+        "route_tables": route_table_list,
+        "nats": nat_list,
+        "security_groups": sg_list,
         "generated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
@@ -364,6 +376,66 @@ def generate_html():
     if not logs_html:
         logs_html = '<div class="resource-card"><div class="empty-msg">No log groups</div></div>'
 
+    # Route tables
+    rt_html = ""
+    for rt in d.get("route_tables", []):
+        n_routes = len(rt.get("routes", []))
+        is_main = rt.get("isMain", False)
+        badge = "status-ok" if is_main else "status-info"
+        label = "MAIN" if is_main else "custom"
+        rt_html += f"""
+        <div class="resource-card">
+          <div class="card-header">
+            <div><span class="resource-title"><a href="/routetable/{rt['routeTableId']}">{_esc(rt['routeTableId'])}</a></span>
+            <span class="resource-type">{_esc(rt.get('vpcId','-'))}</span></div>
+            <span class="status-pill {badge}">{label}</span>
+          </div>
+          <div class="card-body">
+            <div><p class="data-label">Routes</p><p class="data-value">{n_routes}</p></div>
+            <div><p class="data-label">Region</p><p class="data-value">{_esc(rt.get('region','-'))}</p></div>
+          </div>
+        </div>"""
+    if not rt_html:
+        rt_html = '<div class="resource-card"><div class="empty-msg">No route tables</div></div>'
+
+    # NAT Gateways
+    nat_html = ""
+    for n in d.get("nats", []):
+        nat_html += f"""
+        <div class="resource-card">
+          <div class="card-header">
+            <div><span class="resource-title"><a href="/nat/{n['natGatewayId']}">{_esc(n['natGatewayId'])}</a></span>
+            <span class="resource-type">{_esc(n.get('subnetId','-'))}</span></div>
+            <span class="status-pill status-ok">{_esc(n.get('state','-'))}</span>
+          </div>
+          <div class="card-body">
+            <div><p class="data-label">Public IP</p><p class="data-value">{_esc(n.get('publicIp','-'))}</p></div>
+            <div><p class="data-label">VPC</p><p class="data-value font-code">{_esc(n.get('vpcId','-'))}</p></div>
+          </div>
+        </div>"""
+    if not nat_html:
+        nat_html = '<div class="resource-card"><div class="empty-msg">No NAT Gateways</div></div>'
+
+    # Security Groups
+    sg_html = ""
+    for g in d.get("security_groups", []):
+        name = (g.get("tags") or {}).get("Name", "-")
+        n_rules = len(g.get("ipPermissions", []))
+        sg_html += f"""
+        <div class="resource-card">
+          <div class="card-header">
+            <div><span class="resource-title"><a href="/securitygroup/{g['groupId']}">{_esc(name)}</a></span>
+            <span class="resource-type">{_esc(g['groupId'])}</span></div>
+            <span class="status-pill status-info">{n_rules} in</span>
+          </div>
+          <div class="card-body">
+            <div><p class="data-label">VPC</p><p class="data-value font-code">{_esc(g.get('vpcId','-'))}</p></div>
+            <div><p class="data-label">Description</p><p class="data-value dim">{_esc(g.get('description','-'))}</p></div>
+          </div>
+        </div>"""
+    if not sg_html:
+        sg_html = '<div class="resource-card"><div class="empty-msg">No security groups</div></div>'
+
     body = f"""
     <h2>Service Overview</h2>
     <div class="metrics-grid">
@@ -416,6 +488,15 @@ def generate_html():
 
     <h2>CloudWatch Log Groups</h2>
     {logs_html}
+
+    <h2>Route Tables</h2>
+    {rt_html}
+
+    <h2>NAT Gateways</h2>
+    {nat_html}
+
+    <h2>Security Groups</h2>
+    {sg_html}
     """
 
     subtitle = f"{acct['account_id']} · {acct['region']} · {d['generated']}"
@@ -426,6 +507,108 @@ def generate_html():
 
 def _detail_page(title, subtitle, body_html):
     return _page(title, f'<a class="back" href="/">← Back to Console</a>\n{body_html}', subtitle=subtitle)
+
+
+
+def render_routetable_detail(rt_id):
+    from core import vpc as vpc_mod
+    rt = vpc_mod.get_route_table(rt_id)
+    if not rt:
+        return _detail_page("Route Table Not Found", rt_id,
+                            f'<div class="resource-card"><div class="empty-msg">No route table: {_esc(rt_id)}</div></div>')
+
+    route_rows = ""
+    for r in rt.get("routes", []):
+        gw = r.get("gatewayId", "-")
+        gw_link = gw
+        if gw.startswith("igw-"):
+            gw_link = f'<span class="font-code">{_esc(gw)}</span> (IGW)'
+        elif gw.startswith("nat-"):
+            gw_link = f'<a href="/nat/{gw}" class="font-code">{_esc(gw)}</a> (NAT)'
+        elif gw == "local":
+            gw_link = '<span class="dim">local</span>'
+        route_rows += f"""
+        <div class="detail-row">
+          <span class="detail-label font-code">{_esc(r.get('destinationCidrBlock','-'))}</span>
+          <span class="detail-value">{gw_link}</span>
+        </div>"""
+
+    assoc_rows = ""
+    for s in rt.get("associations", []):
+        assoc_rows += f'<div class="detail-row"><span class="detail-label font-code">{_esc(s)}</span><span class="detail-value"><a href="/subnet/{s}">subnet</a></span></div>'
+
+    body = f"""
+    <div class="resource-card">
+      <div class="card-body" style="grid-template-columns:1fr;">
+        <div class="detail-row"><span class="detail-label">Route Table ID</span><span class="detail-value font-code">{_esc(rt['routeTableId'])}</span></div>
+        <div class="detail-row"><span class="detail-label">VPC</span><span class="detail-value font-code"><a href="/vpc/{rt['vpcId']}">{_esc(rt['vpcId'])}</a></span></div>
+        <div class="detail-row"><span class="detail-label">Region</span><span class="detail-value">{_esc(rt.get('region','-'))}</span></div>
+        <div class="detail-row"><span class="detail-label">Main</span><span class="detail-value">{'yes' if rt.get('isMain') else 'no'}</span></div>
+      </div>
+    </div>
+    <h2>Routes ({len(rt.get('routes',[]))})</h2>
+    <div class="resource-card"><div class="card-body" style="grid-template-columns:1fr;">{route_rows or '<div class="empty-msg">No routes</div>'}</div></div>
+    <h2>Associated Subnets ({len(rt.get('associations',[]))})</h2>
+    <div class="resource-card"><div class="card-body" style="grid-template-columns:1fr;">{assoc_rows or '<div class="empty-msg">None</div>'}</div></div>
+    """
+    return _detail_page(f"Route Table {rt_id}", rt_id, body)
+
+
+def render_nat_detail(nat_id):
+    from core import nat as nat_mod
+    n = nat_mod.get_nat_gateway(nat_id)
+    if not n:
+        return _detail_page("NAT Gateway Not Found", nat_id,
+                            f'<div class="resource-card"><div class="empty-msg">No NAT: {_esc(nat_id)}</div></div>')
+
+    body = f"""
+    <div class="resource-card">
+      <div class="card-body" style="grid-template-columns:1fr;">
+        <div class="detail-row"><span class="detail-label">NAT ID</span><span class="detail-value font-code">{_esc(n['natGatewayId'])}</span></div>
+        <div class="detail-row"><span class="detail-label">Subnet</span><span class="detail-value font-code"><a href="/subnet/{n.get('subnetId','')}">{_esc(n.get('subnetId','-'))}</a></span></div>
+        <div class="detail-row"><span class="detail-label">VPC</span><span class="detail-value font-code"><a href="/vpc/{n.get('vpcId','')}">{_esc(n.get('vpcId','-'))}</a></span></div>
+        <div class="detail-row"><span class="detail-label">Region</span><span class="detail-value">{_esc(n.get('region','-'))}</span></div>
+        <div class="detail-row"><span class="detail-label">State</span><span class="detail-value">{_esc(n.get('state','-'))}</span></div>
+        <div class="detail-row"><span class="detail-label">Public IP</span><span class="detail-value">{_esc(n.get('publicIp','-'))}</span></div>
+        <div class="detail-row"><span class="detail-label">Created</span><span class="detail-value dim">{_esc(n.get('createTime','-'))}</span></div>
+      </div>
+    </div>
+    """
+    return _detail_page(f"NAT Gateway {nat_id}", nat_id, body)
+
+
+def render_sg_detail(sg_id):
+    from core import sg as sg_mod
+    g = sg_mod.get_security_group(sg_id)
+    if not g:
+        return _detail_page("Security Group Not Found", sg_id,
+                            f'<div class="resource-card"><div class="empty-msg">No SG: {_esc(sg_id)}</div></div>')
+
+    name = (g.get("tags") or {}).get("Name", "-")
+
+    inbound = ""
+    for r in g.get("ipPermissions", []):
+        inbound += f'<div class="detail-row"><span class="detail-label">{_esc(sg_mod.format_rule(r))}</span><span class="detail-value status-ok">ALLOW IN</span></div>'
+
+    outbound = ""
+    for r in g.get("ipPermissionsEgress", []):
+        outbound += f'<div class="detail-row"><span class="detail-label">{_esc(sg_mod.format_rule(r))}</span><span class="detail-value status-info">ALLOW OUT</span></div>'
+
+    body = f"""
+    <div class="resource-card">
+      <div class="card-body" style="grid-template-columns:1fr;">
+        <div class="detail-row"><span class="detail-label">Group ID</span><span class="detail-value font-code">{_esc(g['groupId'])}</span></div>
+        <div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">{_esc(name)}</span></div>
+        <div class="detail-row"><span class="detail-label">VPC</span><span class="detail-value font-code"><a href="/vpc/{g.get('vpcId','')}">{_esc(g.get('vpcId','-'))}</a></span></div>
+        <div class="detail-row"><span class="detail-label">Description</span><span class="detail-value dim">{_esc(g.get('description','-'))}</span></div>
+      </div>
+    </div>
+    <h2>Inbound Rules ({len(g.get('ipPermissions',[]))})</h2>
+    <div class="resource-card"><div class="card-body" style="grid-template-columns:1fr;">{inbound or '<div class="empty-msg">No inbound rules — all traffic blocked</div>'}</div></div>
+    <h2>Outbound Rules ({len(g.get('ipPermissionsEgress',[]))})</h2>
+    <div class="resource-card"><div class="card-body" style="grid-template-columns:1fr;">{outbound or '<div class="empty-msg">No outbound rules</div>'}</div></div>
+    """
+    return _detail_page(f"Security Group {name}", sg_id, body)
 
 
 def render_not_found(path):

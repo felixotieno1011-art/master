@@ -93,6 +93,54 @@ if [ ${#NEW_ARGS[@]} -gt 0 ]; then
 else
   set --
 fi
+# Service-level help? If ACTION is "help" (or empty), show service help.
+if [ "$ACTION" = "help" ] || [ -z "$ACTION" ]; then
+  python3 -c "
+import sys
+sys.path.insert(0, '$PWD')
+from core import help_text
+service = '$SERVICE'
+# Find all keys that start with this service
+lines = []
+prefix = service + ' '
+for key in sorted(help_text.HELP.keys()):
+    if key.startswith(prefix):
+        lines.append('   ' + key[len(prefix):])
+if not lines:
+    print(f'No commands registered for service: {service}')
+    sys.exit(1)
+print(f'{service.upper()} commands:')
+print()
+for line in lines:
+    print(line)
+print()
+print(f'For details: aws {service} <command> --help')
+"
+  exit $?
+fi
+
+# Per-command help? If --help or -h is in the remaining args, show help and exit.
+for arg in "$@"; do
+  if [ "$arg" = "--help" ] || [ "$arg" = "-h" ]; then
+    KEY="${SERVICE} ${ACTION}"
+    python3 -c "
+import sys
+sys.path.insert(0, '$PWD')
+from core import help_text
+key = '$KEY'
+help_text_str = help_text.HELP.get(key)
+if help_text_str:
+    print(help_text_str)
+else:
+    print(f'No help available for: {key}')
+    print()
+    print('Try: aws help     (for top-level help)')
+    sys.exit(1)
+"
+    exit $?
+  fi
+done
+
 # JSON output mode? Route to json_output.py for supported commands
 if [ "$MINIAWS_OUTPUT_OVERRIDE" = "json" ]; then
   # Map service + action to a JSON handler key
@@ -103,6 +151,7 @@ if [ "$MINIAWS_OUTPUT_OVERRIDE" = "json" ]; then
     ec2/describe-internet-gateways)    JSON_KEY="describe-internet-gateways" ;;
     ec2/describe-route-tables)         JSON_KEY="describe-route-tables" ;;
     ec2/describe-instances)            JSON_KEY="describe-instances" ;;
+    ec2/describe-availability-zones)   JSON_KEY="describe-availability-zones" ;;
     s3/ls)                             JSON_KEY="list-buckets" ;;
     iam/list-users)                    JSON_KEY="list-users" ;;
     cloudwatch/list-alarms)            JSON_KEY="list-alarms" ;;
@@ -147,8 +196,38 @@ case "$SERVICE" in
       stop-instances)              python cli.py ec2 stop-instances "$@" ;;
       reboot-instances)            python cli.py ec2 reboot-instances "$@" ;;
       terminate-instances)         python cli.py ec2 terminate-instances "$@" ;;
+      create-nat-gateway)          python nat_cli.py create "$@" ;;
+      describe-nat-gateways)       python nat_cli.py list "$@" ;;
+      delete-nat-gateway)          python nat_cli.py delete "$@" ;;
+      create-route-table)          python rtb_cli.py create "$@" ;;
+      create-route)                python rtb_cli.py add-route "$@" ;;
+      associate-route-table)       python rtb_cli.py associate "$@" ;;
+      delete-route-table)          python rtb_cli.py delete "$@" ;;
+      describe-availability-zones) python az_cli.py list "$@" ;;
+      create-security-group)       python sg_cli.py create "$@" ;;
+      describe-security-groups)    python sg_cli.py list "$@" ;;
+      delete-security-group)       python sg_cli.py delete "$@" ;;
+      authorize-security-group-ingress) python sg_cli.py authorize-ingress "$@" ;;
+      revoke-security-group-ingress)    python sg_cli.py revoke-ingress "$@" ;;
       *)
         echo "❌ aws ec2: unknown command: $ACTION"
+        exit 1
+        ;;
+    esac
+    ;;
+  s3api)
+    case "$ACTION" in
+      list-buckets)    python s3api_cli.py list-buckets "$@" ;;
+      create-bucket)   python s3api_cli.py create-bucket "$@" ;;
+      list-objects)    python s3api_cli.py list-objects "$@" ;;
+      put-object)      python s3api_cli.py put-object "$@" ;;
+      delete-object)   python s3api_cli.py delete-object "$@" ;;
+      delete-bucket)   python s3api_cli.py delete-bucket "$@" ;;
+      head-bucket)     python s3api_cli.py head-bucket "$@" ;;
+      *)
+        echo "❌ aws s3api: unknown command: $ACTION"
+        echo "Try: list-buckets, create-bucket, list-objects, put-object,"
+        echo "     delete-object, delete-bucket, head-bucket"
         exit 1
         ;;
     esac

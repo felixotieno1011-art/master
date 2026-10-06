@@ -1,0 +1,25 @@
+{
+  "routeTableId": "rtb-93fbf26e010b48ac9",
+  "vpcId": "vpc-79fd5b2a49d347deb",
+  "region": "us-east-1",
+  "isMain": false,
+  "routes": [
+    {
+      "destinationCidrBlock": "local",
+      "gatewayId": "local",
+      "state": "active"
+    },
+    {
+      "destinationCidrBlock": "0.0.0.0/0",
+      "gatewayId": "igw-4873abc1694c4a61a",
+      "state": "active"
+    }
+  ],
+  "associations": [
+    "subnet-da5572e83d2a4c7ab"
+  ],
+  "tags": {
+    "Name": "public-rt"
+  },
+  "created": "2026-10-06T11:00:38"
+}

@@ -1,0 +1,15 @@
+{
+  "subnetId": "subnet-da5572e83d2a4c7ab",
+  "arn": "arn:aws:ec2:us-east-1:437401175396:subnet/subnet-da5572e83d2a4c7ab",
+  "vpcId": "vpc-79fd5b2a49d347deb",
+  "cidrBlock": "10.0.1.0/24",
+  "region": "us-east-1",
+  "availabilityZone": "us-east-1a",
+  "availableIpCount": 251,
+  "state": "available",
+  "mapPublicIpOnLaunch": false,
+  "tags": {
+    "Name": "public-1"
+  },
+  "created": "2026-10-06T10:27:43"
+}

@@ -75,3 +75,22 @@ age == 24 → asks "is age 24?"
 - Shows all operations
 - Shows types
 - Shows comparisons & logic
+### 3.3 Conditionals & Loops — Phase B Drill
+Wrote password_checker.py from memory.
+
+v1: No loop, = instead of ==, 4 bugs
+v2: Added loop but wrong structure
+v3: 90% correct
+v4: PERFECT ✅
+
+### Key lessons learned:
+- break must be INSIDE a loop
+- = assigns, == compares
+- input() must be INSIDE the loop to repeat
+- Python is case-sensitive (True not true)
+- Closing parens are critical
+- Indentation matters
+
+### Compare to 4 years ago:
+Back then I would have quit.
+Today I debugged 4 versions and succeeded.

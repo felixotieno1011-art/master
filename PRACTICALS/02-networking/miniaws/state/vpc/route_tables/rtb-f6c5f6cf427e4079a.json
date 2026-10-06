@@ -1,0 +1,20 @@
+{
+  "routeTableId": "rtb-f6c5f6cf427e4079a",
+  "vpcId": "vpc-1e1592a320914c44a",
+  "region": "us-east-1",
+  "isMain": false,
+  "routes": [
+    {
+      "destinationCidrBlock": "local",
+      "gatewayId": "local",
+      "state": "active"
+    }
+  ],
+  "associations": [
+    "subnet-22d981e7626e4db3b"
+  ],
+  "tags": {
+    "Name": "my-private-rt"
+  },
+  "created": "2026-10-06T12:49:20"
+}

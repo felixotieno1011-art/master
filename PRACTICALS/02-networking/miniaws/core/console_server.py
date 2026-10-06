@@ -35,6 +35,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     html = console.render_not_found(path)
             elif path.startswith("/loggroup/"):
                 html = console.render_loggroup_detail(path[10:])
+            elif path.startswith("/routetable/"):
+                html = console.render_routetable_detail(path[12:])
+            elif path.startswith("/nat/"):
+                html = console.render_nat_detail(path[5:])
+            elif path.startswith("/securitygroup/"):
+                html = console.render_sg_detail(path[15:])
             else:
                 html = console.render_not_found(path)
         except Exception as e:

@@ -47,9 +47,21 @@ VPC COMMANDS:
         return 0
 
     if sub == "delete-vpc":
-        if not rest:
-            print(utils.err("vpc-id required")); return 1
-        ok_, msg = vpc.delete_vpc(rest[0])
+        # Support both syntaxes:
+        #   aws ec2 delete-vpc <id>
+        #   aws ec2 delete-vpc --vpc-id <id>
+        target = None
+        if "--vpc-id" in rest:
+            idx = rest.index("--vpc-id")
+            if idx + 1 < len(rest):
+                target = rest[idx + 1]
+        elif rest:
+            target = rest[0]
+
+        if not target:
+            print(utils.err("usage: aws ec2 delete-vpc <vpc-id> OR --vpc-id <vpc-id>"))
+            return 1
+        ok_, msg = vpc.delete_vpc(target)
         print(utils.ok(msg) if ok_ else utils.err(msg))
         return 0 if ok_ else 1
 
@@ -75,9 +87,18 @@ VPC COMMANDS:
         return 0
 
     if sub == "delete-subnet":
-        if not rest:
-            print(utils.err("subnet-id required")); return 1
-        ok_, msg = vpc.delete_subnet(rest[0])
+        target = None
+        if "--subnet-id" in rest:
+            idx = rest.index("--subnet-id")
+            if idx + 1 < len(rest):
+                target = rest[idx + 1]
+        elif rest:
+            target = rest[0]
+
+        if not target:
+            print(utils.err("usage: aws ec2 delete-subnet <subnet-id> OR --subnet-id <subnet-id>"))
+            return 1
+        ok_, msg = vpc.delete_subnet(target)
         print(utils.ok(msg) if ok_ else utils.err(msg))
         return 0 if ok_ else 1
 
