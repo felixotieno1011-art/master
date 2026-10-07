@@ -33,12 +33,12 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 2.14 Network+ Certification Prep 📱
 - [x] 2.15 Network Automation Basics (Python + Ansible) 📱🔁
 
-## Part 3 — Programming Fundamentals
+## Part 3 - [ ] 3.5 Lists & Dictionaries (Arrays & Objects) 📱— Programming Fundamentals
 - [x] 3.1 How Programming Works 📱
 - [x] 3.2 Variables, Types, Operators 📱
 - [x] 3.3 Conditionals & Loops 📱
 - [x] 3.4 Functions & Scope 📱
-- [ ] 3.5 Arrays & Objects 📱
+- [ ] 3.5 Lists & Dictionaries (Arrays & Objects) 📱
 - [ ] 3.6 Error Handling & Debugging 📱
 - [ ] 3.7 Data Structures 📱
 - [ ] 3.8 Algorithms & Big-O 📱
