@@ -1,7 +1,20 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # aws — MiniAWS wrapper with real AWS syntax.
 
+# Remember where the user was BEFORE we change directory
+ORIG_PWD="$PWD"
+
 cd /data/data/com.termux/files/home/master/PRACTICALS/02-networking/miniaws
+
+# Helper: convert a relative file path to absolute (using ORIG_PWD)
+# This makes commands behave like real AWS CLI (which doesn't change dir)
+abs_path() {
+  case "$1" in
+    /*) echo "$1" ;;                    # already absolute
+    s3://*|http://*|https://*) echo "$1" ;;   # not a file path
+    *) echo "$ORIG_PWD/$1" ;;           # make absolute
+  esac
+}
 
 SERVICE="$1"
 
@@ -31,6 +44,8 @@ AVAILABLE SERVICES
        cloudformation   AWS CloudFormation
        sts              AWS Security Token Service
        configure        Set up your AWS credentials
+       lambda           AWS Lambda (serverless functions)
+       dynamodb         Amazon DynamoDB (NoSQL database)
        billing          Show simulated cost summary
 
 USAGE
@@ -70,6 +85,15 @@ while [ $# -gt 0 ]; do
       ;;
     --output=*)
       OUTPUT_OVERRIDE="${1#--output=}"
+      shift
+      ;;
+    --endpoint-url)
+      shift 2
+      ;;
+    --endpoint-url=*)
+      shift
+      ;;
+    --debug|--no-verify-ssl|--no-paginate|--no-sign-request)
       shift
       ;;
     *)
@@ -141,6 +165,35 @@ else:
   fi
 done
 
+# Billing hook: charge for expensive actions
+case "$SERVICE/$ACTION" in
+  ec2/run-instances)
+    # Find --type and charge accordingly
+    CHARGE_TYPE="t3.micro"
+    for a in "$@"; do
+      case "$a" in
+        --type=*) CHARGE_TYPE="${a#--type=}" ;;
+      esac
+    done
+    python3 "$PWD/lib/billing.py" charge "ec2.run-instances.$CHARGE_TYPE" 1 >/dev/null 2>&1 || true
+    ;;
+  ec2/create-nat-gateway)
+    python3 "$PWD/lib/billing.py" charge "vpc.create-nat" 1 >/dev/null 2>&1 || true
+    ;;
+  ec2/create-internet-gateway)
+    python3 "$PWD/lib/billing.py" charge "vpc.create-igw" 1 >/dev/null 2>&1 || true
+    ;;
+  s3/cp)
+    python3 "$PWD/lib/billing.py" charge "s3.upload" 1 >/dev/null 2>&1 || true
+    ;;
+  lambda/invoke)
+    python3 "$PWD/lib/billing.py" charge "lambda.invoke" 1 >/dev/null 2>&1 || true
+    ;;
+  dynamodb/put-item)
+    python3 "$PWD/lib/billing.py" charge "dynamodb.write" 1 >/dev/null 2>&1 || true
+    ;;
+esac
+
 # JSON output mode? Route to json_output.py for supported commands
 if [ "$MINIAWS_OUTPUT_OVERRIDE" = "json" ]; then
   # Map service + action to a JSON handler key
@@ -163,6 +216,36 @@ if [ "$MINIAWS_OUTPUT_OVERRIDE" = "json" ]; then
 fi
 
 case "$SERVICE" in
+  dynamodb)
+    case "$ACTION" in
+      create-table)  python dynamodb_cli.py create-table "$@" ;;
+      list-tables)   python dynamodb_cli.py list-tables "$@" ;;
+      delete-table)  python dynamodb_cli.py delete-table "$@" ;;
+      put-item)      python dynamodb_cli.py put-item "$@" ;;
+      get-item)      python dynamodb_cli.py get-item "$@" ;;
+      delete-item)   python dynamodb_cli.py delete-item "$@" ;;
+      scan)          python dynamodb_cli.py scan "$@" ;;
+      *)
+        echo "❌ aws dynamodb: unknown command: $ACTION"
+        echo "Try: create-table, list-tables, delete-table, put-item,"
+        echo "     get-item, delete-item, scan"
+        exit 1
+        ;;
+    esac
+    ;;
+  lambda)
+    case "$ACTION" in
+      create-function)   python lambda_cli.py create "$@" ;;
+      list-functions)    python lambda_cli.py list "$@" ;;
+      invoke)            python lambda_cli.py invoke "$@" ;;
+      delete-function)   python lambda_cli.py delete "$@" ;;
+      *)
+        echo "❌ aws lambda: unknown command: $ACTION"
+        echo "Try: create-function, list-functions, invoke, delete-function"
+        exit 1
+        ;;
+    esac
+    ;;
   billing)
     case "$ACTION" in
       show)   python "$PWD/lib/billing.py" show ;;
@@ -236,7 +319,18 @@ case "$SERVICE" in
     case "$ACTION" in
       mb)   python cli.py s3 mb "$@" ;;
       ls)   python cli.py s3 ls "$@" ;;
-      cp)   python cli.py s3 cp "$@" ;;
+      cp)
+        # Convert relative file paths to absolute (using original dir)
+        ARGS=()
+        for arg in "$@"; do
+          case "$arg" in
+            s3://*) ARGS+=("$arg") ;;
+            /*)     ARGS+=("$arg") ;;
+            *)      ARGS+=("$(abs_path "$arg")") ;;
+          esac
+        done
+        python cli.py s3 cp "${ARGS[@]}"
+        ;;
       rm)   python cli.py s3 rm "$@" ;;
       rb)   python cli.py s3 rb "$@" ;;
       *) echo "❌ aws s3: unknown: $ACTION"; exit 1 ;;

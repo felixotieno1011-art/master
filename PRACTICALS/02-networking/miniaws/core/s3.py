@@ -62,10 +62,10 @@ def mb_bucket(name):
         return False, e
 
     if not account.is_initialized():
-        return False, "account not initialized. Run: miniaws account init"
+        return False, "account not initialized. Run: aws configure"
 
     if os.path.isdir(_bucket_path(name)):
-        return False, f"bucket '{name}' already exists"
+        return False, f"BucketAlreadyOwnedByYou: bucket '{name}' already exists and is owned by you"
 
     ensure_dir(_bucket_path(name))
 

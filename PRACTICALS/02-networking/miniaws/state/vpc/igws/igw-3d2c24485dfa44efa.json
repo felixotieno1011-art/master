@@ -1,0 +1,11 @@
+{
+  "internetGatewayId": "igw-3d2c24485dfa44efa",
+  "arn": "arn:aws:ec2:af-south-1:861879765232:internet-gateway/igw-3d2c24485dfa44efa",
+  "region": "af-south-1",
+  "state": "available",
+  "attachments": [],
+  "tags": {
+    "Name": "bill-igw"
+  },
+  "created": "2026-10-07T12:35:20"
+}

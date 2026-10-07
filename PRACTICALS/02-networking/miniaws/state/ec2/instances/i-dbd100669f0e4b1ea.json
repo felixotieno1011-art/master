@@ -1,0 +1,19 @@
+{
+  "instance_id": "i-dbd100669f0e4b1ea",
+  "arn": "arn:aws:ec2:af-south-1:861879765232:instance/i-dbd100669f0e4b1ea",
+  "instance_type": "t3.large",
+  "region": "af-south-1",
+  "state": "running",
+  "hardware": {
+    "vcpus": 2,
+    "memory_mb": 8192,
+    "disk_gb": 120
+  },
+  "tags": {
+    "Name": "cost-test",
+    "env": "production",
+    "owner": "kelvin"
+  },
+  "launched": "2026-10-07T12:15:59",
+  "account_id": "861879765232"
+}

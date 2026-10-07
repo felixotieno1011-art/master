@@ -1,14 +1,10 @@
 {
   "userName": "alice",
-  "arn": "arn:aws:iam::437401175396:user/alice",
-  "userId": "AIDA437401175396",
+  "arn": "arn:aws:iam::861879765232:user/alice",
+  "userId": "AIDA861879765232",
   "path": "/",
-  "created": "2026-10-03T20:16:52",
+  "created": "2026-10-07T12:29:16",
   "tags": {},
-  "attachedPolicies": [
-    "DenyS3Get"
-  ],
-  "groups": [
-    "developers"
-  ]
+  "attachedPolicies": [],
+  "groups": []
 }

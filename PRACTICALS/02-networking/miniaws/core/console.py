@@ -3,7 +3,7 @@ import html
 import os
 from datetime import datetime
 
-from core import account, ec2, s3, vpc, iam, cloudwatch, nat, sg, nat, sg
+from core import account, ec2, s3, vpc, iam, cloudwatch, nat, sg, lambda_svc, dynamodb, nat, sg
 
 
 def _esc(s):
@@ -112,6 +112,63 @@ pre {
   background: #0a0f1a; padding: 12px; border-radius: 8px;
   overflow-x: auto; font-size: 11px; color: #cbd5e1;
 }
+
+/* ---------- Forms ---------- */
+.form-card {
+  background: #161b22; border: 1px solid #2b303a; border-radius: 8px;
+  padding: 16px; margin: 12px 0;
+}
+.form-card h3 {
+  margin: 0 0 12px 0; font-size: 14px; color: #ff9900;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.form-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.form-row label { font-size: 13px; color: #a1a8b3; min-width: 80px; }
+.form-row input[type=text] {
+  flex: 1; min-width: 180px; padding: 8px 10px;
+  background: #0a0f1a; border: 1px solid #2b303a; border-radius: 6px;
+  color: #eaeded; font-size: 13px; font-family: monospace;
+}
+.form-row input[type=text]:focus { outline: none; border-color: #529cca; }
+.form-row button {
+  background: #ff9900; color: #0f141c; border: none;
+  padding: 8px 16px; border-radius: 6px; font-weight: bold;
+  font-size: 13px; cursor: pointer;
+}
+.form-row button:hover { background: #ffad33; }
+.form-row button:active { background: #e08800; }
+/* ---------- Alerts ---------- */
+.alert {
+  padding: 12px 16px; border-radius: 8px; margin: 12px 0;
+  font-size: 13px;
+}
+.alert.ok { background: #122918; color: #4ade80; border-left: 4px solid #4ade80; }
+.alert.error { background: #2c1512; color: #f87171; border-left: 4px solid #f87171; }
+
+/* ---------- Create section (details/summary) ---------- */
+details.create-section {
+  background: #161b22; border: 1px solid #2b303a; border-radius: 8px;
+  padding: 10px 14px; margin: 12px 0;
+}
+details.create-section summary {
+  cursor: pointer; color: #ff9900; font-weight: bold;
+  font-size: 13px; user-select: none;
+}
+details.create-section[open] summary { margin-bottom: 8px; }
+
+/* ---------- Delete buttons ---------- */
+.btn-delete {
+  background: #2c1512; color: #f87171; border: 1px solid #4e1c14;
+  padding: 4px 8px; border-radius: 6px; font-size: 12px;
+  cursor: pointer; margin-left: 8px;
+}
+.btn-delete:hover { background: #4e1c14; }
+.btn-delete-large {
+  background: #2c1512; color: #f87171; border: 1px solid #4e1c14;
+  padding: 8px 14px; border-radius: 6px; font-size: 13px;
+  font-weight: bold; cursor: pointer; margin: 12px 0;
+}
+.btn-delete-large:hover { background: #4e1c14; }
 """
 
 
@@ -171,9 +228,8 @@ def _gather():
     route_table_list = vpc.list_route_tables()
     nat_list = nat.list_nat_gateways()
     sg_list = sg.list_security_groups()
-    route_table_list = vpc.list_route_tables()
-    nat_list = nat.list_nat_gateways()
-    sg_list = sg.list_security_groups()
+    lambda_list = lambda_svc.list_functions()
+    dynamodb_list = dynamodb.list_tables()
 
     instances = []
     for i in inst_list:
@@ -222,16 +278,15 @@ def _gather():
         "route_tables": route_table_list,
         "nats": nat_list,
         "security_groups": sg_list,
-        "route_tables": route_table_list,
-        "nats": nat_list,
-        "security_groups": sg_list,
+        "lambdas": lambda_list,
+        "dynamodb_tables": dynamodb_list,
         "generated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
 
 # ---------- Main dashboard ----------
 
-def generate_html():
+def generate_html(flash_msg=None, flash_type=None):
     d = _gather()
     acct = d["account"]
 
@@ -436,7 +491,57 @@ def generate_html():
     if not sg_html:
         sg_html = '<div class="resource-card"><div class="empty-msg">No security groups</div></div>'
 
+    # Lambda functions
+    lambda_html = ""
+    for fn in d.get("lambdas", []):
+        lambda_html += f"""
+        <div class="resource-card">
+          <div class="card-header">
+            <div>
+              <span class="resource-title"><a href="/lambda/{fn['FunctionName']}">{_esc(fn['FunctionName'])}</a></span>
+              <span class="resource-type">{_esc(fn.get('Runtime','-'))}</span>
+            </div>
+            <span class="status-pill status-ok">{_esc(fn.get('State','-'))}</span>
+          </div>
+          <div class="card-body">
+            <div><p class="data-label">Handler</p><p class="data-value font-code">{_esc(fn.get('Handler','-'))}</p></div>
+            <div><p class="data-label">Code Size</p><p class="data-value">{fn.get('CodeSize',0)} bytes</p></div>
+          </div>
+        </div>"""
+    if not lambda_html:
+        lambda_html = '<div class="resource-card"><div class="empty-msg">No Lambda functions</div></div>'
+
+    # DynamoDB tables
+    ddb_html = ""
+    for tbl in d.get("dynamodb_tables", []):
+        key_name = tbl["KeySchema"][0]["AttributeName"] if tbl.get("KeySchema") else "-"
+        ddb_html += f"""
+        <div class="resource-card">
+          <div class="card-header">
+            <div>
+              <span class="resource-title"><a href="/dynamodb/{tbl['TableName']}">{_esc(tbl['TableName'])}</a></span>
+              <span class="resource-type">key: {_esc(key_name)}</span>
+            </div>
+            <span class="status-pill status-ok">{tbl.get('ItemCount',0)} items</span>
+          </div>
+          <div class="card-body">
+            <div><p class="data-label">Status</p><p class="data-value">{_esc(tbl.get('TableStatus','-'))}</p></div>
+            <div><p class="data-label">Created</p><p class="data-value dim">{_esc(tbl.get('CreationDateTime','-'))}</p></div>
+          </div>
+        </div>"""
+    if not ddb_html:
+        ddb_html = '<div class="resource-card"><div class="empty-msg">No DynamoDB tables</div></div>'
+
+    alert_html = ""
+    if flash_msg:
+        variant = "ok" if flash_type == "ok" else "error"
+        icon = "✅" if flash_type == "ok" else "❌"
+        # Use .alert class with proper variant
+        variant = "ok" if flash_type == "ok" else "error"
+        alert_html = f'<div class="alert {variant}">{icon} {_esc(flash_msg)}</div>'
+
     body = f"""
+    {alert_html}
     <h2>Service Overview</h2>
     <div class="metrics-grid">
       <div class="metric-card">
@@ -471,8 +576,34 @@ def generate_html():
     <h2>EC2 Instances</h2>
     {ec2_html}
 
+    <details class="create-section">
+      <summary>➕ Create S3 Bucket</summary>
+      <div class="form-card" style="margin-top:8px">
+        <form method="POST" action="/create-s3" class="form-row">
+          <label for="bucket">Name:</label>
+          <input type="text" id="bucket" name="bucket" placeholder="my-bucket" required>
+          <button type="submit">Create</button>
+        </form>
+        <p class="data-label" style="margin-top:8px">Bucket names must be unique, lowercase, 3-63 chars.</p>
+      </div>
+    </details>
+
     <h2>S3 Buckets</h2>
     {s3_html}
+
+    <details class="create-section">
+      <summary>➕ Create VPC</summary>
+      <div class="form-card" style="margin-top:8px">
+        <form method="POST" action="/create-vpc" class="form-row">
+          <label for="cidr">CIDR:</label>
+          <input type="text" id="cidr" name="cidr" placeholder="10.0.0.0/16" required>
+          <button type="submit">Create</button>
+        </form>
+        <p class="data-label" style="margin-top:8px">
+          Example: <code>10.0.0.0/16</code> (65,536 IPs) or <code>10.5.0.0/24</code> (256 IPs)
+        </p>
+      </div>
+    </details>
 
     <h2>VPCs</h2>
     {vpc_html}
@@ -495,8 +626,63 @@ def generate_html():
     <h2>NAT Gateways</h2>
     {nat_html}
 
+    <details class="create-section">
+      <summary>➕ Create Security Group</summary>
+      <div class="form-card" style="margin-top:8px">
+        <form method="POST" action="/create-sg" class="form-row">
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" placeholder="web-sg" required>
+          <label for="desc">Desc:</label>
+          <input type="text" id="desc" name="description" placeholder="For web servers">
+          <button type="submit">Create</button>
+        </form>
+      </div>
+    </details>
+
     <h2>Security Groups</h2>
     {sg_html}
+
+    <details class="create-section">
+      <summary>➕ Create Lambda Function</summary>
+      <div class="form-card" style="margin-top:8px">
+        <form method="POST" action="/create-lambda">
+          <div class="form-row" style="margin-bottom:8px">
+            <label for="fn-name">Name:</label>
+            <input type="text" id="fn-name" name="name" placeholder="hello" required>
+          </div>
+          <label for="fn-code" class="data-label">Python code (must define lambda_handler):</label>
+          <textarea id="fn-code" name="code" rows="6" class="form-textarea" required>def lambda_handler(event, context):
+    return {{"statusCode": 200, "body": "Hello from Lambda!"}}</textarea>
+          <div style="margin-top:8px">
+            <button type="submit" class="form-button-primary">Create Function</button>
+          </div>
+        </form>
+      </div>
+    </details>
+
+    <h2>Lambda Functions</h2>
+    {lambda_html}
+
+    <details class="create-section">
+      <summary>➕ Create DynamoDB Table</summary>
+      <div class="form-card" style="margin-top:8px">
+        <form method="POST" action="/create-table" class="form-row">
+          <label for="tbl">Table:</label>
+          <input type="text" id="tbl" name="table_name" placeholder="Users" required>
+          <label for="key">Key:</label>
+          <input type="text" id="key" name="key_name" placeholder="id" required>
+          <label for="ktype">Type:</label>
+          <select id="ktype" name="key_type">
+            <option value="S">String</option>
+            <option value="N">Number</option>
+          </select>
+          <button type="submit">Create</button>
+        </form>
+      </div>
+    </details>
+
+    <h2>DynamoDB Tables</h2>
+    {ddb_html}
     """
 
     subtitle = f"{acct['account_id']} · {acct['region']} · {d['generated']}"
@@ -632,6 +818,10 @@ def render_vpc_detail(vpc_id):
           <div class="card-header">
             <div><span class="resource-title"><a href="/subnet/{s['subnetId']}">{_esc(s['subnetId'])}</a></span>
             <span class="resource-type">{_esc(name)}</span></div>
+            <form method="POST" action="/delete-subnet" style="display:inline" onsubmit="return confirm('Delete subnet {s['subnetId']}?')">
+              <input type="hidden" name="subnet_id" value="{s['subnetId']}">
+              <button type="submit" class="btn-delete">🗑</button>
+            </form>
           </div>
           <div class="card-body">
             <div><p class="data-label">CIDR</p><p class="data-value font-code">{_esc(s['cidrBlock'])}</p></div>
@@ -667,7 +857,30 @@ def render_vpc_detail(vpc_id):
         rt_cards += f'<div class="resource-card"><div class="card-header"><span class="resource-title">{_esc(rt["routeTableId"])}</span></div><div class="card-body" style="grid-template-columns:1fr;">{rows}</div></div>'
 
     body = f"""
+    <form method="POST" action="/delete-vpc" style="display:inline" onsubmit="return confirm('Delete VPC {vpc_id}? This cannot be undone.')">
+      <input type="hidden" name="vpc_id" value="{vpc_id}">
+      <button type="submit" class="btn-delete-large">🗑 Delete this VPC</button>
+    </form>
+
     <h2>Info</h2>{info_rows}
+
+    <details class="create-section">
+      <summary>➕ Create Subnet</summary>
+      <div class="form-card" style="margin-top:8px">
+        <form method="POST" action="/create-subnet" class="form-row">
+          <input type="hidden" name="vpc_id" value="{vpc_id}">
+          <label for="sub-cidr">CIDR:</label>
+          <input type="text" id="sub-cidr" name="cidr" placeholder="10.0.1.0/24" required>
+          <label for="sub-name">Name:</label>
+          <input type="text" id="sub-name" name="name" placeholder="public-1">
+          <button type="submit">Create</button>
+        </form>
+        <p class="data-label" style="margin-top:8px">
+          Must be inside the VPC's range: <code>{_esc(v['cidrBlock'])}</code>
+        </p>
+      </div>
+    </details>
+
     <h2>Subnets ({len(subnets)})</h2>{subnet_cards}
     <h2>Internet Gateway</h2>{igw_card}
     <h2>Route Tables</h2>{rt_cards or '<div class="resource-card"><div class="empty-msg">No route tables</div></div>'}

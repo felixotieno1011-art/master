@@ -46,7 +46,7 @@ def create(name, instance_type="t3.micro", tags=None):
     if e: return False, e, None
 
     if not account.is_initialized():
-        return False, "account not initialized. Run: miniaws account init", None
+        return False, "account not initialized. Run: aws configure", None
 
     region = account.get_region()
     account_id = account.get_account_id()

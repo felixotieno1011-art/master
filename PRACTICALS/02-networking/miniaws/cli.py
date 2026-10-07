@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """MiniAWS CLI — account, region, tag, ec2, s3."""
 import sys
+import re
 import json
 
 import utils
@@ -158,15 +159,42 @@ def cmd_ec2(args):
     sub, rest = args[0], args[1:]
     if sub == "run-instances":
         flags = parse_flags(rest)
+
+        # --- Instance name ---
+        # Accept: --name <n>  OR  --tag-specifications '...Name,Value=X...'
         name = flags.get("name")
-        itype = flags.get("type") or "t3.micro"
+        if not name and isinstance(flags.get("tag-specifications"), str):
+            m = re.search(r"Key=Name,Value=([^}\]\s]+)", flags["tag-specifications"])
+            if m:
+                name = m.group(1)
+
+        # --- Instance type ---
+        # Accept: --type <t>  OR  --instance-type <t>
+        itype_raw = (flags.get("type")
+                     or flags.get("instance-type")
+                     or "t3.micro")
+
+        # Map real AWS t2.x names to MiniAWS t3.x
+        type_map = {
+            "t2.nano": "t3.nano", "t2.micro": "t3.micro",
+            "t2.small": "t3.small", "t2.medium": "t3.medium",
+            "t2.large": "t3.large",
+        }
+        itype = type_map.get(itype_raw, itype_raw)
+
         if not name:
-            print(utils.err("--name is required")); return 1
+            print(utils.err("--name is required (or use --tag-specifications with Key=Name)"))
+            return 1
+
         ok_, msg, iid = ec2.create(name, instance_type=itype)
         print(utils.ok(msg) if ok_ else utils.err(msg))
         return 0 if ok_ else 1
     if sub == "describe-instances":
+        flags = parse_flags(rest)
+        filter_id = flags.get("instance-ids") if isinstance(flags.get("instance-ids"), str) else None
         instances = ec2.list_all()
+        if filter_id:
+            instances = [i for i in instances if i["instance_id"] == filter_id]
         if not instances:
             print(utils.warn("no instances")); return 0
         print_row(["INSTANCE ID", "NAME", "TYPE", "STATE", "REGION", "PID"],
@@ -205,10 +233,22 @@ def cmd_ec2(args):
         return 0
     if sub in ("start-instances", "stop-instances", "reboot-instances", "terminate-instances"):
         if not rest:
-            print(utils.err(f"usage: ec2 {sub} <id-or-name>")); return 1
-        inst = ec2.resolve(rest[0])
+            print(utils.err(f"usage: ec2 {sub} <id-or-name> OR --instance-ids <id>")); return 1
+        flags = parse_flags(rest)
+        # Support both positional and --instance-ids flag
+        if isinstance(flags.get("instance-ids"), str):
+            target = flags["instance-ids"]
+        else:
+            target = None
+            for r in rest:
+                if not r.startswith("--"):
+                    target = r
+                    break
+        if not target:
+            print(utils.err(f"usage: ec2 {sub} <id-or-name> OR --instance-ids <id>")); return 1
+        inst = ec2.resolve(target)
         if not inst:
-            print(utils.err(f"instance '{rest[0]}' not found")); return 1
+            print(utils.err(f"instance '{target}' not found")); return 1
         iid = inst["instance_id"]
         if sub == "start-instances":     ok_, msg = ec2.start(iid)
         elif sub == "stop-instances":    ok_, msg = ec2.stop(iid)
@@ -278,8 +318,12 @@ def cmd_s3(args):
         if not src.startswith("s3://") and dst.startswith("s3://"):
             # Upload
             bucket, key = s3.parse_s3_uri(dst)
-            if not bucket or not key:
-                print(utils.err("dest must be s3://<bucket>/<key>")); return 1
+            if not bucket:
+                print(utils.err("dest must be s3://<bucket>/[key]")); return 1
+            if not key:
+                # Trailing slash (or no key) — use source filename
+                import os as _os
+                key = _os.path.basename(src)
             ok_, msg = s3.put_object(bucket, key, src)
             print(utils.ok(f"upload: {msg}") if ok_ else utils.err(msg))
             return 0 if ok_ else 1

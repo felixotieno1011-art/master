@@ -22,6 +22,8 @@ PRICING = {
     "vpc.create-igw":              0.045,    # $/hour
     "vpc.create-nat":              0.045,    # $/hour
     "cloudwatch.metric":           0.0000003,
+    "lambda.invoke":               0.0000208,   # per invocation
+    "dynamodb.write":              0.00000125,  # per write unit
 }
 
 

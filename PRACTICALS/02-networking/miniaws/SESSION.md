@@ -137,3 +137,137 @@ EOF
 
 ### Ready for Chapter 8
 - Subnet Math (AWS reserved IPs: 5 per subnet)
+
+---
+
+## Session: 2026-10-06 (evening) — Lambda Added
+**Goal:** Add AWS Lambda (serverless functions) to MiniAWS. ✅ Achieved.
+
+### What we built
+- `core/lambda_svc.py` — Lambda logic (real Python execution)
+- `lambda_cli.py` — CLI wrapper
+- Wrapper: routes `lambda` service
+- Help text updated
+
+### Commands
+- `aws lambda create-function --function-name <n> --zip-file <path.py>`
+- `aws lambda list-functions`
+- `aws lambda invoke --function-name <n> [--payload '<json>']`
+- `aws lambda delete-function --function-name <n>`
+
+### How it works
+- Stores Python code in `state/lambda/functions/<name>.py`
+- Metadata in `<name>.json`
+- On invoke: actually runs the code in a sandbox
+- Captures stdout, return value, execution time
+- Returns realistic AWS-style response
+
+### Tested
+- Created `hello` function that takes `{"name": "X"}` and returns "Hello, X!"
+- Invoked with no payload → "Hello, World!"
+- Invoked with `{"name": "Kelvin"}` → "Hello, Kelvin!"
+- Deleted successfully
+
+### Test results
+- ✅ create-function works
+- ✅ list-functions works (table + JSON)
+- ✅ invoke works (real execution)
+- ✅ delete-function works
+
+---
+
+## Session: 2026-10-06 (evening) — Lambda + DynamoDB Added
+**Goal:** Add serverless + NoSQL to MiniAWS. ✅ Achieved.
+
+### Lambda (serverless functions)
+- `core/lambda_svc.py`, `lambda_cli.py`
+- `aws lambda create-function --function-name <n> --zip-file <path.py>`
+- `aws lambda list-functions`
+- `aws lambda invoke --function-name <n> [--payload '<json>']`
+- `aws lambda delete-function --function-name <n>`
+- **Real execution:** runs Python code with event + context
+- Captures stdout, return value, duration
+
+### DynamoDB (NoSQL key-value store)
+- `core/dynamodb.py`, `dynamodb_cli.py`
+- `aws dynamodb create-table --table-name <n> --key-schema '<attr>:S'`
+- `aws dynamodb list-tables`
+- `aws dynamodb put-item --table-name <n> --item '<json>'`
+- `aws dynamodb get-item --table-name <n> --key '<value>'`
+- `aws dynamodb delete-item --table-name <n> --key '<value>'`
+- `aws dynamodb scan --table-name <n>`
+- `aws dynamodb delete-table --table-name <n>`
+
+### Tested
+- Lambda: created `hello` function, invoked with/without payload, deleted
+- DynamoDB: created `Users` table, added 2 items, retrieved, scanned, deleted
+
+### MiniAWS now has 13 services
+Account, EC2, S3, S3 API, VPC, IAM, CloudWatch, CloudFormation,
+AZs, NATs, Security Groups, Lambda, DynamoDB.
+
+---
+
+## Session: 2026-10-06 (evening) — Interactive Console (Session 1 of 3)
+**Goal:** Make the console interactive — create VPCs from browser. ✅ Achieved.
+
+### What we built
+- `console_server.py`: added `do_POST` handler + form parsing
+- `console.py`: added form CSS, alert banner, "Create VPC" details button
+- New route: `POST /create-vpc`
+- Redirects back to `/` with success/error message
+- Success/error banner displays at top of dashboard
+
+### How it works
+1. User clicks "➕ Create VPC" (details element expands)
+2. Types CIDR, clicks Create
+3. Browser POSTs to `/create-vpc`
+4. Server calls `vpc.create_vpc(cidr)`
+5. Server redirects to `/?ok=<msg>` or `/?error=<msg>`
+6. Dashboard reads query string, shows banner
+7. VPC appears in list
+
+### Real-AWS-style layout
+- Create button next to the resource section (like real AWS)
+- Not a central "Quick Actions" panel
+- Matches what real engineers see in real AWS console
+
+### Session 1 of 3 complete
+- ✅ POST handling
+- ✅ Create VPC form
+- ✅ Real-AWS layout
+- ⏳ Delete VPC + Create subnet (Session 2)
+- ⏳ Other resources (Session 3)
+
+---
+
+## Session: 2026-10-06 (evening) — Interactive Console Progress
+**Goal:** Make console interactive — Session 1 of 3 (mostly done).
+
+### Working
+- POST handler in console_server.py
+- Create VPC from browser (green banner + list update)
+- Create S3 bucket from browser
+- Create Security Group from browser
+- Create Lambda function from browser
+- Create DynamoDB table from browser
+- Create Subnet from VPC detail page
+- Delete Subnet from VPC detail page (with confirm)
+- Delete VPC button on VPC detail page
+- Real-AWS-style layout (create buttons per section)
+
+### Not yet done
+- Delete buttons on SG, Lambda, DynamoDB, NAT detail pages
+- Create EC2 instance from browser
+- Create NAT Gateway from browser
+- Add remaining create forms to other sections
+
+### To resume
+- See TODOs above when we come back
+- Console code is stable, forms work
+- Just add more routes + handlers
+
+### Progress recap
+- MiniAWS: 13 services
+- Course: Chapters 1-7 complete
+- Console: interactive, mostly complete

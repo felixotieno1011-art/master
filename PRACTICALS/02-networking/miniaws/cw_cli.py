@@ -48,7 +48,8 @@ def cmd(args):
     flags = parse(rest)
 
     if sub == "put-metric-data":
-        ns = flags.get("namespace"); m = flags.get("metric")
+        ns = flags.get("namespace")
+        m = flags.get("metric-name") or flags.get("metric")
         v = flags.get("value")
         unit = flags.get("unit") or "None"
         if not ns or not m or v is None:
@@ -73,7 +74,8 @@ def cmd(args):
         return 0
 
     if sub == "get-metric-statistics":
-        ns = flags.get("namespace"); m = flags.get("metric")
+        ns = flags.get("namespace")
+        m = flags.get("metric-name") or flags.get("metric")
         stat = flags.get("stat") or "Average"
         if not ns or not m:
             print(utils.err("--namespace --metric required")); return 1

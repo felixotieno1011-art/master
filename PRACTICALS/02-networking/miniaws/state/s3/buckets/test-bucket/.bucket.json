@@ -1,0 +1,8 @@
+{
+  "name": "test-bucket",
+  "arn": "arn:aws:s3:af-south-1:861879765232:test-bucket",
+  "region": "af-south-1",
+  "account_id": "861879765232",
+  "url": "https://test-bucket.s3.af-south-1.amazonaws.com",
+  "created": "2026-10-07T12:16:00"
+}

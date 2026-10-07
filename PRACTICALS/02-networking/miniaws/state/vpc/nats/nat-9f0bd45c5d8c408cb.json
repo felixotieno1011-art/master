@@ -1,0 +1,10 @@
+{
+  "natGatewayId": "nat-9f0bd45c5d8c408cb",
+  "arn": "arn:aws:ec2:af-south-1:861879765232:natgateway/nat-9f0bd45c5d8c408cb",
+  "subnetId": "subnet-83f3a1d74c6545669",
+  "vpcId": "vpc-4139654511644bd8b",
+  "region": "af-south-1",
+  "state": "available",
+  "createTime": "2026-10-07T11:49:12",
+  "publicIp": "203.0.113.10"
+}

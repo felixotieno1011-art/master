@@ -1,0 +1,8 @@
+{
+  "key": "cp-test.txt",
+  "bucket": "cp-test-bucket",
+  "size": 5,
+  "url": "https://cp-test-bucket.s3.af-south-1.amazonaws.com/cp-test.txt",
+  "uploaded": "2026-10-07T12:29:57",
+  "contentType": "text/plain"
+}

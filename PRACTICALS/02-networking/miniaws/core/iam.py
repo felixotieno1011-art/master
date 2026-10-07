@@ -384,7 +384,7 @@ def can(action, resource="*"):
     """
     user = get_current_user()
     if not user:
-        return False, "not logged in. Run: miniaws iam login <user> OR login root"
+        return False, "not logged in. Run: aws iam login <user> OR aws iam login root"
     if user == "root":
         return True, ""
 

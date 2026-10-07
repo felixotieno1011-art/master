@@ -1,4 +1,21 @@
 {
-  "events": [],
-  "total": 0.0
+  "events": [
+    {
+      "time": "2026-10-07T12:35:18",
+      "key": "ec2.run-instances.t3.micro",
+      "quantity": 1.0,
+      "rate": 0.0104,
+      "amount": 0.0104,
+      "note": ""
+    },
+    {
+      "time": "2026-10-07T12:35:19",
+      "key": "vpc.create-igw",
+      "quantity": 1.0,
+      "rate": 0.045,
+      "amount": 0.045,
+      "note": ""
+    }
+  ],
+  "total": 0.0554
 }

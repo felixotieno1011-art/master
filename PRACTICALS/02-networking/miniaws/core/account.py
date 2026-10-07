@@ -117,7 +117,7 @@ def set_region(region):
                        f"valid: {', '.join(config.REGIONS.keys())}")
     data = _load()
     if not data.get("account_id"):
-        return False, "account not initialized. Run: miniaws account init"
+        return False, "account not initialized. Run: aws configure"
 
     _write_aws_config({"region": region})
 

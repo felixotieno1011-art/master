@@ -358,4 +358,154 @@ Reset the simulated bill to $0.
 USAGE
   aws billing reset
 """,
+
+    # ---------- Lambda ----------
+    "lambda create-function": """
+create-function
+Create a Lambda function (serverless).
+
+USAGE
+  aws lambda create-function --function-name <n> --zip-file <path.py>
+                             [--runtime <r>] [--handler <h>]
+
+OPTIONS
+  --function-name   Name of the function (required)
+  --zip-file        Path to the Python file containing the handler (required)
+  --runtime         Runtime (default: python3.11)
+  --handler         Handler function name (default: lambda_handler)
+
+EXAMPLES
+  aws lambda create-function --function-name hello --zip-file ./hello.py
+""",
+    "lambda list-functions": """
+list-functions
+List all Lambda functions.
+
+USAGE
+  aws lambda list-functions [--output json]
+""",
+    "lambda invoke": """
+invoke
+Invoke a Lambda function.
+
+USAGE
+  aws lambda invoke --function-name <n> [--payload '<json>']
+
+OPTIONS
+  --function-name   Name of the function (required)
+  --payload         JSON payload to pass as the event
+
+EXAMPLES
+  aws lambda invoke --function-name hello
+  aws lambda invoke --function-name hello --payload '{"name": "Kelvin"}'
+""",
+    "lambda delete-function": """
+delete-function
+Delete a Lambda function.
+
+USAGE
+  aws lambda delete-function --function-name <n>
+""",
+
+    # ---------- DynamoDB ----------
+    "dynamodb create-table": """
+create-table
+Create a DynamoDB table.
+
+USAGE
+  aws dynamodb create-table --table-name <n> --key-schema '<attr>:<type>'
+
+OPTIONS
+  --table-name    Name of the table (required)
+  --key-schema    Primary key as 'name:type' where type is S (string) or N (number)
+
+EXAMPLES
+  aws dynamodb create-table --table-name Users --key-schema 'id:S'
+""",
+    "dynamodb list-tables": """
+list-tables
+List all DynamoDB tables.
+
+USAGE
+  aws dynamodb list-tables [--output json]
+""",
+    "dynamodb put-item": """
+put-item
+Insert or replace an item in a DynamoDB table.
+
+USAGE
+  aws dynamodb put-item --table-name <n> --item '<json>'
+
+EXAMPLES
+  aws dynamodb put-item --table-name Users --item '{"id": "alice", "name": "Alice"}'
+""",
+    "dynamodb get-item": """
+get-item
+Retrieve an item by its key.
+
+USAGE
+  aws dynamodb get-item --table-name <n> --key '<value>'
+  aws dynamodb get-item --table-name <n> --key '{"id": "alice"}'
+
+EXAMPLES
+  aws dynamodb get-item --table-name Users --key alice
+""",
+    "dynamodb delete-item": """
+delete-item
+Delete an item by its key.
+
+USAGE
+  aws dynamodb delete-item --table-name <n> --key '<value>'
+""",
+    "dynamodb scan": """
+scan
+Scan all items in a table (like SELECT * with no filter).
+
+USAGE
+  aws dynamodb scan --table-name <n> [--output json]
+""",
+    "dynamodb delete-table": """
+delete-table
+Delete a DynamoDB table.
+
+USAGE
+  aws dynamodb delete-table --table-name <n>
+""",
+
+    # ---------- CloudFormation ----------
+    "cloudformation deploy": """
+deploy
+Deploy a CloudFormation stack from a template.
+
+USAGE
+  aws cloudformation deploy --stack <name> --template <path>
+
+OPTIONS
+  --stack      Name of the stack (required)
+  --template   Path to YAML/JSON template (required)
+
+EXAMPLES
+  aws cloudformation deploy --stack my-stack --template ./stack.yaml
+""",
+    "cloudformation list-stacks": """
+list-stacks
+List all CloudFormation stacks.
+
+USAGE
+  aws cloudformation list-stacks
+""",
+    "cloudformation describe-stack": """
+describe-stack
+Show details for one stack.
+
+USAGE
+  aws cloudformation describe-stack <stack-name>
+""",
+    "cloudformation delete-stack": """
+delete-stack
+Delete a stack (note: resources are not deleted).
+
+USAGE
+  aws cloudformation delete-stack <stack-name>
+""",
 }

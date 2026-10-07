@@ -1,0 +1,18 @@
+{
+  "routeTableId": "rtb-c6ea96c8770c42abb",
+  "vpcId": "vpc-4139654511644bd8b",
+  "region": "af-south-1",
+  "isMain": false,
+  "routes": [
+    {
+      "destinationCidrBlock": "local",
+      "gatewayId": "local",
+      "state": "active"
+    }
+  ],
+  "associations": [],
+  "tags": {
+    "Name": "private-rt"
+  },
+  "created": "2026-10-07T11:57:07"
+}
