@@ -94,3 +94,24 @@ v4: PERFECT ✅
 ### Compare to 4 years ago:
 Back then I would have quit.
 Today I debugged 4 versions and succeeded.
+### 3.4 Functions & Scope — Phase B Drill
+Wrote greet_farewell.py from memory in ~15 min.
+
+v1: Had 4 bugs (! placement, wrong input logic, no function calls)
+v2: PERFECT ✅
+
+### What I learned:
+- def defines a function
+- function call runs it
+- return gives back a value
+- f-strings need the {variable} inside, ! outside is a syntax issue
+- input() prompts user
+- if/elif/else chooses which function to call
+
+### Function structure:
+def function_name(parameter):
+    # body
+    return value   # optional
+
+# call it
+function_name(argument)
