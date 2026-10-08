@@ -40,7 +40,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 3.2 Variables, Types, Operators 📱
 - [x] 3.3 Conditionals & Loops 📱
 - [x] 3.4 Functions & Scope 📱
-- [ ] 3.5 Lists & Dictionaries (Arrays & Objects) 📱
+- [x] 3.5 Lists & Dictionaries (Arrays & Objects) 📱
 - [ ] 3.6 Error Handling & Debugging 📱
 - [ ] 3.7 Data Structures 📱
 - [ ] 3.8 Algorithms & Big-O 📱

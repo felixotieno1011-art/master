@@ -115,3 +115,42 @@ def function_name(parameter):
 
 # call it
 function_name(argument)
+### 3.5 Lists & Dictionaries — Phase B DONE
+Wrote attendance.py from scratch.
+
+Worked through:
+- v1: Forgot to update dictionary after input
+- v2: Added `attendance[name] = 1` inside `if`
+- v3: Missing `#` on comment line
+- v4: PERFECT ✅
+
+### What I now know:
+- Lists: [item1, item2, item3] — accessed by index
+- Dicts: {"key": value} — accessed by key
+- append() adds to list
+- dict["new"] = value adds to dictionary
+- Always store user input in a variable!
+
+### Real debug skills gained:
+- Found missing dictionary update
+- Found missing comment symbol
+- Fixed one at a time
+### 3.5 Lists & Dictionaries — Phase B Drill
+Wrote attendance.py from memory.
+
+v1: Had the structure right, but forgot to update the dictionary after input.
+v2: Added `attendance[name] = 1` inside the if → PERFECT
+
+### Key lessons:
+- Lists: ordered, accessed by index [0], [1]
+- Dictionaries: labeled, accessed by key ["Felix"]
+- Lists: append() to add
+- Dicts: assign to new key `dict["new"] = value`
+- Store user input in variables! Don't just ask and ignore it.
+
+### My code:
+- List of students
+- Dict with attendance counts
+- Loop asks about each student
+- Second loop prints the report
+- Uses len() for total
