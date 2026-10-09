@@ -32,3 +32,15 @@
 - Plan: Dedicated 2-3 week focused learning block
 - Resume at: Topic 7.10 (Cloud Platforms) — will do real hands-on then
 - Optional: Build mini-AWS/Azure/GCP simulators first
+## Part 3 — Programming (Paused)
+- Paused at: 3.9 (Recursion)
+- Reason: Burnout / boredom from drilling. Need a change of pace.
+- Progress: 8/12 topics done (3.1–3.8 complete)
+- Resume: After starting Part 12 (Cybersecurity)
+- Status: Will return when coding feels fresh again
+
+## Part 12 — Cybersecurity (Starting Now)
+- Started: 2026-10-09
+- Reason: Excitement + fresh challenge
+- Plan: Do a chunk of Part 12, then return to Part 3
+- Learning system: Same as always (Phase A + Phase B + certificate)
