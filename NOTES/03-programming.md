@@ -194,3 +194,43 @@ Prevent crashes. Keep program alive. Show friendly messages.
 ### My drill
 - safe_calc.py — calculator with try/except
 - safe_age.py — input with retry loop
+### try/except — Visual proof
+
+WITHOUT try/except:
+- int("ggg") → CRASHES
+- Traceback shown
+- Program exits
+- User must restart
+
+WITH try/except:
+- int("ggg") → caught by except
+- Friendly message shown
+- Loop retries
+- User can try again
+
+### The traceback decodes:
+- Line number
+- The code that broke
+- The error type
+- The value that caused it
+
+Reading the traceback = the #1 debugging skill.
+### 3.7 Data Structures — Phase B
+Wrote undo_system.py from memory.
+
+- Used deque instead of list (both work for LIFO)
+- All 4 menu options work
+- Empty check prevents crash
+- Clean output with f-strings
+
+### The 4 core data structures:
+- List   = ordered, indexed
+- Dict   = key-value
+- Stack  = LIFO (list + append + pop)
+- Queue  = FIFO (deque + append + popleft)
+
+### Real-world examples I now understand:
+- Undo button = Stack
+- Printer jobs = Queue
+- Phonebook = Dictionary
+- Shopping list = List
