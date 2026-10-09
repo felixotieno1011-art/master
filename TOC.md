@@ -177,7 +177,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 ## Part 12 — Cybersecurity & Ethical Hacking
 
 ### Module 1 — Security Foundations
-- [ ] 12.1 What is Cybersecurity? 📱
+- [x] 12.1 What is Cybersecurity? 📱
 - [ ] 12.2 CIA Triad 📱
 - [ ] 12.3 Threat Actors & Attack Types 📱
 - [ ] 12.4 Attack Surface & Vectors 📱
