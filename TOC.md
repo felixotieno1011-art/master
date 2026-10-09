@@ -178,7 +178,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 
 ### Module 1 — Security Foundations
 - [x] 12.1 What is Cybersecurity? 📱
-- [ ] 12.2 CIA Triad 📱
+- [x] 12.2 CIA Triad 📱
 - [ ] 12.3 Threat Actors & Attack Types 📱
 - [ ] 12.4 Attack Surface & Vectors 📱
 - [ ] 12.5 Security Mindset 📱
