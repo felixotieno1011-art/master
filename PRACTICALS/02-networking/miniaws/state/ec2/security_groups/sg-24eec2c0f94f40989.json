@@ -1,0 +1,46 @@
+{
+  "groupId": "sg-24eec2c0f94f40989",
+  "arn": "arn:aws:ec2:af-south-1:861879765232:security-group/sg-24eec2c0f94f40989",
+  "groupName": "web-sg",
+  "description": "For web servers",
+  "vpcId": "vpc-4139654511644bd8b",
+  "region": "af-south-1",
+  "ipPermissions": [
+    {
+      "ipProtocol": "tcp",
+      "fromPort": 80,
+      "toPort": 80,
+      "ipRanges": [
+        {
+          "CidrIp": "0.0.0.0/0"
+        }
+      ]
+    },
+    {
+      "ipProtocol": "tcp",
+      "fromPort": 443,
+      "toPort": 443,
+      "ipRanges": [
+        {
+          "CidrIp": "0.0.0.0/0"
+        }
+      ]
+    }
+  ],
+  "ipPermissionsEgress": [
+    {
+      "ipProtocol": "-1",
+      "fromPort": -1,
+      "toPort": -1,
+      "ipRanges": [
+        {
+          "CidrIp": "0.0.0.0/0"
+        }
+      ]
+    }
+  ],
+  "tags": {
+    "Name": "web-sg"
+  },
+  "created": "2026-10-09T14:20:37"
+}

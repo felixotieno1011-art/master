@@ -37,7 +37,7 @@ def cmd_create(args):
 
     if not name:
         print(utils.err("usage: aws ec2 create-security-group "
-                        "--group-name <name> [--description <text>] [--vpc-id <vpc>]"))
+                        "--group-name <name> --vpc-id <vpc> [--description <text>]"))
         return 1
 
     ok_, msg, sg_id = sg.create_security_group(name, description=desc, vpc_id=vpc_id)

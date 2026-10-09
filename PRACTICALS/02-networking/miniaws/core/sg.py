@@ -21,14 +21,21 @@ def _ensure():
 
 
 def create_security_group(name, description="", vpc_id=None):
-    """Create a new security group."""
+    """Create a new security group. Requires a valid VPC."""
     if not name:
         return False, "name required", None
+    if not vpc_id:
+        return False, "vpc-id is required (Security Groups must belong to a VPC)", None
+
+    # Verify VPC exists
+    from core import vpc as vpc_mod
+    if not vpc_mod.get_vpc(vpc_id):
+        return False, f"VPC '{vpc_id}' not found", None
 
     # Check duplicate name in same VPC
     for sg in list_security_groups(vpc_id=vpc_id):
         if (sg.get("tags") or {}).get("Name") == name:
-            return False, f"security group '{name}' already exists", None
+            return False, f"security group '{name}' already exists in VPC '{vpc_id}'", None
 
     region = account.get_region()
     account_id = account.get_account_id()

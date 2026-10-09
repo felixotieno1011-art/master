@@ -43,7 +43,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 3.5 Lists & Dictionaries (Arrays & Objects) 📱
 - [x] 3.6 Error Handling & Debugging 📱
 - [x] 3.7 Data Structures 📱
-- [ ] 3.8 Algorithms & Big-O 📱
+- [x] 3.8 Algorithms & Big-O 📱
 - [ ] 3.9 Recursion 📱
 - [ ] 3.10 Sorting & Searching 📱
 - [ ] 3.11 Object-Oriented Programming 📱

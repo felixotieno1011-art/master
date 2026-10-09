@@ -1,0 +1,11 @@
+{
+  "internetGatewayId": "igw-3633913659b84d729",
+  "arn": "arn:aws:ec2:af-south-1:861879765232:internet-gateway/igw-3633913659b84d729",
+  "region": "af-south-1",
+  "state": "available",
+  "attachments": [
+    "vpc-0dbe00b176724ffab"
+  ],
+  "tags": {},
+  "created": "2026-10-09T14:48:52"
+}

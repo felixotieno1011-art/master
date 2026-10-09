@@ -234,3 +234,32 @@ Wrote undo_system.py from memory.
 - Printer jobs = Queue
 - Phonebook = Dictionary
 - Shopping list = List
+### 3.8 Algorithms & Big-O — Phase B
+Wrote search_functions.py from scratch. FIRST TRY! ✅
+
+### Big-O basics:
+- O(1)      = constant time (best)
+- O(log n)  = logarithmic (binary search)
+- O(n)      = linear (linear search)
+- O(n log n)= linearithmic (good sorting)
+- O(n²)     = quadratic (bad sorting)
+- O(2ⁿ)     = exponential (catastrophic)
+
+### Linear Search (O(n)):
+- Check each item one by one
+- Works on unsorted lists
+- Slower as list grows
+
+### Binary Search (O(log n)):
+- Requires SORTED list
+- Halves the search space each step
+- MUCH faster for big lists
+
+### Real proof from search_race.py:
+- 1,000 items:    binary 10x faster
+- 1,000,000 items: binary 6158x faster!
+
+### Why this matters:
+- Interviews ask Big-O
+- Wrong algorithm = production crashes
+- Choice of algorithm > choice of language
