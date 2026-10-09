@@ -5,6 +5,32 @@ import utils
 from core import vpc
 
 
+def cmd_modify_subnet_attribute(args):
+    flags = _parse(args)
+    subnet_id = flags.get("subnet-id")
+    if not subnet_id:
+        print(utils.err("usage: aws ec2 modify-subnet-attribute "
+                        "--subnet-id <subnet> "
+                        "[--map-public-ip-on-launch | --no-map-public-ip-on-launch]"))
+        return 1
+
+    # Check for boolean flags
+    map_public = None
+    if "map-public-ip-on-launch" in flags:
+        map_public = True
+    elif "no-map-public-ip-on-launch" in flags:
+        map_public = False
+
+    if map_public is None:
+        print(utils.err("must specify --map-public-ip-on-launch or "
+                        "--no-map-public-ip-on-launch"))
+        return 1
+
+    ok_, msg = vpc.modify_subnet_attribute(subnet_id, "MapPublicIpOnLaunch", map_public)
+    print(utils.ok(msg) if ok_ else utils.err(msg))
+    return 0 if ok_ else 1
+
+
 def cmd_vpc(args):
     if not args:
         print("""
@@ -120,25 +146,35 @@ VPC COMMANDS:
         return 0
 
     if sub == "attach-internet-gateway":
-        igw_id = flags.get("igw-id"); vpc_id = flags.get("vpc-id")
+        # Real AWS uses --internet-gateway-id. We also accept --igw-id for backwards compat.
+        igw_id = flags.get("internet-gateway-id") or flags.get("igw-id")
+        vpc_id = flags.get("vpc-id")
         if not igw_id or not vpc_id:
-            print(utils.err("--igw-id and --vpc-id required")); return 1
+            print(utils.err("--internet-gateway-id and --vpc-id required")); return 1
         ok_, msg = vpc.attach_internet_gateway(igw_id, vpc_id)
         print(utils.ok(msg) if ok_ else utils.err(msg))
         return 0 if ok_ else 1
 
     if sub == "detach-internet-gateway":
-        igw_id = flags.get("igw-id"); vpc_id = flags.get("vpc-id")
+        igw_id = flags.get("internet-gateway-id") or flags.get("igw-id")
+        vpc_id = flags.get("vpc-id")
         if not igw_id or not vpc_id:
-            print(utils.err("--igw-id and --vpc-id required")); return 1
+            print(utils.err("--internet-gateway-id and --vpc-id required")); return 1
         ok_, msg = vpc.detach_internet_gateway(igw_id, vpc_id)
         print(utils.ok(msg) if ok_ else utils.err(msg))
         return 0 if ok_ else 1
 
     if sub == "delete-internet-gateway":
-        if not rest:
-            print(utils.err("igw-id required")); return 1
-        ok_, msg = vpc.delete_internet_gateway(rest[0])
+        # Real AWS uses --internet-gateway-id. Positional also accepted.
+        igw_id = flags.get("internet-gateway-id") or flags.get("igw-id")
+        if not igw_id:
+            for a in rest:
+                if not a.startswith("--"):
+                    igw_id = a
+                    break
+        if not igw_id:
+            print(utils.err("--internet-gateway-id required")); return 1
+        ok_, msg = vpc.delete_internet_gateway(igw_id)
         print(utils.ok(msg) if ok_ else utils.err(msg))
         return 0 if ok_ else 1
 
@@ -171,6 +207,11 @@ VPC COMMANDS:
         print(utils.ok(msg) if ok_ else utils.err(msg))
         return 0 if ok_ else 1
 
+    if sub == "create-tags":
+        return cmd_create_tags(rest)
+    if sub == "modify-subnet-attribute":
+        return cmd_modify_subnet_attribute(rest)
+
     print(utils.err(f"unknown vpc subcommand: {sub}")); return 1
 
 
@@ -197,6 +238,48 @@ def main():
     if not args or args[0] in ("-h", "--help", "help"):
         return cmd_vpc([])
     return cmd_vpc(args)
+
+
+def cmd_create_tags(args):
+    from utils import parse_tags_arg
+    flags = {}
+    resources = []
+    tags_list = []
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a == "--resources":
+            i += 1
+            while i < len(args) and not args[i].startswith("--"):
+                resources.append(args[i])
+                i += 1
+            continue
+        if a == "--tags":
+            i += 1
+            while i < len(args) and not args[i].startswith("--"):
+                tags_list.append(args[i])
+                i += 1
+            continue
+        i += 1
+
+    if not resources or not tags_list:
+        print(utils.err("usage: aws ec2 create-tags "
+                        "--resources <id> [<id>...] "
+                        "--tags Key=X,Value=Y [Key=Z,Value=W...]"))
+        return 1
+
+    tags = parse_tags_arg(tags_list)
+    if not tags:
+        print(utils.err("no valid tags parsed"))
+        return 1
+
+    ok_any = False
+    for rid in resources:
+        ok_, msg = vpc.create_tags(rid, tags)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_:
+            ok_any = True
+    return 0 if ok_any else 1
 
 
 if __name__ == "__main__":

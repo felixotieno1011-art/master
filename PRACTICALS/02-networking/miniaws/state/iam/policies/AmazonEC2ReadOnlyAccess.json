@@ -1,0 +1,17 @@
+{
+  "policyName": "AmazonEC2ReadOnlyAccess",
+  "arn": "arn:aws:iam::861879765232:policy/AmazonEC2ReadOnlyAccess",
+  "document": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ec2:Describe*"
+        ],
+        "Resource": "*"
+      }
+    ]
+  },
+  "created": "2026-10-08T14:20:05"
+}

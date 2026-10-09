@@ -80,3 +80,24 @@ def aws_id_display(id_str, max_len=24):
     if len(id_str) <= max_len:
         return id_str
     return id_str[:max_len - 3] + "..."
+
+def parse_tags_arg(tags_list):
+    """
+    Parse AWS-style tags arguments.
+    Input: ["Key=Name,Value=public", "Key=Env,Value=prod"]
+    Output: {"Name": "public", "Env": "prod"}
+    """
+    result = {}
+    for item in tags_list:
+        # Each item looks like "Key=X,Value=Y"
+        parts = item.split(",")
+        key = None
+        value = None
+        for p in parts:
+            if p.startswith("Key="):
+                key = p[4:]
+            elif p.startswith("Value="):
+                value = p[6:]
+        if key is not None:
+            result[key] = value or ""
+    return result

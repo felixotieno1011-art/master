@@ -1,0 +1,15 @@
+{
+  "policyName": "AdministratorAccess",
+  "arn": "arn:aws:iam::861879765232:policy/AdministratorAccess",
+  "document": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "*",
+        "Resource": "*"
+      }
+    ]
+  },
+  "created": "2026-10-08T14:06:11"
+}

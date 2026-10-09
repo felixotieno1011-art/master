@@ -284,6 +284,9 @@ case "$SERVICE" in
       delete-nat-gateway)          python nat_cli.py delete "$@" ;;
       create-route-table)          python rtb_cli.py create "$@" ;;
       create-route)                python rtb_cli.py add-route "$@" ;;
+      delete-route)                python rtb_cli.py delete-route "$@" ;;
+      create-tags)                 python vpc_cli.py create-tags "$@" ;;
+      modify-subnet-attribute)     python vpc_cli.py modify-subnet-attribute "$@" ;;
       associate-route-table)       python rtb_cli.py associate "$@" ;;
       delete-route-table)          python rtb_cli.py delete "$@" ;;
       describe-availability-zones) python az_cli.py list "$@" ;;

@@ -144,6 +144,77 @@ def list_users():
     }
 
 
+def list_access_keys():
+    """Handler for 'iam list-access-keys --user-name <u>'."""
+    # The command requires --user-name. We support the common case where
+    # the user was passed as a flag. If not provided, return all users' keys.
+    import sys as _s
+    args = _s.argv
+    uname = None
+    for i, a in enumerate(args):
+        if a == "--user-name" and i + 1 < len(args):
+            uname = args[i + 1]
+            break
+    if not uname:
+        # No user specified — return an empty AccessKeyMetadata list
+        return {"AccessKeyMetadata": []}
+    keys, err = iam_mod.list_access_keys(uname)
+    if keys is None:
+        return {"AccessKeyMetadata": []}
+    return {
+        "AccessKeyMetadata": [
+            {
+                "UserName": uname,
+                "AccessKeyId": k["accessKeyId"],
+                "Status": k.get("status", "Active"),
+                "CreateDate": k.get("created"),
+            }
+            for k in keys
+        ]
+    }
+
+
+def describe_user():
+    """Handler for 'iam get-user --user-name <u>'."""
+    import sys as _s
+    args = _s.argv
+    uname = None
+    for i, a in enumerate(args):
+        if a == "--user-name" and i + 1 < len(args):
+            uname = args[i + 1]
+            break
+        if a in ("-u",) and i + 1 < len(args):
+            uname = args[i + 1]
+            break
+    if not uname:
+        return {"User": None}
+    u = iam_mod.get_user(uname)
+    if not u:
+        return {"User": None}
+    return {
+        "User": {
+            "UserName": u.get("userName"),
+            "Arn": u.get("arn"),
+            "CreateDate": u.get("created"),
+            "Path": u.get("path", "/"),
+        }
+    }
+
+
+def list_groups():
+    groups = iam_mod.list_groups()
+    return {
+        "Groups": [
+            {
+                "GroupName": g.get("groupName"),
+                "Arn": g.get("arn"),
+                "CreateDate": g.get("created"),
+            }
+            for g in groups
+        ]
+    }
+
+
 def list_alarms():
     alarms = cw_mod.list_alarms()
     return {
@@ -172,6 +243,9 @@ HANDLERS = {
     "describe-instances": describe_instances,
     "list-buckets": list_buckets,
     "list-users": list_users,
+    "list-access-keys": list_access_keys,
+    "get-user": describe_user,
+    "list-groups": list_groups,
     "list-alarms": list_alarms,
 }
 

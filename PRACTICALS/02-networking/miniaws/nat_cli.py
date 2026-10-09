@@ -51,10 +51,21 @@ def cmd_list(args):
     return 0
 
 def cmd_delete(args):
-    if not args:
-        print(utils.err("usage: aws ec2 delete-nat-gateway <nat-id>"))
+    # Support both:
+    #   aws ec2 delete-nat-gateway <nat-id>                     (positional)
+    #   aws ec2 delete-nat-gateway --nat-gateway-id <nat-id>    (real AWS)
+    flags = parse(args)
+    nat_id = flags.get("nat-gateway-id")
+    if not nat_id:
+        for a in args:
+            if not a.startswith("--"):
+                nat_id = a
+                break
+    if not nat_id:
+        print(utils.err("usage: aws ec2 delete-nat-gateway <nat-id> "
+                        "OR --nat-gateway-id <nat-id>"))
         return 1
-    ok_, msg = nat.delete_nat_gateway(args[0])
+    ok_, msg = nat.delete_nat_gateway(nat_id)
     print(utils.ok(msg) if ok_ else utils.err(msg))
     return 0 if ok_ else 1
 

@@ -8,6 +8,7 @@ import utils
 from core import account
 from core import ec2
 from core import s3
+from lib.errors import AWSError, wrap_legacy
 
 
 USAGE = """
@@ -62,6 +63,119 @@ def parse_flags(args):
                     flags[k] = True
         i += 1
     return flags
+
+
+# --- Strict flag validation + dry-run helpers (added for AWS parity) ---
+
+# Per-subcommand whitelist of accepted flags.
+# A flag is the key without leading "--". e.g. "force" for "--force".
+# Common flags accepted by every subcommand — match real AWS global options.
+COMMON_FLAGS = {
+    "dry-run",
+    "output",
+    "query",
+    "region",
+    "profile",
+    "endpoint-url",
+    "debug",
+    "no-verify-ssl",
+    "no-paginate",
+    "no-sign-request",
+}
+
+VALID_FLAGS = {
+    # S3
+    ("s3", "mb"): set(),
+    ("s3", "rb"): {"force"},
+    ("s3", "ls"): set(),
+    ("s3", "cp"): set(),
+    ("s3", "rm"): set(),
+    ("s3", "sync"): set(),
+    # EC2
+    ("ec2", "run-instances"):       {"name", "type", "instance-type",
+                                     "tag-specifications", "image-id",
+                                     "count", "key-name", "security-group-ids",
+                                     "subnet-id", "iam-instance-profile"},
+    ("ec2", "describe-instances"):  {"instance-ids", "filters", "tag"},
+    ("ec2", "describe-instance"):   set(),
+    ("ec2", "start-instances"):     {"instance-ids"},
+    ("ec2", "stop-instances"):      {"instance-ids"},
+    ("ec2", "reboot-instances"):    {"instance-ids"},
+    ("ec2", "terminate-instances"): {"instance-ids"},
+    ("ec2", "logs"):                set(),
+}
+
+# Subcommands that perform a write and should honor --dry-run.
+DRY_RUN_COMMANDS = {
+    # S3
+    ("s3", "mb"),
+    ("s3", "rb"),
+    ("s3", "cp"),
+    ("s3", "rm"),
+    # EC2 (writes only — describes ignore --dry-run)
+    ("ec2", "run-instances"),
+    ("ec2", "start-instances"),
+    ("ec2", "stop-instances"),
+    ("ec2", "reboot-instances"),
+    ("ec2", "terminate-instances"),
+}
+
+
+def strict_flags(service, action, args):
+    """Validate flags in args against VALID_FLAGS[service, action].
+
+    Raises AWSError with code UnknownOptions and exit 255 on unknown flag.
+    Returns the parsed flags dict (same as parse_flags).
+    """
+    flags = parse_flags(args)
+    allowed = VALID_FLAGS.get((service, action), set()) | COMMON_FLAGS
+    for k in flags:
+        if k not in allowed:
+            raise AWSError(
+                code="UnknownOptions",
+                message=f"Unknown options: --{k}",
+                operation=f"{service}:{action}",
+                exit_code=255,
+            )
+    return flags
+
+
+# Map (service, action) -> (operation_name, display_verb)
+_OP_NAMES = {
+    # S3
+    ("s3", "mb"): ("CreateBucket", "make_bucket"),
+    ("s3", "rb"): ("DeleteBucket", "remove_bucket"),
+    ("s3", "cp"): ("PutObject", "upload"),
+    ("s3", "rm"): ("DeleteObject", "delete"),
+    # EC2
+    ("ec2", "run-instances"):       ("RunInstances", "run-instances"),
+    ("ec2", "start-instances"):     ("StartInstances", "start-instances"),
+    ("ec2", "stop-instances"):      ("StopInstances", "stop-instances"),
+    ("ec2", "reboot-instances"):    ("RebootInstances", "reboot-instances"),
+    ("ec2", "terminate-instances"): ("TerminateInstances", "terminate-instances"),
+}
+
+
+def check_dry_run(service, action, args):
+    """If --dry-run is present and this is a write command, raise DryRunOperation.
+
+    Behavior matches real AWS: exit 255, no side effects, no resource created.
+    """
+    if (service, action) not in DRY_RUN_COMMANDS:
+        return
+    flags = parse_flags(args)
+    if flags.get("dry-run") in (True, "true"):
+        operation, display = _OP_NAMES.get(
+            (service, action), (f"{service}:{action}", f"{service}:{action}")
+        )
+        err = AWSError(
+            code="DryRunOperation",
+            message="Request would have succeeded, but DryRun flag is set.",
+            operation=operation,
+            exit_code=255,
+        )
+        err._operation_display = display
+        raise err
 
 
 def print_row(cells, widths):
@@ -157,6 +271,9 @@ def cmd_ec2(args):
     if not args:
         print(USAGE); return 1
     sub, rest = args[0], args[1:]
+    # Strict flag validation and dry-run gate (see helpers above).
+    check_dry_run("ec2", sub, rest)
+    strict_flags("ec2", sub, rest)
     if sub == "run-instances":
         flags = parse_flags(rest)
 
@@ -195,7 +312,16 @@ def cmd_ec2(args):
         instances = ec2.list_all()
         if filter_id:
             instances = [i for i in instances if i["instance_id"] == filter_id]
+            if not instances:
+                # Filtered describe on missing ID → error, exit 255
+                raise AWSError(
+                    code="InvalidInstanceID.NotFound",
+                    message=f"The instance ID '{filter_id}' does not exist",
+                    operation="DescribeInstances",
+                    exit_code=255,
+                )
         if not instances:
+            # Unfiltered describe with no instances → empty result, exit 0
             print(utils.warn("no instances")); return 0
         print_row(["INSTANCE ID", "NAME", "TYPE", "STATE", "REGION", "PID"],
                   [20, 14, 12, 10, 14, 8])
@@ -277,12 +403,22 @@ def cmd_s3(args):
     if sub == "mb":
         if not rest:
             print(utils.err("usage: s3 mb s3://<bucket>")); return 1
+        check_dry_run("s3", "mb", rest[1:])
+        strict_flags("s3", "mb", rest[1:])
         bucket, _ = s3.parse_s3_uri(rest[0])
         if not bucket:
             print(utils.err("expected s3://<bucket>")); return 1
         ok_, msg = s3.mb_bucket(bucket)
-        print(utils.ok(msg) if ok_ else utils.err(msg))
-        return 0 if ok_ else 1
+        if not ok_:
+            err = wrap_legacy(
+                False, msg,
+                operation="CreateBucket",
+                resource=f"s3://{bucket}",
+            )
+            err._operation_display = "make_bucket"
+            raise err
+        print(utils.ok(msg))
+        return 0
 
     if sub == "ls":
         if not rest:
@@ -313,6 +449,8 @@ def cmd_s3(args):
     if sub == "cp":
         if len(rest) < 2:
             print(utils.err("usage: s3 cp <local> s3://<bucket>/<key>  OR  s3 cp s3://<bucket>/<key> <local>")); return 1
+        check_dry_run("s3", "cp", rest[2:])
+        strict_flags("s3", "cp", rest[2:])
         src, dst = rest[0], rest[1]
 
         if not src.startswith("s3://") and dst.startswith("s3://"):
@@ -325,15 +463,30 @@ def cmd_s3(args):
                 import os as _os
                 key = _os.path.basename(src)
             ok_, msg = s3.put_object(bucket, key, src)
-            print(utils.ok(f"upload: {msg}") if ok_ else utils.err(msg))
-            return 0 if ok_ else 1
+            if not ok_:
+                err = wrap_legacy(
+                    False, msg,
+                    operation="PutObject",
+                    resource=f"s3://{bucket}/{key}",
+                )
+                err._operation_display = "upload"
+                raise err
+            print(utils.ok(f"upload: {msg}"))
+            return 0
 
         if src.startswith("s3://") and not dst.startswith("s3://"):
             # Download
             bucket, key = s3.parse_s3_uri(src)
             path = s3.get_object_path(bucket, key)
             if not path:
-                print(utils.err(f"object not found: s3://{bucket}/{key}")); return 1
+                err = wrap_legacy(
+                    False, f"object not found: s3://{bucket}/{key}",
+                    operation="GetObject",
+                    resource=f"s3://{bucket}/{key}",
+                    code="NoSuchKey",
+                )
+                err._operation_display = "download"
+                raise err
             import shutil
             shutil.copy(path, dst)
             print(utils.ok(f"download: {dst}"))
@@ -344,32 +497,60 @@ def cmd_s3(args):
             sb, sk = s3.parse_s3_uri(src)
             db, dk = s3.parse_s3_uri(dst)
             ok_, msg = s3.cp_object(sb, sk, db, dk)
-            print(utils.ok(msg) if ok_ else utils.err(msg))
-            return 0 if ok_ else 1
+            if not ok_:
+                err = wrap_legacy(
+                    False, msg,
+                    operation="CopyObject",
+                    resource=f"s3://{sb}/{sk}",
+                )
+                err._operation_display = "copy"
+                raise err
+            print(utils.ok(msg))
+            return 0
 
         print(utils.err("at least one of src/dst must be s3://...")); return 1
 
     if sub == "rm":
         if not rest:
             print(utils.err("usage: s3 rm s3://<bucket>/<key>")); return 1
+        check_dry_run("s3", "rm", rest[1:])
+        strict_flags("s3", "rm", rest[1:])
         bucket, key = s3.parse_s3_uri(rest[0])
         if not bucket or not key:
             print(utils.err("expected s3://<bucket>/<key>")); return 1
         ok_, msg = s3.rm_object(bucket, key)
-        print(utils.ok(msg) if ok_ else utils.err(msg))
-        return 0 if ok_ else 1
+        if not ok_:
+            err = wrap_legacy(
+                False, msg,
+                operation="DeleteObject",
+                resource=f"s3://{bucket}/{key}",
+            )
+            err._operation_display = "delete"
+            raise err
+        print(utils.ok(msg))
+        return 0
 
     if sub == "rb":
         if not rest:
             print(utils.err("usage: s3 rb s3://<bucket> [--force]")); return 1
+        check_dry_run("s3", "rb", rest[1:])
+        strict_flags("s3", "rb", rest[1:])
         bucket, _ = s3.parse_s3_uri(rest[0])
         if not bucket:
             print(utils.err("expected s3://<bucket>")); return 1
         flags = parse_flags(rest[1:])
         force = bool(flags.get("force"))
         ok_, msg = s3.rb_bucket(bucket, force=force)
-        print(utils.ok(msg) if ok_ else utils.err(msg))
-        return 0 if ok_ else 1
+        if not ok_:
+            err = wrap_legacy(
+                False, msg,
+                operation="DeleteBucket",
+                resource=f"s3://{bucket}",
+            )
+            err._operation_display = "remove_bucket"
+            raise err
+        print(utils.ok(msg))
+        return 0
 
     print(utils.err(f"unknown s3 subcommand: {sub}")); return 1
 
@@ -393,5 +574,198 @@ def main():
     return 1
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and False:
     sys.exit(main())
+
+
+# ---------- SAFE MAIN (additive, not yet wired) ----------
+# Provides a wrapper that catches AWSError and formats it in AWS style.
+# The existing main() is unchanged and still the active entry point.
+# Wiring to __main__ happens in a later commit.
+
+# JSON output routing — maps (service, action) -> handler key in lib/json_output.py
+JSON_HANDLERS = {
+    ("ec2", "describe-vpcs"):                "describe-vpcs",
+    ("ec2", "describe-subnets"):             "describe-subnets",
+    ("ec2", "describe-internet-gateways"):   "describe-internet-gateways",
+    ("ec2", "describe-route-tables"):        "describe-route-tables",
+    ("ec2", "describe-instances"):           "describe-instances",
+    ("ec2", "describe-availability-zones"):  "describe-availability-zones",
+    ("s3",  "ls"):                           "list-buckets",
+    ("iam", "list-users"):                   "list-users",
+    ("iam", "list-access-keys"):             "list-access-keys",
+    ("iam", "get-user"):                     "get-user",
+    ("iam", "list-groups"):                  "list-groups",
+    ("cloudwatch", "list-alarms"):           "list-alarms",
+}
+
+
+def _try_json_output(args):
+    """If args contain '--output json' OR '--query <expr>' AND (service, action)
+    has a JSON handler, print AWS-shaped JSON (optionally JMESPath-filtered)
+    and return True. Otherwise return False.
+    """
+    # Pull out --output and --query values, collect positional args
+    output_format = None
+    query_expr = None
+    positional = []
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a == "--output" and i + 1 < len(args):
+            output_format = args[i + 1]
+            i += 2
+            continue
+        if a.startswith("--output="):
+            output_format = a.split("=", 1)[1]
+            i += 1
+            continue
+        if a == "--query" and i + 1 < len(args):
+            query_expr = args[i + 1]
+            i += 2
+            continue
+        if a.startswith("--query="):
+            query_expr = a.split("=", 1)[1]
+            i += 1
+            continue
+        if a.startswith("--"):
+            if i + 1 < len(args) and not args[i + 1].startswith("--"):
+                i += 2
+            else:
+                i += 1
+            continue
+        positional.append(a)
+        i += 1
+
+    # JSON path is triggered by --output json OR by --query (query implies structured output)
+    want_json = (output_format == "json") or (query_expr is not None)
+    if not want_json:
+        return False
+
+    if len(positional) < 2:
+        return False
+
+    service = positional[0]
+    action = positional[1]
+    key = JSON_HANDLERS.get((service, action))
+    if not key:
+        return False
+
+    import importlib
+    jo = importlib.import_module("lib.json_output")
+    handler = jo.HANDLERS.get(key)
+    if not handler:
+        return False
+
+    result = handler()
+
+    # Apply JMESPath if a --query expression was given
+    if query_expr:
+        try:
+            import jmespath
+        except ImportError:
+            from lib.errors import AWSError
+            raise AWSError(
+                code="InvalidParameterValue",
+                message="--query requires 'jmespath' (pip install jmespath)",
+                operation="Query",
+                exit_code=255,
+            )
+        try:
+            result = jmespath.search(query_expr, result)
+        except Exception as e:
+            from lib.errors import AWSError
+            raise AWSError(
+                code="InvalidParameterValue",
+                message=f"Bad --query expression: {e}",
+                operation="Query",
+                exit_code=255,
+            )
+
+    import json as _json
+    print(_json.dumps(result, indent=2))
+    return True
+
+
+def safe_main(argv=None):
+    """Entry point that handles structured errors.
+
+    Falls back to legacy behavior for commands that still return
+    (False, "msg") tuples — they keep working exactly as before.
+
+    Once commands are migrated to raise AWSError, this function
+    will format and route them automatically.
+    """
+    import sys as _sys
+    from lib.errors import AWSError, format_aws_error
+
+    args = _sys.argv[1:] if argv is None else argv
+
+    # Try JSON output path first (opt-in via --output json or --query)
+    from lib.errors import AWSError as _AWSError, format_aws_error as _fmt_err
+    try:
+        if _try_json_output(args):
+            return 0
+    except _AWSError as e:
+        _sys.stderr.write(_fmt_err(e) + "\n")
+        return e.exit_code
+    except Exception as e:
+        _sys.stderr.write(f"❌ JSON output failed: {type(e).__name__}: {e}\n")
+        return 1
+
+    # Strip global flags that the pretty path doesn't understand, so
+    # --output text / --region / --profile don't get parsed as positional args.
+    # Values are still available via env vars set by the wrapper.
+    _STRIP_OPTS_WITH_VALUE = {"--output", "--query", "--region", "--profile", "--endpoint-url"}
+    _STRIP_OPTS_BARE = {"--debug", "--no-verify-ssl", "--no-paginate", "--no-sign-request"}
+
+    clean = []
+    i = 0
+    while i < len(args):
+        a = args[i]
+        # --flag=value form
+        if any(a.startswith(o + "=") for o in _STRIP_OPTS_WITH_VALUE):
+            i += 1
+            continue
+        # --flag value form
+        if a in _STRIP_OPTS_WITH_VALUE:
+            i += 2
+            continue
+        # bare flag
+        if a in _STRIP_OPTS_BARE:
+            i += 1
+            continue
+        clean.append(a)
+        i += 1
+
+    _sys.argv = [_sys.argv[0]] + clean
+
+    try:
+        rc = main()
+        return rc if isinstance(rc, int) else 0
+
+    except AWSError as e:
+        # Structured error → AWS-style formatting → stderr
+        _sys.stderr.write(format_aws_error(e) + "\n")
+        return e.exit_code
+
+    except KeyboardInterrupt:
+        _sys.stderr.write("\nInterrupted.\n")
+        return 130
+
+    except SystemExit as e:
+        # Respect explicit sys.exit(N) from existing code
+        raise
+
+    except Exception as e:
+        # Unexpected — surface it, but don't crash
+        _sys.stderr.write(f"❌ {type(e).__name__}: {e}\n")
+        return 1
+
+
+if __name__ == "__main__":
+    # Placeholder for future wiring — currently inert.
+    # Commit 3 will flip this to:
+    #     if __name__ == "__main__":
+    #         sys.exit(safe_main())
+    sys.exit(safe_main())

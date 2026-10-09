@@ -8,9 +8,16 @@
       "destinationCidrBlock": "local",
       "gatewayId": "local",
       "state": "active"
+    },
+    {
+      "destinationCidrBlock": "0.0.0.0/0",
+      "gatewayId": "nat-9f0bd45c5d8c408cb",
+      "state": "active"
     }
   ],
-  "associations": [],
+  "associations": [
+    "subnet-aa0c879de98841e8a"
+  ],
   "tags": {
     "Name": "private-rt"
   },

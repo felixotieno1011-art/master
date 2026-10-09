@@ -1,0 +1,17 @@
+{
+  "policyName": "AmazonEC2FullAccess",
+  "arn": "arn:aws:iam::861879765232:policy/AmazonEC2FullAccess",
+  "document": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ec2:*"
+        ],
+        "Resource": "*"
+      }
+    ]
+  },
+  "created": "2026-10-08T14:20:05"
+}

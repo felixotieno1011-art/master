@@ -316,21 +316,50 @@ def list_route_tables(vpc_id=None):
     return out
 
 
-def add_internet_route(rt_id, igw_id):
-    """Add 0.0.0.0/0 route via the given IGW."""
+def add_internet_route(rt_id, igw_id, cidr="0.0.0.0/0"):
+    """Add a route via the given IGW."""
     rt = get_route_table(rt_id)
     if not rt:
         return False, f"route table {rt_id} not found"
-    # Remove existing default route if any
+
+    from core import nat
+    if not nat.get_nat_gateway(nat_id) if False else False:
+        pass  # placeholder
+
+    # Verify IGW exists
+    igws = list_internet_gateways()
+    if not any(g["internetGatewayId"] == igw_id for g in igws):
+        return False, f"Internet Gateway {igw_id} not found"
+
+    # Remove existing route with same destination if any
     rt["routes"] = [r for r in rt["routes"]
-                    if r.get("destinationCidrBlock") != "0.0.0.0/0"]
+                    if r.get("destinationCidrBlock") != cidr]
     rt["routes"].append({
-        "destinationCidrBlock": "0.0.0.0/0",
+        "destinationCidrBlock": cidr,
         "gatewayId": igw_id,
         "state": "active",
     })
     write_json(_rt_path(rt_id), rt)
-    return True, f"added route 0.0.0.0/0 -> {igw_id}"
+    return True, f"added route {cidr} -> {igw_id}"
+
+def delete_route(rt_id, cidr):
+    """Delete a route from a route table by destination CIDR."""
+    rt = get_route_table(rt_id)
+    if not rt:
+        return False, f"route table {rt_id} not found"
+
+    if cidr == "local":
+        return False, "cannot delete the local route"
+
+    original = len(rt["routes"])
+    rt["routes"] = [r for r in rt["routes"]
+                    if r.get("destinationCidrBlock") != cidr]
+
+    if len(rt["routes"]) == original:
+        return False, f"route to {cidr} not found"
+
+    write_json(_rt_path(rt_id), rt)
+    return True, f"deleted route {cidr} from {rt_id}"
 
 
 def associate_subnet(rt_id, subnet_id):
@@ -372,8 +401,8 @@ def create_route_table(vpc_id, name=None):
     return True, f"created route table {rt_id}", rt_id
 
 
-def add_nat_route(rt_id, nat_id):
-    """Add a 0.0.0.0/0 route via the given NAT Gateway."""
+def add_nat_route(rt_id, nat_id, cidr="0.0.0.0/0"):
+    """Add a route via the given NAT Gateway."""
     rt = get_route_table(rt_id)
     if not rt:
         return False, f"route table {rt_id} not found"
@@ -382,17 +411,16 @@ def add_nat_route(rt_id, nat_id):
     if not nat.get_nat_gateway(nat_id):
         return False, f"NAT Gateway {nat_id} not found"
 
-    # Remove existing default route if any
+    # Remove existing route with same destination if any
     rt["routes"] = [r for r in rt["routes"]
-                    if r.get("destinationCidrBlock") != "0.0.0.0/0"]
+                    if r.get("destinationCidrBlock") != cidr]
     rt["routes"].append({
-        "destinationCidrBlock": "0.0.0.0/0",
+        "destinationCidrBlock": cidr,
         "gatewayId": nat_id,
         "state": "active",
     })
     write_json(_rt_path(rt_id), rt)
-    return True, f"added route 0.0.0.0/0 -> {nat_id}"
-
+    return True, f"added route {cidr} -> {nat_id}"
 
 def delete_route_table(rt_id):
     """Delete a route table. Refuses if it's the main one."""
@@ -403,3 +431,62 @@ def delete_route_table(rt_id):
         return False, f"cannot delete the main route table"
     delete_file(_rt_path(rt_id))
     return True, f"deleted route table {rt_id}"
+
+def create_tags(resource_id, tags):
+    """
+    Add/update tags on a resource.
+    Works on: VPCs, subnets, IGWs, NATs, route tables.
+    resource_id: like vpc-xxx, subnet-xxx, igw-xxx, nat-xxx, rtb-xxx
+    tags: dict of {key: value}
+    """
+    if not resource_id:
+        return False, "resource-id required"
+
+    # Determine type from prefix
+    if resource_id.startswith("vpc-"):
+        path = _vpc_path(resource_id)
+    elif resource_id.startswith("subnet-"):
+        path = _subnet_path(resource_id)
+    elif resource_id.startswith("igw-"):
+        path = _igw_path(resource_id)
+    elif resource_id.startswith("rtb-"):
+        path = _rt_path(resource_id)
+    elif resource_id.startswith("nat-"):
+        # NAT gateways live in core/nat.py
+        from core import nat
+        n = nat.get_nat_gateway(resource_id)
+        if not n:
+            return False, f"resource {resource_id} not found"
+        n.setdefault("tags", {}).update(tags)
+        nat.write_json(nat._nat_path(resource_id), n)
+        return True, f"tagged {resource_id} with {list(tags.keys())}"
+    else:
+        return False, f"unsupported resource type: {resource_id}"
+
+    resource = read_json(path)
+    if not resource:
+        return False, f"resource {resource_id} not found"
+
+    resource.setdefault("tags", {}).update(tags)
+    write_json(path, resource)
+    return True, f"tagged {resource_id} with {list(tags.keys())}"
+
+def modify_subnet_attribute(subnet_id, attribute, value):
+    """
+    Modify a subnet attribute.
+    Supported attributes:
+      - MapPublicIpOnLaunch: true/false (auto-assign public IPs)
+    """
+    s = get_subnet(subnet_id)
+    if not s:
+        return False, f"subnet {subnet_id} not found"
+
+    if attribute == "MapPublicIpOnLaunch":
+        # Normalize value to boolean
+        if isinstance(value, str):
+            value = value.lower() in ("true", "1", "yes")
+        s["mapPublicIpOnLaunch"] = bool(value)
+        write_json(_subnet_path(subnet_id), s)
+        return True, f"set MapPublicIpOnLaunch={s['mapPublicIpOnLaunch']} on {subnet_id}"
+    else:
+        return False, f"unsupported attribute: {attribute}"

@@ -1,0 +1,8 @@
+{
+  "name": "empty-bucket-test",
+  "arn": "arn:aws:s3:af-south-1:861879765232:empty-bucket-test",
+  "region": "af-south-1",
+  "account_id": "861879765232",
+  "url": "https://empty-bucket-test.s3.af-south-1.amazonaws.com",
+  "created": "2026-10-08T13:07:28"
+}

@@ -1,0 +1,256 @@
+#!/usr/bin/env python3
+"""IAM commands — standalone or via `python iam_cli.py <subcmd>`."""
+import json
+import sys
+import utils
+from core import iam, iam_seed
+
+
+def parse(args):
+    flags = {}
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a.startswith("--"):
+            if "=" in a:
+                k, v = a[2:].split("=", 1); flags[k] = v
+            else:
+                k = a[2:]
+                if i + 1 < len(args) and not args[i + 1].startswith("--"):
+                    flags[k] = args[i + 1]; i += 1
+                else:
+                    flags[k] = True
+        i += 1
+    return flags
+
+
+USAGE = """
+IAM COMMANDS:
+  login <user>                             (or 'root' for full access)
+  logout
+  whoami
+
+  seed                                     (create common policies)
+
+  create-user <username>
+  list-users
+  delete-user <username>
+
+  create-group <name>
+  list-groups
+  delete-group <name>
+  add-user-to-group <user> <group>
+  remove-user-from-group <user> <group>
+
+  create-policy <name> --file <path.json>
+  list-policies
+  show-policy <name>
+  delete-policy <name>
+
+  attach-user-policy --user <u> --policy <p>
+  detach-user-policy --user <u> --policy <p>
+  attach-group-policy --group <g> --policy <p>
+  detach-group-policy --group <g> --policy <p>
+
+  can <action> [--resource <r>]            (test permissions)
+
+  audit [--limit N]
+"""
+
+
+def cmd(args):
+    if not args or args[0] in ("-h", "--help", "help"):
+        print(USAGE); return 1
+    sub, rest = args[0], args[1:]
+    flags = parse(rest)
+
+    # --- login / logout / whoami ---
+    if sub == "login":
+        if not rest:
+            print(utils.err("username required")); return 1
+        ok_, msg = iam.login(rest[0])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+    if sub == "logout":
+        iam.logout()
+        print(utils.ok("logged out")); return 0
+    if sub == "whoami":
+        u = iam.get_current_user()
+        if not u:
+            print(utils.warn("not logged in")); return 0
+        print(f"👤 {u}")
+        return 0
+
+    # --- seed ---
+    if sub == "seed":
+        n = iam_seed.seed()
+        print(utils.ok(f"seeded {n} policies"))
+        return 0
+
+    # --- users ---
+    if sub == "create-user":
+        if not rest:
+            print(utils.err("username required")); return 1
+        if not _need("iam:CreateUser"): return 1
+        ok_, msg = iam.create_user(rest[0])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: iam.audit("iam:CreateUser", rest[0])
+        return 0 if ok_ else 1
+    if sub == "list-users":
+        if not _need("iam:ListUsers"): return 1
+        users = iam.list_users()
+        if not users:
+            print(utils.warn("no users")); return 0
+        print(f"{'USERNAME':<20} {'ARN':<60}")
+        print("-" * 80)
+        for u in users:
+            print(f"{u['userName']:<20} {u['arn']:<60}")
+        return 0
+    if sub == "delete-user":
+        if not rest:
+            print(utils.err("username required")); return 1
+        if not _need("iam:DeleteUser"): return 1
+        ok_, msg = iam.delete_user(rest[0])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: iam.audit("iam:DeleteUser", rest[0])
+        return 0 if ok_ else 1
+
+    # --- groups ---
+    if sub == "create-group":
+        if not rest:
+            print(utils.err("group name required")); return 1
+        if not _need("iam:CreateGroup"): return 1
+        ok_, msg = iam.create_group(rest[0])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: iam.audit("iam:CreateGroup", rest[0])
+        return 0 if ok_ else 1
+    if sub == "list-groups":
+        if not _need("iam:ListGroups"): return 1
+        groups = iam.list_groups()
+        if not groups:
+            print(utils.warn("no groups")); return 0
+        for g in groups:
+            print(f"  {g['groupName']:<20} members: {len(g.get('members',[]))}  policies: {len(g.get('attachedPolicies',[]))}")
+        return 0
+    if sub == "delete-group":
+        if not rest:
+            print(utils.err("group name required")); return 1
+        if not _need("iam:DeleteGroup"): return 1
+        ok_, msg = iam.delete_group(rest[0])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+    if sub == "add-user-to-group":
+        if len(rest) < 2:
+            print(utils.err("usage: add-user-to-group <user> <group>")); return 1
+        if not _need("iam:AddUserToGroup"): return 1
+        ok_, msg = iam.add_user_to_group(rest[0], rest[1])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+    if sub == "remove-user-from-group":
+        if len(rest) < 2:
+            print(utils.err("usage: remove-user-from-group <user> <group>")); return 1
+        if not _need("iam:RemoveUserFromGroup"): return 1
+        ok_, msg = iam.remove_user_from_group(rest[0], rest[1])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
+    # --- policies ---
+    if sub == "create-policy":
+        if not rest:
+            print(utils.err("policy name required")); return 1
+        if not _need("iam:CreatePolicy"): return 1
+        fpath = flags.get("file")
+        if not fpath:
+            print(utils.err("--file <path.json> required")); return 1
+        try:
+            with open(fpath) as f:
+                doc = json.load(f)
+        except Exception as e:
+            print(utils.err(f"failed to read {fpath}: {e}")); return 1
+        ok_, msg = iam.create_policy(rest[0], doc)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: iam.audit("iam:CreatePolicy", rest[0])
+        return 0 if ok_ else 1
+    if sub == "list-policies":
+        if not _need("iam:ListPolicies"): return 1
+        policies = iam.list_policies()
+        if not policies:
+            print(utils.warn("no policies. Run: python iam_cli.py seed")); return 0
+        for p in policies:
+            print(f"  {p['policyName']:<25} {p['arn']}")
+        return 0
+    if sub == "show-policy":
+        if not rest:
+            print(utils.err("policy name required")); return 1
+        p = iam.get_policy(rest[0])
+        if not p:
+            print(utils.err(f"policy '{rest[0]}' not found")); return 1
+        print(json.dumps(p, indent=2))
+        return 0
+    if sub == "delete-policy":
+        if not rest:
+            print(utils.err("policy name required")); return 1
+        if not _need("iam:DeletePolicy"): return 1
+        ok_, msg = iam.delete_policy(rest[0])
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
+    # --- attach ---
+    if sub in ("attach-user-policy", "detach-user-policy"):
+        u = flags.get("user"); p = flags.get("policy")
+        if not u or not p:
+            print(utils.err("--user <u> --policy <p> required")); return 1
+        if not _need("iam:AttachUserPolicy"): return 1
+        fn = iam.attach_user_policy if sub == "attach-user-policy" else iam.detach_user_policy
+        ok_, msg = fn(u, p)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+    if sub in ("attach-group-policy", "detach-group-policy"):
+        g = flags.get("group"); p = flags.get("policy")
+        if not g or not p:
+            print(utils.err("--group <g> --policy <p> required")); return 1
+        if not _need("iam:AttachGroupPolicy"): return 1
+        fn = iam.attach_group_policy if sub == "attach-group-policy" else iam.detach_group_policy
+        ok_, msg = fn(g, p)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
+    # --- can ---
+    if sub == "can":
+        if not rest:
+            print(utils.err("usage: can <action> [--resource <r>]")); return 1
+        action = rest[0]
+        resource = flags.get("resource") or "*"
+        allowed, reason = iam.can(action, resource)
+        if allowed:
+            print(utils.ok(f"ALLOWED: {action}"))
+        else:
+            print(utils.err(f"DENIED:  {action}  ({reason})"))
+        return 0 if allowed else 1
+
+    # --- audit ---
+    if sub == "audit":
+        limit = int(flags.get("limit", 30)) if isinstance(flags.get("limit"), str) else 30
+        lines = iam.read_audit(limit)
+        if not lines:
+            print(utils.warn("no audit entries")); return 0
+        print(f"Last {len(lines)} audit entries:")
+        print("-" * 80)
+        for l in lines:
+            print(l)
+        return 0
+
+    print(utils.err(f"unknown iam subcommand: {sub}")); return 1
+
+
+def _need(action):
+    allowed, reason = iam.can(action)
+    if not allowed:
+        print(utils.err(reason))
+        iam.audit(action, "", success=False)
+        return False
+    return True
+
+
+if __name__ == "__main__":
+    sys.exit(cmd(sys.argv[1:]))

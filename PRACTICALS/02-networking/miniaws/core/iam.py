@@ -21,12 +21,13 @@ IAM_DIR       = os.path.join(config.STATE_DIR, "iam")
 USERS_DIR     = os.path.join(IAM_DIR, "users")
 GROUPS_DIR    = os.path.join(IAM_DIR, "groups")
 POLICIES_DIR  = os.path.join(IAM_DIR, "policies")
+ACCESS_KEYS_DIR = os.path.join(IAM_DIR, "access_keys")
 CURRENT_FILE  = os.path.join(IAM_DIR, "current_user.json")
 AUDIT_FILE    = os.path.join(IAM_DIR, "audit.log")
 
 
-USERNAME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9._-]{0,63}$")
-GROUPNAME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9._-]{0,127}$")
+USERNAME_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$")
+GROUPNAME_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$")
 
 
 # ---------- Users ----------
@@ -39,7 +40,7 @@ def validate_username(name):
     if not name:
         return "username required"
     if not USERNAME_RE.match(name):
-        return "username must start with a letter, max 64 chars, use letters/digits/._-"
+        return "username must be 1-64 chars, alphanumeric plus ._-, start with letter or digit"
     return None
 
 
@@ -89,6 +90,11 @@ def delete_user(username):
     u = get_user(username)
     if not u:
         return False, f"user '{username}' not found"
+    # Refuse if any access keys still exist (matches real AWS DeleteConflict)
+    keys = read_json(_access_key_path(username)) or {"keys": []}
+    if keys.get("keys"):
+        return False, ("Cannot delete entity, must delete access keys first "
+                       f"(user '{username}' has {len(keys['keys'])} access key(s))")
     delete_file(_user_path(username))
     return True, f"deleted user '{username}'"
 
@@ -260,7 +266,35 @@ def delete_policy(name):
 
 # ---------- Attach policies ----------
 
+# Old seed name → real AWS name. Old state stays readable.
+_POLICY_ALIASES = {
+    "S3FullAccess":           "AmazonS3FullAccess",
+    "S3ReadOnly":             "AmazonS3ReadOnlyAccess",
+    "EC2FullAccess":          "AmazonEC2FullAccess",
+    "EC2ReadOnly":            "AmazonEC2ReadOnlyAccess",
+    "IAMReadOnly":            "IAMReadOnlyAccess",
+}
+
+
+def _normalize_policy_ref(ref):
+    """Accept a policy name, real AWS ARN, or own-account ARN.
+    Returns the bare canonical name.
+
+    'arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess'  -> 'AmazonS3ReadOnlyAccess'
+    'arn:aws:iam::861879765232:policy/S3ReadOnly'     -> 'AmazonS3ReadOnlyAccess'
+    'S3ReadOnly'                                       -> 'AmazonS3ReadOnlyAccess'
+    'AmazonS3ReadOnlyAccess'                           -> 'AmazonS3ReadOnlyAccess'
+    """
+    if not isinstance(ref, str) or not ref:
+        return ref
+    if ref.startswith("arn:"):
+        # take the last path segment
+        ref = ref.rsplit("/", 1)[-1]
+    return _POLICY_ALIASES.get(ref, ref)
+
+
 def attach_user_policy(username, policy_name):
+    policy_name = _normalize_policy_ref(policy_name)
     u = get_user(username)
     if not u:
         return False, f"user '{username}' not found"
@@ -274,6 +308,7 @@ def attach_user_policy(username, policy_name):
 
 
 def attach_group_policy(groupname, policy_name):
+    policy_name = _normalize_policy_ref(policy_name)
     g = get_group(groupname)
     if not g:
         return False, f"group '{groupname}' not found"
@@ -287,6 +322,7 @@ def attach_group_policy(groupname, policy_name):
 
 
 def detach_user_policy(username, policy_name):
+    policy_name = _normalize_policy_ref(policy_name)
     u = get_user(username)
     if not u:
         return False, f"user '{username}' not found"
@@ -298,6 +334,7 @@ def detach_user_policy(username, policy_name):
 
 
 def detach_group_policy(groupname, policy_name):
+    policy_name = _normalize_policy_ref(policy_name)
     g = get_group(groupname)
     if not g:
         return False, f"group '{groupname}' not found"
@@ -313,6 +350,66 @@ def detach_group_policy(groupname, policy_name):
 def get_current_user():
     data = read_json(CURRENT_FILE)
     return data.get("username") if data else None
+
+
+# ---------- Access Keys ----------
+
+import secrets as _secrets
+
+
+def _access_key_path(username):
+    return os.path.join(ACCESS_KEYS_DIR, f"{username}.json")
+
+
+def _new_access_key_id():
+    # Real AWS format: AKIA + 16 uppercase alphanumeric
+    import string
+    chars = string.ascii_uppercase + string.digits
+    return "AKIA" + "".join(_secrets.choice(chars) for _ in range(16))
+
+
+def _new_secret():
+    import string
+    chars = string.ascii_letters + string.digits + "/+"
+    return "".join(_secrets.choice(chars) for _ in range(40))
+
+
+def create_access_key(username):
+    u = get_user(username)
+    if not u:
+        return False, f"user '{username}' not found"
+    keys = read_json(_access_key_path(username)) or {"keys": []}
+    if len(keys.get("keys", [])) >= 2:
+        return False, "cannot create more than 2 access keys per user"
+    akid = _new_access_key_id()
+    secret = _new_secret()
+    keys.setdefault("keys", []).append({
+        "accessKeyId": akid,
+        "secretAccessKey": secret,
+        "status": "Active",
+        "created": now_iso(),
+    })
+    write_json(_access_key_path(username), keys)
+    return True, akid
+
+
+def list_access_keys(username):
+    if not get_user(username):
+        return None, f"user '{username}' not found"
+    keys = read_json(_access_key_path(username)) or {"keys": []}
+    return keys.get("keys", []), None
+
+
+def delete_access_key(username, akid):
+    if not get_user(username):
+        return False, f"user '{username}' not found"
+    keys = read_json(_access_key_path(username)) or {"keys": []}
+    before = len(keys.get("keys", []))
+    keys["keys"] = [k for k in keys.get("keys", []) if k.get("accessKeyId") != akid]
+    if len(keys["keys"]) == before:
+        return False, f"access key '{akid}' not found"
+    write_json(_access_key_path(username), keys)
+    return True, f"deleted access key '{akid}'"
 
 
 def login(username):

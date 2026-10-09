@@ -3,7 +3,7 @@ from core import iam
 
 
 COMMON_POLICIES = {
-    "S3FullAccess": {
+    "AmazonS3FullAccess": {
         "Version": "2012-10-17",
         "Statement": [{
             "Effect": "Allow",
@@ -11,7 +11,7 @@ COMMON_POLICIES = {
             "Resource": "*",
         }],
     },
-    "S3ReadOnly": {
+    "AmazonS3ReadOnlyAccess": {
         "Version": "2012-10-17",
         "Statement": [{
             "Effect": "Allow",
@@ -19,7 +19,7 @@ COMMON_POLICIES = {
             "Resource": "*",
         }],
     },
-    "EC2FullAccess": {
+    "AmazonEC2FullAccess": {
         "Version": "2012-10-17",
         "Statement": [{
             "Effect": "Allow",
@@ -27,7 +27,7 @@ COMMON_POLICIES = {
             "Resource": "*",
         }],
     },
-    "EC2ReadOnly": {
+    "AmazonEC2ReadOnlyAccess": {
         "Version": "2012-10-17",
         "Statement": [{
             "Effect": "Allow",
@@ -35,7 +35,7 @@ COMMON_POLICIES = {
             "Resource": "*",
         }],
     },
-    "IAMReadOnly": {
+    "IAMReadOnlyAccess": {
         "Version": "2012-10-17",
         "Statement": [{
             "Effect": "Allow",

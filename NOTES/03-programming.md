@@ -154,3 +154,43 @@ v2: Added `attendance[name] = 1` inside the if → PERFECT
 - Loop asks about each student
 - Second loop prints the report
 - Uses len() for total
+### 3.6 Error Handling & Debugging — Phase B
+Wrote safe_age.py from scratch.
+FIRST TRY — no bugs! ✅
+
+### The pattern:
+while True:
+    try:
+        # risky code
+        break     # success → exit
+    except ValueError:
+        # handle the error
+        # loop retries automatically
+
+### 3 types of errors:
+1. Syntax error — breaks language rules, won't start
+2. Runtime error — crashes while running
+3. Logic error — runs but wrong result
+
+### Common exceptions:
+- ValueError    : int("hello")
+- TypeError     : "5" + 5
+- NameError     : undefined variable
+- IndexError    : list[999]
+- KeyError      : dict["nokey"]
+- ZeroDivisionError : 10 / 0
+
+### try/except/finally:
+try:
+    # code
+except SpecificError:
+    # handle
+finally:
+    # always runs
+
+### try/except purpose:
+Prevent crashes. Keep program alive. Show friendly messages.
+
+### My drill
+- safe_calc.py — calculator with try/except
+- safe_age.py — input with retry loop

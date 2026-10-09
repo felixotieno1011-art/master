@@ -1,0 +1,18 @@
+{
+  "policyName": "IAMReadOnlyAccess",
+  "arn": "arn:aws:iam::861879765232:policy/IAMReadOnlyAccess",
+  "document": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "iam:Get*",
+          "iam:List*"
+        ],
+        "Resource": "*"
+      }
+    ]
+  },
+  "created": "2026-10-08T14:20:05"
+}

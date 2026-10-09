@@ -1,0 +1,117 @@
+"""MiniAWS error model.
+
+Provides a structured AWSError type and AWS-compatible formatter.
+
+This module is additive — nothing imports it yet. Existing code that returns
+`(False, "message")` tuples continues to work unchanged. New code can opt in
+to structured errors by raising AWSError.
+"""
+
+
+class AWSError(Exception):
+    """Structured AWS-style error.
+
+    Attributes:
+        code:       AWS error code, e.g. "NoSuchBucket", "BucketNotEmpty"
+        message:    Human message, e.g. "The specified bucket does not exist"
+        operation:  AWS operation name, e.g. "DeleteBucket", "CreateVpc"
+        resource:   Resource the error applies to, e.g. "s3://my-bucket"
+        exit_code:  Process exit code. Service errors = 1, client/validation = 255
+    """
+
+    def __init__(self, code, message, operation, resource=None, exit_code=1):
+        self.code = code
+        self.message = message
+        self.operation = operation
+        self.resource = resource
+        self.exit_code = exit_code
+        super().__init__(message)
+
+
+# --- Exit code policy -------------------------------------------------------
+#
+#  0   success
+#  1   service error  (the API rejected the operation)
+#  255 client error   (bad args, bad params, dry-run success)
+#
+# Reference: real AWS CLI uses 255 for argparse errors and DryRunOperation.
+
+CLIENT_ERROR_CODES = {
+    "DryRunOperation",
+    "InvalidParameterValue",
+    "InvalidBucketName",
+    "InvalidInstanceID.Malformed",
+    "UnknownOptions",
+    "MissingParameter",
+}
+
+
+def exit_code_for(code):
+    """Return the process exit code for a given AWS error code."""
+    if code in CLIENT_ERROR_CODES:
+        return 255
+    return 1
+
+
+def format_aws_error(err, operation_display=None):
+    """Format an AWSError using the AWS CLI error template.
+
+    Template:
+        {op} failed: {resource} An error occurred ({Code}) when calling
+        the {Operation} operation: {message}
+
+    If resource is None, the middle segment is omitted:
+        {op} failed: An error occurred ({Code}) when calling the
+        {Operation} operation: {message}
+
+    operation_display overrides the verb shown before "failed:"
+    (high-level `s3` commands use remove_bucket; low-level uses DeleteBucket).
+    """
+    op = operation_display or err.operation
+    if err.resource:
+        return (
+            f"{op} failed: {err.resource} "
+            f"An error occurred ({err.code}) when calling the "
+            f"{err.operation} operation: {err.message}"
+        )
+    return (
+        f"{op} failed: An error occurred ({err.code}) when calling the "
+        f"{err.operation} operation: {err.message}"
+    )
+
+
+def wrap_legacy(success, message, operation, resource=None, code=None):
+    """Convert a legacy (False, 'msg') tuple into an AWSError.
+
+    Existing code returns (False, "bucket 'x' not found") from core.
+    This helper lets the CLI layer upgrade that to a structured error
+    with a best-effort code, without touching core.
+
+    If code is None, a code is inferred from the message text.
+    """
+    if success:
+        raise ValueError("wrap_legacy called on a success tuple")
+    inferred = code or _infer_code(message)
+    return AWSError(
+        code=inferred,
+        message=message,
+        operation=operation,
+        resource=resource,
+        exit_code=exit_code_for(inferred),
+    )
+
+
+def _infer_code(message):
+    """Best-effort error code inference from a legacy message string."""
+    m = message.lower()
+    if "not empty" in m:
+        return "BucketNotEmpty"
+    if "already exists" in m or "already owned" in m:
+        return "BucketAlreadyOwnedByYou"
+    if "not found" in m:
+        return "NoSuchBucket"
+    if "invalid cidr" in m or "invalid parameter" in m:
+        return "InvalidParameterValue"
+    if "already exists" in m:
+        return "EntityAlreadyExists"
+    return "ClientError"

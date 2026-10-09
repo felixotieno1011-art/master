@@ -50,9 +50,9 @@ def cmd_add_route(args):
                         "[--nat-gateway-id | --gateway-id]"))
         return 1
     if nat_id:
-        ok_, msg = vpc_mod.add_nat_route(rt_id, nat_id)
+        ok_, msg = vpc_mod.add_nat_route(rt_id, nat_id, cidr)
     elif igw_id:
-        ok_, msg = vpc_mod.add_internet_route(rt_id, igw_id)
+        ok_, msg = vpc_mod.add_internet_route(rt_id, igw_id, cidr)
     else:
         print(utils.err("must specify --nat-gateway-id or --gateway-id"))
         return 1
@@ -73,10 +73,34 @@ def cmd_associate(args):
 
 
 def cmd_delete(args):
-    if not args:
-        print(utils.err("usage: delete-route-table <rt-id>"))
+    # Support both:
+    #   aws ec2 delete-route-table <rt-id>                    (positional)
+    #   aws ec2 delete-route-table --route-table-id <rt-id>   (real AWS)
+    flags = parse(args)
+    rt_id = flags.get("route-table-id")
+    if not rt_id:
+        for a in args:
+            if not a.startswith("--"):
+                rt_id = a
+                break
+    if not rt_id:
+        print(utils.err("usage: aws ec2 delete-route-table <rt-id> "
+                        "OR --route-table-id <rt-id>"))
         return 1
-    ok_, msg = vpc_mod.delete_route_table(args[0])
+    ok_, msg = vpc_mod.delete_route_table(rt_id)
+    print(utils.ok(msg) if ok_ else utils.err(msg))
+    return 0 if ok_ else 1
+
+
+def cmd_delete_route(args):
+    flags = parse(args)
+    rt_id = flags.get("route-table-id")
+    cidr = flags.get("destination-cidr-block")
+    if not rt_id or not cidr:
+        print(utils.err("usage: aws ec2 delete-route "
+                        "--route-table-id <rt> --destination-cidr-block <cidr>"))
+        return 1
+    ok_, msg = vpc_mod.delete_route(rt_id, cidr)
     print(utils.ok(msg) if ok_ else utils.err(msg))
     return 0 if ok_ else 1
 
@@ -88,6 +112,7 @@ if __name__ == "__main__":
     sub = sys.argv[1]
     args = sys.argv[2:]
     if sub == "create":       sys.exit(cmd_create(args))
+    if sub == "delete-route": sys.exit(cmd_delete_route(args))
     if sub == "add-route":    sys.exit(cmd_add_route(args))
     if sub == "associate":    sys.exit(cmd_associate(args))
     if sub == "delete":       sys.exit(cmd_delete(args))

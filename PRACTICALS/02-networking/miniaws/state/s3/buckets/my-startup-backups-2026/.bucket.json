@@ -1,0 +1,8 @@
+{
+  "name": "my-startup-backups-2026",
+  "arn": "arn:aws:s3:us-east-1:861879765232:my-startup-backups-2026",
+  "region": "us-east-1",
+  "account_id": "861879765232",
+  "url": "https://my-startup-backups-2026.s3.us-east-1.amazonaws.com",
+  "created": "2026-10-08T12:54:56"
+}

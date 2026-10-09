@@ -1,0 +1,17 @@
+{
+  "policyName": "AmazonS3FullAccess",
+  "arn": "arn:aws:iam::861879765232:policy/AmazonS3FullAccess",
+  "document": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:*"
+        ],
+        "Resource": "*"
+      }
+    ]
+  },
+  "created": "2026-10-08T14:20:05"
+}

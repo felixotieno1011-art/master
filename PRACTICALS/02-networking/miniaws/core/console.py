@@ -169,6 +169,68 @@ details.create-section[open] summary { margin-bottom: 8px; }
   font-weight: bold; cursor: pointer; margin: 12px 0;
 }
 .btn-delete-large:hover { background: #4e1c14; }
+
+/* --- Contract-layer UI additions (Browser Batch 1) --- */
+.err-block { display: flex; align-items: center; gap: 8px;
+  background: #2c1512; border: 1px solid #4e1c14; border-radius: 8px;
+  padding: 10px 12px; margin: 8px 0; }
+.err-chip { background: #4e1c14; color: #fbbf24; font-family: monospace;
+  font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: bold;
+  letter-spacing: 0.3px; }
+.err-text { color: #f8b4b4; font-size: 12px; font-family: monospace;
+  word-break: break-all; }
+.cli-chip { background: #1a2530; color: #a1a8b3; border: 1px solid #2b303a;
+  padding: 6px 10px; border-radius: 6px; font-family: monospace; font-size: 11px;
+  cursor: pointer; text-align: left; max-width: 100%; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; display: inline-block;
+  margin: 8px 0; }
+.cli-chip:hover { background: #223040; color: #eaeded; }
+.cli-chip.copied { background: #122918; color: #52d869; border-color: #194021; }
+.cli-chip-label { color: #ff9900; font-weight: bold; margin-right: 4px; }
+.json-panel { margin: 12px 0; background: #161b22; border: 1px solid #2b303a;
+  border-radius: 8px; overflow: hidden; }
+.json-panel summary { padding: 10px 14px; cursor: pointer; color: #a1a8b3;
+  font-size: 12px; user-select: none; }
+.json-panel summary:hover { background: #1a2129; color: #eaeded; }
+.json-panel[open] summary { border-bottom: 1px solid #2b303a; }
+.json-pre { margin: 0; padding: 12px 14px; background: #0d1117;
+  color: #a5d6ff; font-family: monospace; font-size: 11px; overflow-x: auto;
+  line-height: 1.5; }
+"""
+
+# JavaScript injected into every page. Plain string (NOT an f-string)
+# so JS braces { } are safe here.
+BASE_JS = """
+(function() {
+  function loadJson(el) {
+    var src = el.dataset.src;
+    if (!src || el.dataset.loaded === '1') return;
+    el.dataset.loaded = '1';
+    fetch(src).then(function(r){ return r.text(); })
+              .then(function(t){ el.textContent = t; })
+              .catch(function(e){ el.textContent = 'error: ' + e; });
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.json-panel').forEach(function(panel) {
+      panel.addEventListener('toggle', function() {
+        if (panel.open) {
+          var pre = panel.querySelector('.json-pre');
+          if (pre) loadJson(pre);
+        }
+      });
+    });
+    document.addEventListener('click', function(ev) {
+      var el = ev.target.closest('.cli-chip');
+      if (!el) return;
+      var cmd = el.dataset.cmd;
+      if (!cmd) return;
+      navigator.clipboard.writeText(cmd).then(function() {
+        el.classList.add('copied');
+        setTimeout(function() { el.classList.remove('copied'); }, 1000);
+      });
+    });
+  });
+})();
 """
 
 
@@ -195,8 +257,59 @@ def _page(title, body_html, subtitle=""):
   <main>
     {body_html}
   </main>
+  <script>{BASE_JS}</script>
 </body>
 </html>"""
+
+
+import re as _re
+import json as _json
+
+
+_ERROR_CODE_RE = _re.compile(r"\(([A-Z][A-Za-z0-9._]+)\)")
+
+
+def _split_aws_error(msg):
+    if not isinstance(msg, str):
+        msg = str(msg)
+    m = _ERROR_CODE_RE.search(msg)
+    if not m:
+        return None, msg
+    return m.group(1), msg
+
+
+def _render_error(msg):
+    code, text = _split_aws_error(msg)
+    if code:
+        return (
+            f'<div class="err-block">'
+            f'<span class="err-chip">{_esc(code)}</span>'
+            f'<span class="err-text">{_esc(text)}</span>'
+            f'</div>'
+        )
+    return f'<div class="err-block"><span class="err-text">{_esc(text)}</span></div>'
+
+
+def _cli_chip(cmd):
+    safe = _esc(cmd).replace("'", "&#39;")
+    return (
+        f'<button class="cli-chip" '
+        f'data-cmd="{safe}" title="Click to copy">'
+        f'<span class="cli-chip-label">aws</span> '
+        f'<span class="cli-chip-cmd">{_esc(cmd)}</span>'
+        f'</button>'
+    )
+
+
+def _json_panel(kind, ident):
+    return (
+        f'<details class="json-panel">'
+        f'<summary>Raw JSON (aws ... --output json)</summary>'
+        f'<pre class="json-pre" '
+        f'data-src="/api/json/{_esc(kind)}/{_esc(ident)}">'
+        f'loading…</pre>'
+        f'</details>'
+    )
 
 
 def _status_class(state):
@@ -885,7 +998,8 @@ def render_vpc_detail(vpc_id):
     <h2>Internet Gateway</h2>{igw_card}
     <h2>Route Tables</h2>{rt_cards or '<div class="resource-card"><div class="empty-msg">No route tables</div></div>'}
     """
-    return _detail_page(f"VPC {vpc_id}", vpc_id, body)
+    prefix = _cli_chip(f"aws ec2 describe-vpcs") + _json_panel("vpc", vpc_id)
+    return _detail_page(f"VPC {vpc_id}", vpc_id, prefix + body)
 
 
 def render_subnet_detail(subnet_id):
@@ -933,7 +1047,8 @@ def render_ec2_detail(instance_id):
     <h2>Tags</h2>
     <div class="resource-card"><div class="card-body" style="grid-template-columns:1fr;">{tags_html or '<div class="empty-msg">No tags</div>'}</div></div>
     """
-    return _detail_page(f"EC2 {instance_id}", instance_id, body)
+    prefix = _cli_chip(f"aws ec2 describe-instances --instance-ids {instance_id}") + _json_panel("ec2", instance_id)
+    return _detail_page(f"EC2 {instance_id}", instance_id, prefix + body)
 
 
 def render_s3_detail(bucket_name):
@@ -960,7 +1075,8 @@ def render_s3_detail(bucket_name):
     <h2>Objects</h2>
     <div class="resource-card"><div class="card-body" style="grid-template-columns:1fr;">{obj_rows or '<div class="empty-msg">Empty bucket</div>'}</div></div>
     """
-    return _detail_page(f"S3 {bucket_name}", bucket_name, body)
+    prefix = _cli_chip(f"aws s3 ls s3://{bucket_name}/") + _json_panel("s3", bucket_name)
+    return _detail_page(f"S3 {bucket_name}", bucket_name, prefix + body)
 
 
 def render_iam_detail(username):
@@ -990,7 +1106,8 @@ def render_iam_detail(username):
     <h2>Groups ({len(u.get('groups', []))})</h2>
     <div class="resource-card"><div class="card-body" style="grid-template-columns:1fr;">{grp_rows or '<div class="empty-msg">Not in any group</div>'}</div></div>
     """
-    return _detail_page(f"IAM {username}", username, body)
+    prefix = _cli_chip(f"aws iam get-user --user-name {username}") + _json_panel("iam", username)
+    return _detail_page(f"IAM {username}", username, prefix + body)
 
 
 def render_alarm_detail(alarm_name):

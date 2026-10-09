@@ -1,0 +1,8 @@
+{
+  "name": "drytest2",
+  "arn": "arn:aws:s3:af-south-1:861879765232:drytest2",
+  "region": "af-south-1",
+  "account_id": "861879765232",
+  "url": "https://drytest2.s3.af-south-1.amazonaws.com",
+  "created": "2026-10-08T13:51:25"
+}

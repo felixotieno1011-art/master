@@ -15,7 +15,63 @@
       "rate": 0.045,
       "amount": 0.045,
       "note": ""
+    },
+    {
+      "time": "2026-10-08T13:06:22",
+      "key": "s3.upload",
+      "quantity": 1.0,
+      "rate": 2.3e-05,
+      "amount": 2.3e-05,
+      "note": ""
+    },
+    {
+      "time": "2026-10-08T13:49:34",
+      "key": "s3.upload",
+      "quantity": 1.0,
+      "rate": 2.3e-05,
+      "amount": 2.3e-05,
+      "note": ""
+    },
+    {
+      "time": "2026-10-08T14:37:58",
+      "key": "ec2.run-instances.t3.micro",
+      "quantity": 1.0,
+      "rate": 0.0104,
+      "amount": 0.0104,
+      "note": ""
+    },
+    {
+      "time": "2026-10-08T14:38:00",
+      "key": "ec2.run-instances.t3.micro",
+      "quantity": 1.0,
+      "rate": 0.0104,
+      "amount": 0.0104,
+      "note": ""
+    },
+    {
+      "time": "2026-10-09T06:21:13",
+      "key": "vpc.create-igw",
+      "quantity": 1.0,
+      "rate": 0.045,
+      "amount": 0.045,
+      "note": ""
+    },
+    {
+      "time": "2026-10-09T07:56:07",
+      "key": "vpc.create-igw",
+      "quantity": 1.0,
+      "rate": 0.045,
+      "amount": 0.045,
+      "note": ""
+    },
+    {
+      "time": "2026-10-09T08:17:09",
+      "key": "vpc.create-nat",
+      "quantity": 1.0,
+      "rate": 0.045,
+      "amount": 0.045,
+      "note": ""
     }
   ],
-  "total": 0.0554
+  "total": 0.211246
 }
