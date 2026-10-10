@@ -1,4 +1,4 @@
-# 🔐 PART 12 — CYBERSECURITY & ETHICAL HACKING
+,# 🔐 PART 12 — CYBERSECURITY & ETHICAL HACKING
 
 Notes for Phase 2 — started 2026-10-09
 
@@ -67,3 +67,35 @@ Module 1 — Security Foundations
 
 ### Built: profiler.py
 Classifies attackers based on clues/indicators.
+## 12.4 Attack Surface & Vectors
+
+### Attack Surface
+- Total sum of all ways an attacker could break in
+- Bigger surface = more opportunities to attack
+- 4 types:
+  * Network  - open ports, exposed services
+  * Software - code, libraries, OS
+  * Human    - employees, users
+  * Physical - devices, buildings
+
+### Attack Surface vs Attack Vector
+- Surface = ALL possible ways in
+- Vector  = the ONE way actually used
+
+### How to reduce attack surface
+- Close unused ports
+- Remove unused software
+- Disable unused accounts
+- Patch regularly
+- Use firewalls
+- Train employees
+
+### Golden rule
+"If you don't need it, turn it off."
+
+### Why smaller is safer
+Fewer ways in = easier to defend. Attackers need only ONE gap.
+
+### Built: surface_mapper.py
+Scans a target for open ports, classifies risk level.
+Special host for practice: scanme.nmap.org

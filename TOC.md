@@ -180,7 +180,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.1 What is Cybersecurity? 📱
 - [x] 12.2 CIA Triad 📱
 - [ ] 12.3 Threat Actors & Attack Types 📱
-- [ ] 12.4 Attack Surface & Vectors 📱
+- [x] 12.4 Attack Surface & Vectors 📱
 - [ ] 12.5 Security Mindset 📱
 
 ### Module 2 — Cryptography
