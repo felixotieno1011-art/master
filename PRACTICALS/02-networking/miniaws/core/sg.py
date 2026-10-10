@@ -90,36 +90,60 @@ def delete_security_group(sg_id):
     return True, f"deleted security group {sg_id} ({sg.get('groupName','?')})"
 
 
-def add_inbound_rule(sg_id, protocol, port, cidr="0.0.0.0/0"):
-    """Add an inbound rule: allow <protocol> on <port> from <cidr>."""
+def add_inbound_rule(sg_id, protocol, port, cidr=None, source_group=None):
+    """Add an inbound rule. Either cidr OR source_group (not both)."""
     sg = get_security_group(sg_id)
     if not sg:
         return False, f"security group {sg_id} not found"
 
+    if not cidr and not source_group:
+        return False, "either --cidr or --source-group required"
+
     try:
         port = int(port)
     except (ValueError, TypeError):
-        return False, f"port must be a number"
+        return False, "port must be a number"
 
     if protocol not in ("tcp", "udp", "icmp"):
-        return False, f"protocol must be tcp, udp, or icmp"
+        return False, "protocol must be tcp, udp, or icmp"
 
-    # Check for duplicate rule
-    for rule in sg["ipPermissions"]:
-        if (rule.get("ipProtocol") == protocol
-                and rule.get("fromPort") == port
-                and rule.get("toPort") == port
-                and any(r.get("CidrIp") == cidr for r in rule.get("ipRanges", []))):
-            return False, f"rule already exists: {protocol}/{port} from {cidr}"
-
-    sg["ipPermissions"].append({
-        "ipProtocol": protocol,
-        "fromPort": port,
-        "toPort": port,
-        "ipRanges": [{"CidrIp": cidr}],
-    })
-    write_json(_sg_path(sg_id), sg)
-    return True, f"added rule: {protocol}/{port} from {cidr}"
+    if source_group:
+        # Verify the source SG exists
+        if not get_security_group(source_group):
+            return False, f"source security group {source_group} not found"
+        # Check duplicate
+        for rule in sg["ipPermissions"]:
+            if (rule.get("ipProtocol") == protocol
+                    and rule.get("fromPort") == port
+                    and rule.get("toPort") == port
+                    and any(r.get("GroupId") == source_group
+                            for r in rule.get("userIdGroupPairs", []))):
+                return False, f"rule already exists: {protocol}/{port} from {source_group}"
+        sg["ipPermissions"].append({
+            "ipProtocol": protocol,
+            "fromPort": port,
+            "toPort": port,
+            "userIdGroupPairs": [{"GroupId": source_group}],
+        })
+        write_json(_sg_path(sg_id), sg)
+        return True, f"added rule: {protocol}/{port} from group {source_group}"
+    else:
+        # CIDR-based rule (original behavior)
+        cidr = cidr or "0.0.0.0/0"
+        for rule in sg["ipPermissions"]:
+            if (rule.get("ipProtocol") == protocol
+                    and rule.get("fromPort") == port
+                    and rule.get("toPort") == port
+                    and any(r.get("CidrIp") == cidr for r in rule.get("ipRanges", []))):
+                return False, f"rule already exists: {protocol}/{port} from {cidr}"
+        sg["ipPermissions"].append({
+            "ipProtocol": protocol,
+            "fromPort": port,
+            "toPort": port,
+            "ipRanges": [{"CidrIp": cidr}],
+        })
+        write_json(_sg_path(sg_id), sg)
+        return True, f"added rule: {protocol}/{port} from {cidr}"
 
 
 def remove_inbound_rule(sg_id, protocol, port, cidr="0.0.0.0/0"):
@@ -154,7 +178,11 @@ def format_rule(rule):
     proto = rule.get("ipProtocol", "?")
     fport = rule.get("fromPort", -1)
     toport = rule.get("toPort", -1)
-    cidrs = ", ".join(r.get("CidrIp", "?") for r in rule.get("ipRanges", []))
+
+    # Source can be CIDR or SG reference
+    cidrs = [r.get("CidrIp", "?") for r in rule.get("ipRanges", [])]
+    groups = [r.get("GroupId", "?") for r in rule.get("userIdGroupPairs", [])]
+    sources = cidrs + [f"sg:{g}" for g in groups]
 
     if fport == -1:
         port_str = "all"
@@ -163,4 +191,5 @@ def format_rule(rule):
     else:
         port_str = f"{fport}-{toport}"
 
-    return f"{proto} {port_str} from {cidrs}"
+    source_str = ", ".join(sources) if sources else "?"
+    return f"{proto} {port_str} from {source_str}"

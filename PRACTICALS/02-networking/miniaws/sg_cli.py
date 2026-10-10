@@ -88,15 +88,21 @@ def cmd_authorize_ingress(args):
     sg_id = flags.get("group-id")
     protocol = flags.get("protocol") or "tcp"
     port = flags.get("port")
-    cidr = flags.get("cidr") or "0.0.0.0/0"
+    cidr = flags.get("cidr")
+    source_group = flags.get("source-group")
 
     if not sg_id or port is None:
         print(utils.err("usage: aws ec2 authorize-security-group-ingress "
                         "--group-id <sg> --protocol <tcp|udp|icmp> "
-                        "--port <port> [--cidr <cidr>]"))
+                        "--port <port> [--cidr <cidr> | --source-group <sg>]"))
         return 1
 
-    ok_, msg = sg.add_inbound_rule(sg_id, protocol, port, cidr=cidr)
+    if not cidr and not source_group:
+        print(utils.err("must specify --cidr OR --source-group"))
+        return 1
+
+    ok_, msg = sg.add_inbound_rule(sg_id, protocol, port,
+                                    cidr=cidr, source_group=source_group)
     print(utils.ok(msg) if ok_ else utils.err(msg))
     return 0 if ok_ else 1
 

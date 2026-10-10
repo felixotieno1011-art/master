@@ -63,7 +63,12 @@ VPC COMMANDS:
         return 0 if ok_ else 1
 
     if sub == "describe-vpcs":
+        # Support --region filter (real AWS behavior)
+        flags = _parse(rest)
+        region_filter = flags.get("region") if isinstance(flags.get("region"), str) else None
         vs = vpc.list_vpcs()
+        if region_filter:
+            vs = [v for v in vs if v.get("region") == region_filter]
         if not vs:
             print(utils.warn("no VPCs")); return 0
         print(f"{'VPC ID':<24} {'CIDR':<18} {'REGION':<14} {'STATE':<12}")

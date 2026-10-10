@@ -73,10 +73,13 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --region)
       REGION_OVERRIDE="$2"
+      # Also pass --region through to Python for filtering
+      NEW_ARGS+=("--region" "$2")
       shift 2
       ;;
     --region=*)
       REGION_OVERRIDE="${1#--region=}"
+      NEW_ARGS+=("--region" "$REGION_OVERRIDE")
       shift
       ;;
     --output)

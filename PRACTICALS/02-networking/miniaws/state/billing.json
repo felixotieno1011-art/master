@@ -79,7 +79,31 @@
       "rate": 0.045,
       "amount": 0.045,
       "note": ""
+    },
+    {
+      "time": "2026-10-10T07:56:48",
+      "key": "vpc.create-igw",
+      "quantity": 1.0,
+      "rate": 0.045,
+      "amount": 0.045,
+      "note": ""
+    },
+    {
+      "time": "2026-10-10T07:59:50",
+      "key": "vpc.create-nat",
+      "quantity": 1.0,
+      "rate": 0.045,
+      "amount": 0.045,
+      "note": ""
+    },
+    {
+      "time": "2026-10-10T08:02:28",
+      "key": "vpc.create-nat",
+      "quantity": 1.0,
+      "rate": 0.045,
+      "amount": 0.045,
+      "note": ""
     }
   ],
-  "total": 0.256246
+  "total": 0.391246
 }

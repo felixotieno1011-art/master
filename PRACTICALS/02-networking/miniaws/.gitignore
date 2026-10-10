@@ -1,0 +1,9 @@
+# Ignore state files (personal data)
+state/
+logs/
+reports/
+*.log
+*.tar.gz
+__pycache__/
+*.pyc
+.env
