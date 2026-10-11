@@ -99,3 +99,49 @@ Fewer ways in = easier to defend. Attackers need only ONE gap.
 ### Built: surface_mapper.py
 Scans a target for open ports, classifies risk level.
 Special host for practice: scanme.nmap.org
+## 12.5 Security Mindset
+
+### What it is
+Habitually thinking about how systems can be broken.
+Not "how does this work?" but "how can this break?"
+
+### Two mindsets
+- Normal: "Does it work?"
+- Security: "Does it work ONLY as intended?"
+
+### 6 principles
+1. Think like an attacker
+2. Trust nothing, verify everything
+3. Assume breach
+4. Defense in depth
+5. Principle of least privilege
+6. Fail securely
+
+### Attacker's 5 questions
+1. How would I break in?
+2. What would I steal?
+3. What would I change?
+4. What would I destroy?
+5. What would I hide?
+
+### Weird things radar (signs of attack)
+- Logins at odd hours
+- Many failed attempts
+- Large data transfers at midnight
+- Port scans on your server
+
+### Layers of attack
+Data → Access control → Login → Network → Server → Physical → Human
+Attackers attack the weakest layer.
+
+### My own words
+- Security mindset = thinking like a thief
+- Don't assume, test/verify
+- Always notice possible entry points
+- Cyber café analysis:
+  * Attack surface = network + 11 PCs + physical
+  * Highest value = admin PC (customer data)
+  * Weakest layer = untrained guard
+
+### Real quote
+"Security is a process, not a product." — Bruce Schneier

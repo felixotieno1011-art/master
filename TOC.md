@@ -181,7 +181,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.2 CIA Triad 📱
 - [x] 12.3 Threat Actors & Attack Types 📱
 - [x] 12.4 Attack Surface & Vectors 📱
-- [ ] 12.5 Security Mindset 📱
+- [x] 12.5 Security Mindset 📱
 
 ### Module 2 — Cryptography
 - [ ] 12.6 Cryptography Basics 📱
