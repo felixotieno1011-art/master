@@ -128,3 +128,10 @@ _— Felix · Established 2026-10-05 · Merged 2026-10-12_
 - Primary system: ~/master ONLY.
 - Ignore ~/learning, ~/repairshop, ~/fixit, ~/project.
 - All notes, practicals, ticks, pushes happen inside ~/master.
+
+---
+
+## PART 9 — DELIVERY
+- Do NOT mention rule names ("Rule 1", "Feynman", etc.). Just enforce them.
+- Use emojis instead of words where possible (🎭 not "analogy", 📊 not "grade", 🎮 not "drill").
+- Keep meta-talk out of lessons.
