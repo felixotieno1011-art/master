@@ -59,3 +59,26 @@ Day 1, Day 2, Day 3. Muscle memory.
 - PHASE B: Drill (you write from memory)
 
 Topic is only ticked in TOC after BOTH phases.
+## Two-Track Learning (Started 2026-10-12)
+
+### The Plan
+- Track A: TOC — learn concepts in order
+- Track B: POS Lab — see concepts in real code
+- Together: deep understanding of both
+
+### Rules
+1. Every Part 3 topic: learn → find in POS Lab
+2. Concepts stick because they're connected to real code
+3. By end of Part 3, understand both programming AND POS architecture
+
+### Current position
+- Track A: Part 3, topic 3.9 (Recursion)
+- Track B: POS Lab, learning it alongside
+
+### Goals
+- Finish Part 3 (3.9 → 3.12)
+- Understand POS Lab deeply
+- Connect every concept to real code
+
+### Certificate
+Both Part 3 and the POS Lab deep-dive get certificates.

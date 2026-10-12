@@ -103,7 +103,23 @@
       "rate": 0.045,
       "amount": 0.045,
       "note": ""
+    },
+    {
+      "time": "2026-10-11T16:19:13",
+      "key": "s3.upload",
+      "quantity": 1.0,
+      "rate": 2.3e-05,
+      "amount": 2.3e-05,
+      "note": ""
+    },
+    {
+      "time": "2026-10-11T16:21:54",
+      "key": "s3.upload",
+      "quantity": 1.0,
+      "rate": 2.3e-05,
+      "amount": 2.3e-05,
+      "note": ""
     }
   ],
-  "total": 0.391246
+  "total": 0.391292
 }
