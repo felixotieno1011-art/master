@@ -263,3 +263,38 @@ Wrote search_functions.py from scratch. FIRST TRY! ✅
 - Interviews ask Big-O
 - Wrong algorithm = production crashes
 - Choice of algorithm > choice of language
+### 3.9 Recursion — COMPLETE ✅
+Wrote recursive_sum.py from memory. FIRST TRY!
+
+### What recursion is
+A function that calls itself.
+Must have:
+1. Base case (when to stop)
+2. Recursive case (call itself with smaller input)
+3. Movement toward base case
+
+### Examples
+- countdown(n): prints n, calls countdown(n-1), stops at 0
+- factorial(n): returns n * factorial(n-1), stops at 1
+- recursive_sum(n): returns n + recursive_sum(n-1), stops at 0
+- find_file(folder, name): searches nested folders
+
+### Real-world uses
+- File system search
+- Category trees (POS products)
+- Comment threads
+- Sorting algorithms
+- Fractal graphics
+
+### Without base case
+Infinite recursion → crash ("maximum recursion depth exceeded")
+
+### My observation
+Saw it go DOWN (factorial(5) → factorial(1)) then UP
+(factorial(1) returns 1, factorial(2) = 2, etc.)
+
+### My code
+def recursive_sum(n):
+    if n == 0:
+        return 0
+    return n + recursive_sum(n - 1)
