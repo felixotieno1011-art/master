@@ -298,3 +298,34 @@ def recursive_sum(n):
     if n == 0:
         return 0
     return n + recursive_sum(n - 1)
+### 3.10 Sorting & Searching — Phase B DONE ✅
+
+Wrote bubble_sort.py from scratch. Ran first try!
+
+### Core concepts
+- Sorting = arranging items in order (small→big, A→Z)
+- Searching = finding one item
+- Sorted data makes searching much faster
+- 4 algorithms: Bubble, Selection, Insertion, Merge
+- Bubble = O(n²) slow. Merge = O(n log n) fast.
+
+### My matatu analogy
+- Librarian: books on shelves in order = binary search works
+- Bubble sort = bullfrog comparing neighbours, swapping
+- Merge sort = splitting a pile in half, sorting each, combining
+
+### Real commands I ran
+- python bubble_sort.py
+- nano bubble_sort.py (to edit)
+
+### Things I saw
+- Working: [90, 120, 250, 300, 480]
+- Flipped > to < : [480, 300, 250, 120, 90] (descending!)
+- Removed outer loop: [120, 300, 90, 250, 480] (NOT sorted)
+
+### My own words (locked in)
+- One pass only sorts one item (the biggest bubbles to the end)
+- The outer loop repeats so every number gets sorted
+- Comparison direction (>/<) controls ascending vs descending
+- Sorting matters because it lets binary search skip large chunks
+- Unsorted data = binary search has nowhere to begin
