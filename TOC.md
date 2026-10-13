@@ -198,7 +198,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 12.15 Web Hacking (SQLi, XSS, CSRF) 📱🔁
 - [ ] 12.16 Network Attacks (MITM, ARP spoofing) 📱🔁
 - [ ] 12.17 Password Attacks 📱🔁
-- [ ] 12.18 Social Engineering 📱
+- [x] 12.18 Social Engineering 📱
 
 ### Module 4 — Defensive Security
 - [ ] 12.19 Blue Team Operations 📱

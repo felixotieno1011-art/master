@@ -145,3 +145,24 @@ Attackers attack the weakest layer.
 
 ### Real quote
 "Security is a process, not a product." — Bruce Schneier
+### 12.18 Social Engineering — Phase B DONE ✅
+
+Analyzed a fake Safaricom/M-Pesa SMS. Identified attack type,
+emotion, red flags, and safe version.
+
+### Core concepts
+- Social Engineering = hacking the HUMAN, not the machine
+- Types: phishing, spear phishing, vishing, smishing, pretexting,
+  baiting, tailgating, quid pro quo
+- Attackers exploit: urgency, fear, authority, helpfulness, greed
+- Defense: slow down, verify, never share PIN/password
+
+### Real analysis I did
+- Fake Safaricom SMS asking for PIN via *106*123#
+- Caught: fear + urgency, fake USSD, PIN request, fake number
+
+### My own words (locked in)
+- Safaricom never hurries someone — urgency is a scam tell
+- The target isn't the system — it's the person with the keys
+- No real company asks for your PIN or password, ever
+- Fear + urgency = the classic one-two punch
