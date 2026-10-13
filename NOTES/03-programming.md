@@ -393,3 +393,33 @@ Wrote evens.py using map, filter, reduce, lambda.
 - map changes, filter removes, reduce collapses
 
 ### 🏁 PART 3 COMPLETE — all 12 topics done
+### 🎁 PART 3 PROJECT — Console Shop Inventory ✅
+
+Built shop.py from SPEC. All 6 components. All bugs fixed.
+
+### What it does
+- Menu loop: Add / Show / Search / Quit
+- Product class (name, price, quantity)
+- List stores products
+- search_product() uses partial match
+
+### Bugs found and fixed
+1. Bad price input → crashed (ValueError) → wrapped in try/except
+2. Empty product name → added ghost product → added `.strip()` + `if not name`
+3. Show all with no products → handled by `if not products` guard
+
+### Real commands I ran
+- python shop.py
+- nano shop.py
+
+### Things I saw
+- Full flow working: add, show, search, quit
+- ValueError crash on non-number price
+- try/except fixed it cleanly
+
+### My own words (locked in)
+- A real project needs defensive code — clients WILL enter garbage
+- try/except catches crashes; if not name catches empty input
+- Testing = trying to break your own code on purpose
+- This project used EVERYTHING from Part 3: class, list, dict, functions,
+  loops, error handling, search, sorting (next version)
