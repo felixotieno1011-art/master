@@ -50,7 +50,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 3.12 Functional Programming 📱
 
 ## Part 4 — Frontend
-- [ ] 4.1 HTML5 📱
+- [x] 4.1 HTML5 📱
 - [ ] 4.2 CSS3 📱
 - [ ] 4.3 Responsive Design 📱
 - [ ] 4.4 JavaScript Core 📱
