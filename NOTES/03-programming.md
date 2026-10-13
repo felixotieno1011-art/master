@@ -329,3 +329,36 @@ Wrote bubble_sort.py from scratch. Ran first try!
 - Comparison direction (>/<) controls ascending vs descending
 - Sorting matters because it lets binary search skip large chunks
 - Unsorted data = binary search has nowhere to begin
+### 3.11 Object-Oriented Programming — Phase B DONE ✅
+
+Built Product class with __init__, discount, restock, show.
+Broke self — read the error. Broke attributes — read the error.
+
+### Core concepts
+- class = blueprint (the mould)
+- object = real thing built from blueprint (the box)
+- method = function inside a class
+- self = "this specific object" — ties method to object
+- __init__ = runs when object is created, sets up attributes
+
+### My matatu analogy
+- Jua kali fundi: one mould → many metal boxes
+- Mould = class, each box = object
+- Box holds contents (attributes) + can do things (methods)
+
+### Real commands I ran
+- python product.py
+- nano product.py
+- python ~/feli.py
+- mv ~/feli.py .../3.11-oop/restock_discount.py
+
+### Things I saw
+- TypeError: show() takes 0 args but 1 given → because self was missing
+- NameError: item not defined → code ran inside __init__ too early
+- AttributeError risk: method touches self.price but __init__ never made it
+
+### My own words (locked in)
+- self is required — Python passes the object automatically
+- A method can only touch what __init__ built
+- Code inside a method runs when the method runs; code outside runs top-to-bottom
+- Position matters: item.discount() belongs AFTER the object is created

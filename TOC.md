@@ -46,7 +46,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 3.8 Algorithms & Big-O 📱
 - [x] 3.9 Recursion 📱
 - [x] 3.10 Sorting & Searching 📱
-- [ ] 3.11 Object-Oriented Programming 📱
+- [x] 3.11 Object-Oriented Programming 📱
 - [ ] 3.12 Functional Programming 📱
 
 ## Part 4 — Frontend
