@@ -154,3 +154,11 @@ _— Felix · Established 2026-10-05 · Merged 2026-10-12_
 - The AI states facts only: prereqs, topic content, what's involved.
 - The learner decides. Period.
 - Exception: prerequisite warnings (necessary, not opinion).
+
+---
+
+## PART 10 — TOPIC SELECTION (corrected 2026-10-13)
+- LEARNER names the topic directly. No scripts, no suggestions, no random picks.
+- Format: learner says a number/topic (e.g. "2.6" or "6.9 Search").
+- If prerequisites missing → do those first, then return to learner's pick.
+- The TOC is a menu. Learner orders from it. AI teaches what's ordered.
