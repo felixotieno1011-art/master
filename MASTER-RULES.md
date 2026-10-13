@@ -135,3 +135,13 @@ _— Felix · Established 2026-10-05 · Merged 2026-10-12_
 - Do NOT mention rule names ("Rule 1", "Feynman", etc.). Just enforce them.
 - Use emojis instead of words where possible (🎭 not "analogy", 📊 not "grade", 🎮 not "drill").
 - Keep meta-talk out of lessons.
+
+---
+
+## PART 10 — RANDOM TOPIC MODE (added 2026-10-13)
+- Learner picks any topic from the TOC, at random, by choice or by dice.
+- If the topic has unmet prerequisites → do the prerequisite FIRST, then return.
+- No forced sequential order. The TOC is a menu, not a queue.
+- Prerequisite chains can be multi-level (e.g. Metasploit needs
+  Networking → Linux → Cryptography first). Do them in order.
+- Once prerequisites are done, resume the originally picked topic.
