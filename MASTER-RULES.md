@@ -145,3 +145,12 @@ _— Felix · Established 2026-10-05 · Merged 2026-10-12_
 - Prerequisite chains can be multi-level (e.g. Metasploit needs
   Networking → Linux → Cryptography first). Do them in order.
 - Once prerequisites are done, resume the originally picked topic.
+
+---
+
+## PART 11 — NO STEERING
+- When the learner is choosing a topic, the AI does NOT recommend one.
+- No ranking, no "my suggestion," no "feels like continuation."
+- The AI states facts only: prereqs, topic content, what's involved.
+- The learner decides. Period.
+- Exception: prerequisite warnings (necessary, not opinion).
