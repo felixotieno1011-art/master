@@ -1,5 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# show.sh — pretty progress + recent ticks
+# show.sh — pretty progress + recent ticks (sorted)
 
 MASTER="$HOME/master"
 TOC="$MASTER/TOC.md"
@@ -24,11 +24,8 @@ echo "  Done: $done_count / $total  |  Left: $((total - done_count))"
 echo "────────────────────────────────"
 echo ""
 echo "Recent completed:"
-grep -e "^- \[x\] [0-9]" "$TOC" | tail -n 5
+grep -e "^- \[x\] [0-9]" "$TOC" | tail -n 5 | sort -V
 echo ""
 echo "Next up:"
 grep -e "^- \[ \] [0-9]" "$TOC" | head -n 3
 echo ""
-
-
-

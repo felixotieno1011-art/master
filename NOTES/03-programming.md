@@ -362,3 +362,34 @@ Broke self — read the error. Broke attributes — read the error.
 - A method can only touch what __init__ built
 - Code inside a method runs when the method runs; code outside runs top-to-bottom
 - Position matters: item.discount() belongs AFTER the object is created
+### 3.12 Functional Programming — Phase B DONE ✅
+
+Wrote evens.py using map, filter, reduce, lambda.
+
+### Core concepts
+- Functional = pure functions: input → output, change nothing outside
+- map    = transform every item
+- filter = keep items passing a test
+- reduce = collapse list to one value
+- lambda = tiny unnamed function (one line)
+- def    = named function, reusable, multi-line
+
+### Real commands I ran
+- python evens.py
+- nano evens.py
+
+### Things I saw
+- filter == 0 → [8, 4]
+- filter == 1 → [3, 1, 9]
+- map n*2 → [6, 16, 2, 18, 8]
+- reduce a+b → 25
+- def n*2 → same as lambda n*2
+- def n+2 → [5, 10, 3, 11, 6]
+
+### My own words (locked in)
+- lambda and def do the same job; lambda is just shorthand
+- Functions are independent — changing one doesn't change another
+- Define before use (order matters, same as 3.11)
+- map changes, filter removes, reduce collapses
+
+### 🏁 PART 3 COMPLETE — all 12 topics done
