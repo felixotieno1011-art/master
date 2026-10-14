@@ -96,7 +96,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 6.10 DB Performance 📱
 
 ## Part 7 — DevOps & Deployment
-- [ ] 7.1 Linux Server Basics 📱
+- [x] 7.1 Linux Server Basics 📱
 - [ ] 7.2 Linux Permissions & Users 📱
 - [ ] 7.3 Process Management 📱
 - [ ] 7.4 Hosting Options 📱💻
