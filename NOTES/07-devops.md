@@ -33,3 +33,39 @@ Explored my own phone's Linux system with real commands.
 - / = system, read-only. /data = my writable space.
 - Kernel sits between hardware and programs — not "in" hardware.
 - I'm learning to run the thing I'm learning on.
+### 7.5 Domain, DNS, HTTPS — Phase B DONE ✅
+
+Explored DNS, TLS certificates, HTTP vs HTTPS on real sites.
+
+### Core concepts
+- Domain = the name you own (rented yearly from a registrar)
+- DNS = the phonebook. Maps domain → IP.
+  Record types: A (IP), CNAME (alias), MX (mail), TXT (verify), NS (nameservers)
+- HTTPS = HTTP wrapped in TLS encryption
+- TLS certificate = ID card for the server. Signed by a Certificate Authority.
+  Let's Encrypt = free.
+- CDN = caches content globally (Cloudflare, etc.)
+
+### Real commands I ran
+- nslookup google.com         → name to IP
+- nslookup -type=A google.com 8.8.8.8  → multiple IPs
+- openssl s_client ...        → read the certificate
+- curl -I http://example.com  → port 80, no encryption
+- curl -I https://example.com → port 443, TLS encrypted
+
+### Things I saw
+- Google returns MANY IPs (192.178.204.139, .113, .101...), rotating each lookup
+- Non-authoritative answer = cached, not source of truth
+- Google's cert: subject=*.google.com, issuer=Google Trust Services
+- Cert valid 90 days (Sep 18 → Dec 11 2026)
+- HTTP/1.1 vs HTTP/2 (HTTPS gets HTTP/2)
+- Both example.com responses served by Cloudflare CDN
+
+### My own words (locked in)
+- DNS maps name → IP, returns many IPs for load balancing
+- Certificate shows: what it covers (CN), who signed it (issuer), valid dates
+- Wildcard (*) covers all subdomains
+- HTTP/1.1 = old. HTTP/2 = modern, comes with HTTPS.
+- To let the world reach my app: host it publicly, buy a domain,
+  point DNS at the server, get an HTTPS cert.
+- The S in HTTPS = TLS encryption on top of HTTP

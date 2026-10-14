@@ -100,7 +100,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 7.2 Linux Permissions & Users 📱
 - [ ] 7.3 Process Management 📱
 - [ ] 7.4 Hosting Options 📱💻
-- [ ] 7.5 Domain, DNS, HTTPS 📱
+- [x] 7.5 Domain, DNS, HTTPS 📱
 - [ ] 7.6 Docker & Containers 📱💻
 - [ ] 7.7 Docker Compose 💻
 - [ ] 7.8 CI/CD Pipelines 📱💻
