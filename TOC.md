@@ -114,7 +114,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 7.16 Multi-Cloud Networking 📱💻
 
 ## Part 7.5 — Operating Systems & Systems
-- [ ] 7.5.1 What is an OS? 📱
+- [x] 7.5.1 What is an OS? 📱
 - [ ] 7.5.2 Processes vs Threads 📱
 - [ ] 7.5.3 Memory Management 📱
 - [ ] 7.5.4 File Systems & Permissions 📱
