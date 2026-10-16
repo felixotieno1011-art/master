@@ -126,7 +126,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 ## Part 8 — Security Basics
 - [ ] 8.1 Web Security Basics 📱
 - [ ] 8.2 OWASP Top 10 📱
-- [ ] 8.3 HTTPS, TLS, Certificates 📱
+- [x] 8.3 HTTPS, TLS, Certificates 📱
 - [ ] 8.4 Secure Coding 📱
 - [ ] 8.5 Network Security 📱🔁
 - [ ] 8.6 Ethical Hacking Intro 📱
