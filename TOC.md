@@ -184,7 +184,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.5 Security Mindset 📱
 
 ### Module 2 — Cryptography
-- [ ] 12.6 Cryptography Basics 📱
+- [x] 12.6 Cryptography Basics 📱
 - [ ] 12.7 Symmetric vs Asymmetric Encryption 📱
 - [ ] 12.8 Hashing (MD5, SHA, bcrypt) 📱
 - [ ] 12.9 Digital Signatures & Certificates 📱

@@ -170,3 +170,34 @@ _— Felix · Established 2026-10-05 · Merged 2026-10-12_
 - Never tick a topic without its note in NOTES/.
 - Notes go in TOC order, not date order.
 - Topic headings use ## (level 2). Sub-sections use ### (level 3).
+
+---
+
+## PART 12 — PHASE 2 METHOD (Part 12 + related security topics, added 2026-10-16)
+- Phase 2 = Part 12 AND related security topics (e.g. Part 8 Security Basics)
+- Method: PRACTICAL, using ~/pos-lab as the playground
+- Learner picks topics randomly, same as Phase 1
+- Approach: read existing pos-lab code → find the concept → break/fix → patch
+- Notes: heavy on CODE, light on theory
+- Non-code topics (SIEM, Forensics, Cyber Laws, etc.) → do when learner chooses them;
+  those fall back to a conceptual method
+- Phase 1 (Parts 1-11) method: UNCHANGED
+
+---
+
+## PART 13 — PHASE 2 PACE (added 2026-10-16)
+- Phase 2 goes STEP BY STEP. One action per message.
+- No multi-step dumps. No long lessons. No walls of text.
+- Wait for the learner's output before giving the next step.
+- Short instructions. Short replies. Let the code teach.
+
+---
+
+## PART 14 — PHASE 2 CLARIFIED (added 2026-10-16)
+- Phase 2 follows OUR TOC (master/TOC.md), NOT pos-lab's own lab order.
+- Learner picks 12.x topics randomly from TOC.
+- Lesson style = original Phase 1 format:
+  🎭 Gate → 🎭 Analogy → 💡 Concept → 🍿 Fun → 🔨 Practical → 📝 Note → ✅ Tick
+- Practical = find the matching pos-lab lab (if one exists), run exploit + fix.
+- If no pos-lab match → fallback to concept + small Python/CLI practical.
+- pos-lab is a TOOL, not the syllabus.
