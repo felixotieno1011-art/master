@@ -1,4 +1,10 @@
-### 7.1 Linux Server Basics — Phase B DONE ✅
+# 📘 Part 7 — DevOps & Deployment
+
+Notes for every topic in Part 7. One section per topic, in TOC order.
+
+---
+
+## 7.1 Linux Server Basics — Phase B DONE ✅
 
 Explored my own phone's Linux system with real commands.
 
@@ -33,7 +39,54 @@ Explored my own phone's Linux system with real commands.
 - / = system, read-only. /data = my writable space.
 - Kernel sits between hardware and programs — not "in" hardware.
 - I'm learning to run the thing I'm learning on.
-### 7.5 Domain, DNS, HTTPS — Phase B DONE ✅
+
+---
+
+## 7.3 Process Management — Phase B DONE ✅
+
+Ran ps, started background jobs, killed them, learned signals.
+
+### Core concepts
+- Process = a running program. Every process has a PID.
+- PID = unique ID number. Job number (%1) = shell-local label.
+- Daemon = background process, no terminal, survives.
+- Foreground process dies when terminal closes (SIGHUP).
+- Process states: R=running, S=sleeping, D=uninterruptible, T=stopped, Z=zombie
+- kill PID = SIGTERM = polite "please stop, clean up"
+- kill -9 PID = SIGKILL = force, cannot be ignored
+- Always try SIGTERM first, SIGKILL only if it won't stop.
+
+### Signals I know
+- SIGINT (2)  = Ctrl+C
+- SIGTERM (15) = polite kill
+- SIGKILL (9)  = force kill
+- SIGHUP (1)   = terminal closed
+- SIGSTOP (19) = pause
+- SIGCONT (18) = resume
+
+### Real commands I ran
+- ps aux | head -5       → list processes
+- ps aux | grep -c "."   → count processes
+- sleep 300 &            → run in background
+- jobs / jobs -l         → list background jobs
+- kill %1                → kill by job number
+
+### Things I saw
+- Termux shows only ~5 processes (Android sandbox)
+- A real Linux server shows 100-300 processes
+- sleep 300 & gave [1] 25274 → job number + PID
+- kill %1 → job terminated
+
+### My own words (locked in)
+- Process = running program, PID = its identity
+- kill = polite, kill -9 = force (nuclear option)
+- Termux only shows MY processes — Android hides the rest
+- Every process has a PID (for kernel) and possibly a job number (for shell)
+- Foreground dies when terminal closes. Daemon survives.
+
+---
+
+## 7.5 Domain, DNS, HTTPS — Phase B DONE ✅
 
 Explored DNS, TLS certificates, HTTP vs HTTPS on real sites.
 
@@ -69,3 +122,99 @@ Explored DNS, TLS certificates, HTTP vs HTTPS on real sites.
 - To let the world reach my app: host it publicly, buy a domain,
   point DNS at the server, get an HTTPS cert.
 - The S in HTTPS = TLS encryption on top of HTTP
+
+---
+
+## 7.5.1 What is an OS — Phase B DONE ✅
+
+Explored my phone's kernel, RAM, CPU, filesystem.
+
+### Core concepts
+- OS = software that manages hardware + provides services to programs
+- Kernel = core of the OS, middle layer between programs and hardware
+- OS = kernel + shell + drivers + utilities + userland
+- 5 jobs of an OS:
+  1. Process management (run, schedule, kill)
+  2. Memory management (RAM allocation)
+  3. File system (reads, writes, permissions)
+  4. Device drivers (talk to hardware)
+  5. Security (users, permissions, isolation)
+- Android = Linux kernel + Google userspace
+- Layers: Hardware → Drivers → Kernel → Apps → UI
+
+### My system summary
+- 📱 Samsung Galaxy A03
+- 🧠 Linux kernel 4.19.191
+- 🔧 ARM 64-bit (aarch64), 8 cores
+- 💾 3.7 GB RAM + 4 GB swap
+- 📦 Android 13
+- 🐚 Termux shell on top
+
+### Real commands I ran
+- uname -r       → kernel version
+- uname -a       → kernel + chip + OS
+- free -h        → RAM + swap usage
+- cat /proc/cpuinfo → CPU details
+- getprop ro.build.version.release → Android version
+
+### Things I saw
+- Kernel: 4.19.191, built for Samsung (A037F = Galaxy A03)
+- RAM: 3.7Gi total, 2.7Gi used, 75Mi free, 1.0Gi available
+- Swap: 4.0Gi (storage used as fake RAM — slow!)
+- CPU: ARMv8, 8 cores, hardware crypto (aes, sha1, sha2)
+- Android 13
+
+### My own words (locked in)
+- Kernel = middle between programs and hardware
+- OS = the whole system (kernel + shell + utilities + drivers)
+- Android uses the Linux kernel
+- Swap = storage used as fake RAM when real RAM is full
+- Multiple CPU cores = multiple processors in cpuinfo
+- Every program asks the OS for permission to touch CPU, RAM, or disk
+- Linux kernel is the most popular kernel on earth
+  (Android + servers + supercomputers)
+
+---
+
+## 7.6 Docker & Containers — Phase B DONE ✅
+
+Wrote a real Dockerfile for shop.py. Learned image vs container.
+
+### Core concepts
+- Docker = package app + dependencies + OS into a standard unit
+- Image = frozen blueprint (like a Python class)
+- Container = running instance of image (like an object)
+- Dockerfile = recipe for building the image
+- Solves: "it works on my machine" problem
+- Ships: app, libraries, OS, config, exact versions
+- Isolation: each container has own filesystem, network, processes
+- Container vs VM: containers share OS kernel (fast, small),
+  VMs have their own OS (slow, huge)
+
+### My Dockerfile
+FROM python:3.12
+WORKDIR /app
+COPY shop.py .
+CMD ["python", "shop.py"]
+
+### Real commands I know
+- docker build -t name .      → build image from Dockerfile
+- docker run name             → run container from image
+- docker ps                   → list running containers
+- docker images               → list images
+- docker pull python:3.12     → download image from registry
+
+### Things I saw
+- Docker cannot run natively on Termux (Android blocks kernel features)
+- Dockerfile I wrote is valid — will work on a real Linux machine
+- udocker tries to work around Android limits but fails
+- pkg list-all shows docker-cli, docker-compose, udocker available
+  but they can't fully run on Android
+
+### My own words (locked in)
+- Docker solves "it works on my machine" by shipping the whole environment
+- Image = class, container = object (same pattern as Python 3.11)
+- Dockerfile: FROM → WORKDIR → COPY → RUN → CMD
+- Container is NOT a VM — shares host kernel, starts in seconds
+- Cannot run Docker on Termux natively — platform limit, not skill gap
+- The Dockerfile I wrote will run on any real Linux machine
