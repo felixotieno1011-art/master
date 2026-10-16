@@ -101,7 +101,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 7.3 Process Management 📱
 - [ ] 7.4 Hosting Options 📱💻
 - [x] 7.5 Domain, DNS, HTTPS 📱
-- [ ] 7.6 Docker & Containers 📱💻
+- [x] 7.6 Docker & Containers 📱💻
 - [ ] 7.7 Docker Compose 💻
 - [ ] 7.8 CI/CD Pipelines 📱💻
 - [ ] 7.9 Nginx / Reverse Proxy 💻
