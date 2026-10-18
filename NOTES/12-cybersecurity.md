@@ -330,3 +330,69 @@ Verified RS256 can't be cracked with a wordlist.
 - JWT algorithm must be enforced by the server, not read from the token
   (that's the alg-confusion bug, AUTH-03)
 - "Verify" without forgery power is the whole point of asymmetric crypto
+## 12.8 Hashing (MD5, SHA, bcrypt) — Phase B DONE ✅
+
+Compared MD5 vs scrypt in pos-lab. Cracked MD5 in 12 ms.
+Cracker failed on scrypt.
+
+### Core concepts
+- Hashing = one-way function. Input → fixed-size fingerprint.
+- Properties:
+  - Deterministic: same input → same hash
+  - One-way: cannot reverse
+  - Avalanche: 1 byte change → totally different hash
+  - Fixed size: output is always the same length
+
+### Hash algorithms
+- MD5 (128 bits)  — BROKEN. Fast. Do not use for passwords.
+- SHA-1 (160 bits) — BROKEN (2017, "SHAttered").
+- SHA-256 (256 bits) — Secure for checksums. Fast.
+- SHA-512 (512 bits) — Same, larger output.
+- bcrypt — Slow by design. Good for passwords.
+- scrypt — Slow + memory-hard. Better.
+- argon2 — Best (2026 standard).
+
+### Two uses, different algorithms
+1. Integrity checksums (did the file change?)
+   - Fast hash OK: MD5, SHA-256
+   - Public info, no secret
+2. Password storage (verify without storing)
+   - Must be SLOW: scrypt, bcrypt, argon2
+   - Secret — never share
+   - Fast hash = fatal (attackers try billions/sec)
+
+### Anatomy of a scrypt hash
+  scrypt$9bd82df4cb4a5cfc77acbb2872ec0f79$c01caaf63d4dea25...
+         └────────── salt ──────────┘ └────── hash ──────┘
+  Three parts: prefix (algorithm) + salt + hash
+
+### Real commands I ran
+- echo -n "hello" | md5sum
+- echo -n "hello" | sha256sum
+- echo -n "hello" | sha512sum
+- node tests/crack-md5.js --all
+- sed -i 's/SECURE_MODE=.../' .env
+- node db/init.js
+- sqlite3 db/pos.db "SELECT username, password_hash FROM users"
+
+### Things I saw
+- md5("hello") twice → identical (5d41402abc4b2a76b9719d911017c592)
+- md5("hellO")    → completely different (06612c0d9c73d47a7042afd7024d7c82)
+- Output lengths: MD5=32, SHA-256=64, SHA-512=128 hex chars
+- VULN mode (MD5): 3 passwords cracked in 12 ms total
+- SECURE mode (scrypt): 0 cracked, dictionary attack "not applicable"
+- MD5 hash format: md5$<32hex>
+- scrypt hash format: scrypt$<salt32hex>$<hash128hex>
+- Three users in same DB → each got a DIFFERENT salt
+  (so same password would produce different hashes)
+
+### My own words (locked in)
+- Hashing ≠ encryption. One-way. Cannot be unhashed.
+- Same input → same hash (deterministic)
+- One-byte change → totally different hash (avalanche)
+- MD5 is broken for passwords. Fast = attacker's best friend.
+- scrypt is slow ON PURPOSE. That's its security.
+- Salt = random data per user → same password = different hash per user
+- The salt is stored IN the hash (prefixed).
+- Fast hashes are fine for checksums; fatal for passwords.
+- Different algorithms for different requirements.
