@@ -129,7 +129,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 8.3 HTTPS, TLS, Certificates 📱
 - [ ] 8.4 Secure Coding 📱
 - [ ] 8.5 Network Security 📱🔁
-- [ ] 8.6 Ethical Hacking Intro 📱
+- [x] 8.6 Ethical Hacking Intro 📱
 - [ ] 8.7 Password Hashing & Crypto 📱
 - [ ] 8.8 Authentication Attacks 📱🔁
 - [ ] 8.9 Rate Limiting & DDoS 📱
