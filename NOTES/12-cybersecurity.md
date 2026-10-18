@@ -526,3 +526,71 @@ Popularized by Google Project Zero.
 - Bug bounty hunters sometimes get threatened/sued even for
   good-faith reporting — that's why platforms like HackerOne exist
   (pre-negotiated legal terms)
+## 12.38 Ethical Hacking Legal Framework — Phase B DONE ✅
+
+Wrote a real Rules of Engagement for pos-lab. Created a full
+template pack for future engagements.
+
+### The five documents before any pentest
+1. Authorization letter — signed permission from an officer
+2. Scope document — what you can test
+3. NDA — keep everything confidential
+4. Rules of Engagement (RoE) — how you test
+5. Insurance / liability agreement — who pays if it breaks
+
+### What each protects
+- Authorization → your legal right to test
+- Scope → what you touch (limits)
+- NDA → the company's secrets
+- RoE → how you do it (timing, methods, emergency)
+- Insurance → liability if something breaks
+
+### The five ethical principles
+1. Authorization — always have written permission
+2. Scope — never go outside agreed limits
+3. No harm — don't break things on purpose
+4. Confidentiality — never leak findings
+5. Responsible disclosure — report to owner first, not public
+
+### Responsible disclosure — the 90-day rule
+1. Find bug → report privately
+2. Give ~90 days to fix
+3. Coordinate disclosure
+4. Publish after fix (with permission)
+5. If ignored 90 days → may disclose publicly (legal risks vary)
+
+### Files I created (in ~/master/PRACTICALS/12-cybersecurity/12.38-legal-framework/)
+- pos-lab-ROE.md — working RoE for this lab
+- templates/01-authorization-letter.md
+- templates/02-scope-document.md
+- templates/03-nda.md
+- templates/04-rules-of-engagement.md
+- templates/05-liability-agreement.md
+
+### All committed to GitHub
+Commit: 701fb2b "12.38: five legal framework templates"
+All 6 files confirmed via git ls-files.
+
+### Real commands I ran
+- git add -A
+- git commit -m "12.38: five legal framework templates"
+- git push origin main
+- git ls-files | grep "12.38"
+
+### Things I saw
+- 5 templates + pos-lab-ROE all tracked in git
+- Committed to origin/main successfully
+- Templates are reusable for any future engagement
+
+### My own words (locked in)
+- The technique is the same for pentester and criminal.
+  The paperwork is what makes it legal.
+- Five documents: authorization, scope, NDA, RoE, insurance
+- RoE is the "how" — timing, methods, emergency, exclusions
+- Responsible disclosure: private first, public only after fix
+- 90 days is the industry standard, not a law
+- "Friend said yes" < signed authorization
+- Even for friends, even for your own systems — write it down
+- Self-owned = no third-party authorization needed (but document it)
+- "For education" is not a legal defense. Authorization is.
+- I now have a REUSABLE legal template pack for any future job

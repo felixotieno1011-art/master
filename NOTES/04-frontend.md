@@ -70,3 +70,66 @@ Styled my HTML page: green h1, gray background, white list card, gold link.
 - When "nothing changes," cat the file — the bug is rarely where you think
 - Broken-but-working files bite you later. Fix them now.
 - Two documents stacked = browser merges them. Dangerous.
+## 4.3 Responsive Design — Phase B DONE ✅
+
+Added viewport meta tag + media queries to Felix's page.
+Confirmed viewport tag changes phone rendering.
+Media queries verified in code (visual diff needs laptop DevTools).
+
+### Core concepts
+- Responsive design = one HTML page that adapts to every screen size
+- Without it → "one size fits all" → fits nobody
+- Three tools:
+  1. Viewport meta tag — tells the browser the real device width
+  2. Media queries — CSS that only applies at certain widths
+  3. Mobile-first approach — start small, add for bigger
+
+### Viewport meta tag
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  - Without it: mobile browsers fake a ~980px viewport and zoom out
+  - With it: browser uses the real device width → readable text
+  - The SINGLE most important line for mobile rendering
+
+### Media queries
+  /* Mobile default */
+  body { padding: 30px; }
+
+  /* Tablet and up */
+  @media (min-width: 768px) {
+    body { padding: 60px; }
+  }
+
+  /* Desktop and up */
+  @media (min-width: 1024px) {
+    body { padding: 80px; max-width: 900px; margin: 0 auto; }
+  }
+
+### Mobile-first vs desktop-first
+- Mobile-first (modern standard):
+  - Default CSS = phone
+  - @media (min-width: ...) adds for larger screens
+  - Pros: smaller CSS, easier to add than remove, Google SEO
+- Desktop-first (legacy):
+  - Default CSS = desktop
+  - @media (max-width: ...) overrides for smaller screens
+
+### Common breakpoints
+- 0–640px     phone
+- 640–768px   large phone / small tablet
+- 768–1024px  tablet
+- 1024–1280px laptop
+- 1280px+     desktop
+
+### My own words (locked in)
+- One page → different layouts → fits every screen
+- Viewport tag = stops the phone from faking a desktop
+- Media query = "if screen is at least X wide, use these styles"
+- Mobile-first = start with the phone layout, add for bigger screens
+- On a phone, "desktop mode" simulates width but zooms out to fit
+  → looks smaller, not actually broken
+- The real test needs DevTools or a laptop
+- I understand the theory — the visual click will come on a laptop
+
+### Files changed
+- ~/master/PRACTICALS/04-frontend/4.1-html5/index.html
+  Added viewport meta tag + @media (min-width: 768px) + @media (min-width: 1024px)
