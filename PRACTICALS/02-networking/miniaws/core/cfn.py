@@ -121,8 +121,11 @@ def _resolve_refs(value, refs):
     return value
 
 
-def _create_resource(logical_name, rtype, props, refs):
-    """Create a resource and CAPTURE its ID correctly (diff before/after)."""
+def _create_resource(logical_name, rtype, props, refs, is_update=False):
+    """
+    Create a resource. Idempotent: if it exists, return its ID.
+    is_update=True means we're re-deploying; skip existing resources.
+    """
     props = _resolve_refs(props, refs)
 
     from core import ec2, s3, vpc
@@ -133,6 +136,11 @@ def _create_resource(logical_name, rtype, props, refs):
         cidr = props.get("CidrBlock")
         if not cidr:
             return False, "missing CidrBlock", None, {}
+        # Idempotent: check if VPC with this CIDR exists
+        for v in vpc.list_vpcs():
+            if v.get("cidrBlock") == cidr:
+                return True, f"VPC with CIDR {cidr} already exists", v["vpcId"], {"VpcId": v["vpcId"]}
+        # Create new
         before = {v["vpcId"] for v in vpc.list_vpcs()}
         ok_, msg = vpc.create_vpc(cidr)
         if not ok_:
@@ -148,6 +156,11 @@ def _create_resource(logical_name, rtype, props, refs):
         cidr = props.get("CidrBlock")
         if not vpc_id or not cidr:
             return False, "missing VpcId or CidrBlock", None, {}
+        # Idempotent: check if subnet with this CIDR+VPC exists
+        for s in vpc.list_subnets():
+            if s.get("cidrBlock") == cidr and s.get("vpcId") == vpc_id:
+                return True, f"subnet with CIDR {cidr} already exists", s["subnetId"], {"SubnetId": s["subnetId"], "AvailabilityZone": s.get("availabilityZone")}
+        # Create new
         before = {s["subnetId"] for s in vpc.list_subnets()}
         ok_, msg = vpc.create_subnet(vpc_id, cidr)
         if not ok_:
@@ -173,6 +186,10 @@ def _create_resource(logical_name, rtype, props, refs):
     if rtype == "AWS::EC2::Instance":
         name = props.get("Name") or logical_name
         itype = props.get("InstanceType", "t3.micro")
+        # Idempotent: check if instance by name exists
+        existing = ec2.find_by_name(name)
+        if existing:
+            return True, f"instance '{name}' already exists", existing["instance_id"], {"InstanceId": existing["instance_id"]}
         ok_, msg, iid = ec2.create(name, instance_type=itype)
         if not ok_:
             return False, msg, None, {}
@@ -183,6 +200,9 @@ def _create_resource(logical_name, rtype, props, refs):
         name = props.get("BucketName")
         if not name:
             return False, "missing BucketName", None, {}
+        # Idempotent: check if bucket exists
+        if s3.bucket_exists(name):
+            return True, f"bucket '{name}' already exists", name, {"BucketName": name, "Arn": f"arn:aws:s3:::{name}"}
         ok_, msg = s3.mb_bucket(name)
         if not ok_:
             return False, msg, None, {}
@@ -193,6 +213,9 @@ def _create_resource(logical_name, rtype, props, refs):
         name = props.get("UserName")
         if not name:
             return False, "missing UserName", None, {}
+        # Idempotent: check if user exists
+        if iam_mod.get_user(name):
+            return True, f"user '{name}' already exists", name, {"UserName": name}
         ok_, msg = iam_mod.create_user(name)
         if not ok_:
             return False, msg, None, {}

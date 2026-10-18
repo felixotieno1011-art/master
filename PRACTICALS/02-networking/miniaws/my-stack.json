@@ -1,0 +1,25 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "TestVPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.20.0.0/16"
+      }
+    },
+    "TestSubnet1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {"Ref": "TestVPC"},
+        "CidrBlock": "10.20.1.0/24"
+      }
+    },
+    "TestSubnet2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {"Ref": "TestVPC"},
+        "CidrBlock": "10.20.2.0/24"
+      }
+    }
+  }
+}

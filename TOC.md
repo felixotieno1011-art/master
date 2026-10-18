@@ -185,7 +185,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 
 ### Module 2 — Cryptography
 - [x] 12.6 Cryptography Basics 📱
-- [ ] 12.7 Symmetric vs Asymmetric Encryption 📱
+- [x] 12.7 Symmetric vs Asymmetric Encryption 📱
 - [ ] 12.8 Hashing (MD5, SHA, bcrypt) 📱
 - [ ] 12.9 Digital Signatures & Certificates 📱
 - [ ] 12.10 Public Key Infrastructure (PKI) 📱

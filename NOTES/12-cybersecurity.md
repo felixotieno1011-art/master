@@ -280,3 +280,53 @@ cracker → 0 cracks.
 - Nothing is "unhackable." Everything is "expensive enough."
 - "John is dangerous" = it's OFFLINE (silent, no detection, no rate limit).
   Hydra is ONLINE (loud, logged, blocked).
+## 12.7 Symmetric vs Asymmetric Encryption — Phase B DONE ✅
+
+Cracked an HS256 JWT secret. Tested forged alg:none tokens.
+Verified RS256 can't be cracked with a wordlist.
+
+### Core concepts
+- Symmetric   = 1 shared key (fast, key sharing hard)
+  Example: HS256 with 'secret', AES
+- Asymmetric  = 2 keys (public + private)
+  Example: RS256 with RSA keypair
+  Public key = shareable, verifies
+  Private key = secret, signs
+- HS256 signs AND verifies with the same secret
+  → every verifier can also forge
+  → breaks down when multiple services verify
+- RS256 signs with private, verifies with public
+  → verification does not leak forging power
+  → safe even if the public key is published
+
+### Attacks demonstrated on pos-lab
+1. AUTH-06: alg:none — attacker sends a JWT with alg:none
+   → server accepts it → forged token
+   → (vuln mode only)
+2. AUTH-02: HS256 weak secret
+   → 'secret' cracked in 9.51 ms → forge any token
+3. Secure (RS256) — same cracker → ❌ not found
+
+### Real commands I ran
+- curl POST /api/auth/login → extract pos_token from Set-Cookie
+- node tests/crack-jwt.js "<jwt>" → crack the HS256 secret
+- echo -n '{"alg":"none"...}' | base64 → forge alg:none token
+- curl -b "pos_token=$FORGED" /api/auth/me → hit API as boss
+
+### Things I saw
+- Vuln HS256 token: {"alg":"HS256"} → secret 'secret' cracked in 9.51 ms
+- Secure RS256 token: {"alg":"RS256"} → ❌ not found in 19 candidates
+- Forged alg:none token → server accepted it → became boss
+  (in vuln mode; blocked in secure mode)
+- pos-lab switches between HS256 and RS256 by SECURE_MODE
+
+### My own words (locked in)
+- HS256 = one shared secret → works for one server, breaks for many
+- RS256 = private key signs, public key verifies → forgery requires
+  the private key, which never leaves the server
+- Modern crypto uses BOTH: asymmetric exchanges a key,
+  symmetric encrypts the bulk
+- A weak secret breaks even a strong algorithm
+- JWT algorithm must be enforced by the server, not read from the token
+  (that's the alg-confusion bug, AUTH-03)
+- "Verify" without forgery power is the whole point of asymmetric crypto
