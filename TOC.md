@@ -116,7 +116,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 ## Part 7.5 — Operating Systems & Systems
 - [x] 7.5.1 What is an OS? 📱
 - [x] 7.5.2 Processes vs Threads 📱
-- [ ] 7.5.3 Memory Management 📱
+- [x] 7.5.3 Memory Management 📱
 - [ ] 7.5.4 File Systems & Permissions 📱
 - [ ] 7.5.5 Env Vars & Shells 📱
 - [ ] 7.5.6 System Monitoring 📱

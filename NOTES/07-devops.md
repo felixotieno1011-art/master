@@ -266,3 +266,52 @@ Ran ps -eLf on a running pos-lab node server. Saw one process with
 - That's why scrypt was slow in 12.6 — it ran on a worker, main thread waited.
 - The NLWP column in ps tells you how many threads a process has.
 - LWP = thread ID. PID = process ID. Same process → same PID, different LWP.
+## 7.5.3 Memory Management — Phase B DONE ✅
+
+Explored memory usage on phone. Saw virtual memory vs real RAM.
+Understood swap, OOM killer, and why phones kill apps.
+
+### Core concepts
+- Memory management = OS allocates, tracks, reclaims RAM
+- Virtual memory = each process thinks it has GBs of memory
+  → in reality, only some pages are in real RAM
+- Paging = RAM divided into pages (4 KB); inactive pages swapped to disk
+- Swap = storage used as fake RAM when real RAM fills. 10-100x slower than RAM.
+- OOM killer = when RAM + swap fill, OS kills processes (Android = background apps)
+- Heap = dynamic allocations (new, malloc)
+- Stack = function calls, local variables
+
+### Key metrics
+- VSZ = virtual memory size (address space). Mostly unallocated.
+- RSS = Resident Set Size. Actual RAM in use. THIS is what matters.
+- NLWP = number of threads (from 7.5.2)
+
+### Real commands I ran
+- free -h
+- ps aux --sort=-%mem | head -6
+- cat /proc/self/status | grep -E "VmRSS|VmSize|VmSwap"
+- cat /proc/meminfo | grep -i swap
+- cat /proc/swaps (permission denied on Android)
+
+### Things I saw
+- Total RAM: 3.7 Gi | Used: 2.8 Gi | Free: 92 Mi
+- Available: 943 Mi
+- Swap: 4.0 Gi total | 1.6 Gi used | 2.4 Gi free (40% of swap used!)
+- SwapCached: 165 MB (recently swapped pages, cached back in RAM)
+- My bash shell: VmSize = 2.2 GB (virtual), VmRSS = 3.5 MB (real)
+- ps aux shows only 4 processes (Termux sandbox)
+- Node process VSZ ~2.2 GB but RSS ~5 MB
+
+### My own words (locked in)
+- VSZ = virtual (mostly empty), RSS = real RAM (what matters)
+- Swap = fake RAM from storage. Slow. Used when RAM fills.
+- 1.6 GB swap = phone under memory pressure
+- When RAM + swap both fill → OOM killer kills processes
+- Android kills background apps to free memory for foreground
+- That's why opening a heavy app sometimes closes others
+- Virtual memory lets each app think it has a whole computer
+- The OS juggles real RAM behind the scenes
+- Fake phone scam = same trust-boundary issue:
+  the settings app lied about storage, nothing verified it
+- "Verify, don't trust" applies to memory too:
+  free -h tells the truth, not "system says 128 GB"
