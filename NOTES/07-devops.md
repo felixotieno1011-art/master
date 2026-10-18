@@ -218,3 +218,51 @@ CMD ["python", "shop.py"]
 - Container is NOT a VM — shares host kernel, starts in seconds
 - Cannot run Docker on Termux natively — platform limit, not skill gap
 - The Dockerfile I wrote will run on any real Linux machine
+## 7.5.2 Processes vs Threads — Phase B DONE ✅
+
+Ran ps -eLf on a running pos-lab node server. Saw one process with
+7 threads in action.
+
+### Core concepts
+- Process = running program. Own memory. Own PID.
+- Thread = unit of execution inside a process. Shares memory with siblings.
+- One process can have many threads.
+- PID = process ID. LWP = thread ID (Lightweight Process).
+- NLWP = number of threads in the process.
+
+### Process vs thread comparison
+| Feature | Process | Thread |
+|---------|---------|--------|
+| Memory | Own | Shared |
+| Startup | Slow | Fast |
+| Isolation | High | Low |
+| Crash impact | Only itself | Whole process |
+| Communication | IPC (sockets, pipes) | Shared memory (fast) |
+| Context switch | Slow | Fast |
+| Number in typical app | 1-10 | 10-1000 |
+
+### Rule of thumb
+- Processes = safety (isolation)
+- Threads = speed (shared memory, no copying)
+- Modern apps use both
+
+### Real commands I ran
+- ps -eLf | head -20 (in Termux, only showed my processes)
+- ps -eLf | grep node (with pos-lab running)
+
+### Things I saw
+- Without pos-lab running: only bash, sshd, ps, head (each NLWP=1)
+- With pos-lab: ONE PID (19885) with 7 LWP lines (19885, 19887-19893)
+- NLWP = 7 → Node process has 7 threads
+- Termux sandbox hides most system processes
+
+### My own words (locked in)
+- Process = running program. Thread = worker inside it.
+- Threads share memory → fast but risky. Processes isolated → safe but slow.
+- Threads are FASTER to create than processes.
+- Node.js is "single-threaded" for JavaScript, but uses 7+ threads
+  internally (event loop, worker pool, V8 GC, etc.)
+- Main thread runs my JS. Worker threads do I/O and crypto.
+- That's why scrypt was slow in 12.6 — it ran on a worker, main thread waited.
+- The NLWP column in ps tells you how many threads a process has.
+- LWP = thread ID. PID = process ID. Same process → same PID, different LWP.
