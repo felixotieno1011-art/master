@@ -396,3 +396,66 @@ Cracker failed on scrypt.
 - The salt is stored IN the hash (prefixed).
 - Fast hashes are fine for checksums; fatal for passwords.
 - Different algorithms for different requirements.
+## 12.37 Cyber Laws — Phase B DONE ✅
+
+Learned Kenya's Computer Misuse and Cybercrimes Act (2018).
+Understood authorization = the line between legal and criminal.
+
+### Core concepts
+- Cyber law = laws governing computers, networks, digital behavior
+- The ONE test: authorization
+  - Own it → ✅ legal
+  - Signed permission → ✅ legal
+  - Neither → ❌ cybercrime
+- Authorized access = explicit, in writing (contract, bug bounty, scope doc)
+- Exceeding authorized access = having SOME permission but going beyond it
+- "For education" is NOT a legal defense
+- "It was public" is NOT a legal defense
+- "For a good cause" is NOT a legal defense
+
+### Kenya's Computer Misuse and Cybercrimes Act, 2018
+- § 3  Unauthorized access → KSh 3M fine or 2 years prison
+- § 4  Unauthorized access + intent to commit crime → 5 years
+- § 5  Unauthorized interference with data → 5 years
+- § 6  Unauthorized interference with a system → 5 years
+- § 7  Unauthorized disclosure of data → 3 years
+- § 14 Cyber harassment → 10 years
+- § 16 Identity theft → 10 years
+- § 22 Failure to report a cybercrime → 5 years
+
+### Same concept worldwide
+- US — Computer Fraud and Abuse Act (CFAA), 1986
+- UK — Computer Misuse Act, 1990
+- Nigeria — Cybercrimes Act, 2015
+- South Africa — Cybercrimes Act, 2020
+- International — Budapest Convention, 2001
+
+### The legal pentest setup
+1. Signed contract (or accepted bug bounty policy)
+2. Defined scope (which URLs/IPs)
+3. Time window
+4. Exclusions
+5. Emergency contact
+6. Liability limits
+
+### Real commands I ran
+- cat ~/pos-lab/README.md
+- grep -i "legal\|authoriz\|permission" ~/pos-lab/docs/*.md
+
+### Things I saw
+- pos-lab says: "Built for training" → my permission to attack it
+- Docs use "authorization" in code sense (CWE-639, BOLA, etc.)
+- But that's not the same as LEGAL authorization
+
+### My own words (locked in)
+- The ONE difference between pentester and cybercriminal = written permission
+- Own it or get signed permission. Stay in scope. Don't cause harm.
+- "Friend said yes" is weaker than a signed contract
+- Even for friends, get it in writing
+- Bug bounty platforms exist because companies sometimes sue good-faith
+  researchers. Pre-negotiated legal terms protect BOTH sides.
+- If in doubt → ask first. Or don't touch.
+- It was "mine" → legal to crack pos-lab
+- It was "someone else's" → crime in every country
+- Cyber law is more complex than technical security — get a lawyer
+  if you're doing it professionally
