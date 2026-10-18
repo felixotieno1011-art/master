@@ -85,3 +85,44 @@ Mapped my pos-lab attacks to the 5 phases.
 - The most important phase for the client is #5 (Reporting)
   — without the report, the pentest has no value
 - You can't pentest what you don't know — recon is everything
+## 8.6 Ethical Hacking Intro — Phase B DONE ✅
+
+Learned the 5 phases of a pentest. Ran public recon on safaricom.co.ke.
+Scanned pos-lab with nmap. Mapped my attacks to the 5 phases.
+
+### The 5 phases
+1. Reconnaissance
+2. Scanning & Enumeration
+3. Exploitation
+4. Post-exploitation
+5. Reporting
+
+### Full recon done
+- safaricom.co.ke: WHOIS, DNS, MX, SPF, CAA, Atlassian, WAF (Akamai + CloudFront + Imperva)
+- Full report: PRACTICALS/12-cybersecurity/12.6-full-pentest/recon/safaricom-recon.md
+
+### Full scan done
+- nmap -p 22,80,443,3000,3001,... → only 3001 open (pos-lab)
+- nmap -sV → X-Lab-Mode leaked, security headers compared
+- SECURE mode: full headers (CSP, X-Frame, HSTS)
+- VULN mode: 0 headers + CORS wildcard + no API versioning
+- Full report: PRACTICALS/12-cybersecurity/12.6-full-pentest/scanning/pos-lab-scan.md
+
+### pos-lab attacks mapped to phases
+1. Reconnaissance → read docs/ (LABS.md, OWASP-MAP.md, CWE-MAP.md)
+2. Scanning → grep server.js for routes
+3. Exploitation → crack MD5, crack JWT secret, forge alg:none
+4. Post-exploitation → used forged token to access /api/auth/me as boss
+5. Reporting → notes in NOTES/12-cybersecurity.md
+
+### My own words (locked in)
+- Every pentest follows the same 5 phases
+- Same techniques as a criminal, but with permission + scope + no harm
+- Recon comes first — you can't attack what you don't know
+- Public recon (WHOIS, DNS) = legal without permission
+- Active scanning (ports, brute-force) = requires permission
+- nmap -sV > curl -I for discovery (sends many probe types)
+- X-Lab-Mode leaks the security posture
+- Every vulnerability = one env var away
+- The 5 phases will be explored deeply in 12.11-12.15
+- The next topics will build on this
