@@ -84,7 +84,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 5.16 API Testing 📱💻
 
 ## Part 6 — Databases
-- [ ] 6.1 Database Fundamentals 📱
+- [x] 6.1 Database Fundamentals 📱
 - [ ] 6.2 SQL Basics 📱
 - [ ] 6.3 SQL Joins, Indexes, Transactions 📱
 - [ ] 6.4 NoSQL (MongoDB, Redis) 📱💻
