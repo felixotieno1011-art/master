@@ -594,3 +594,59 @@ All 6 files confirmed via git ls-files.
 - Self-owned = no third-party authorization needed (but document it)
 - "For education" is not a legal defense. Authorization is.
 - I now have a REUSABLE legal template pack for any future job
+## 12.39 Compliance (ISO 27001, PCI-DSS) — Phase B DONE ✅
+
+Read pos-lab's COMPLIANCE.md: 37 vulnerabilities mapped to
+PCI-DSS, HIPAA, SOC 2, GDPR.
+
+### The 4 major frameworks
+| Framework | Protects | Who needs it | Penalty |
+|-----------|----------|--------------|---------|
+| PCI-DSS | Credit card data | Anyone touching card data | $5K-$100K/month, lost card privileges |
+| HIPAA | Health data | US healthcare | $100-$50K per violation |
+| GDPR | EU personal data | Anyone with EU users | Up to 4% global revenue or €20M |
+| SOC 2 | Service controls | SaaS, cloud providers | No fine (customers demand it) |
+| ISO 27001 | Info security program | Any org (voluntary) | No fine (customers demand it) |
+
+### What pos-lab taught me
+- COMPLIANCE.md maps every vulnerability to compliance failures
+- One vuln = multiple framework failures
+  - AUTH-01 (MD5) → PCI-DSS 3.5 + HIPAA 312(d) + SOC 2 CC6.1 + GDPR Art.32
+  - PROD-01 (SQLi) → PCI-DSS 6.2 + HIPAA 312(c) + SOC 2 CC6.1 + GDPR Art.32
+- Secure mode of pos-lab = "compliance-shaped" (every control satisfied)
+- Vuln mode = every framework fails
+
+### The most important sentence
+"Compliance ≠ security. You can pass every audit and still get breached."
+- Compliance is a FLOOR, not a CEILING
+- Audit = checklist (may be outdated)
+- Secure = actual practice
+- Passing audit + getting breached = common (Equifax, Target, etc.)
+
+### Real commands I ran
+- cat ~/pos-lab/docs/COMPLIANCE.md
+
+### Things I saw
+- 4 frameworks mapped (PCI-DSS v4.0, HIPAA Security Rule, SOC 2, GDPR)
+- 37 lab vulnerabilities × 4 frameworks = huge cross-reference table
+- Every vuln fails at least one framework
+- The doc ends with references to all 4 official sources
+
+### My own words (locked in)
+- Compliance = the business side of security
+- PCI-DSS = credit cards (Visa/Mastercard enforce it)
+- HIPAA = US health data (HHS enforces it)
+- GDPR = EU personal data (up to 4% global revenue fine)
+- SOC 2 = trust controls (no law, but customers demand it)
+- ISO 27001 = info security program (voluntary, market-driven)
+- One vulnerability can fail multiple compliance requirements
+- Compliance ≠ security. It's a floor.
+- Audits prove PROCESS, not perfect code
+- Real post-breach reports: "we passed audit, but had an IDOR"
+- Compliance + attack skills = professional-ready
+
+### The compliance map (from the doc)
+- Every vuln in the lab maps to specific compliance requirements
+- Example: SQLi (PROD-01) violates 4 frameworks simultaneously
+- This is the business impact of every vulnerability you exploit
+- A pentester who can say "this fails PCI-DSS 6.2" wins the CTO's attention
