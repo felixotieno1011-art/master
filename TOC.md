@@ -97,7 +97,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 
 ## Part 7 — DevOps & Deployment
 - [x] 7.1 Linux Server Basics 📱
-- [ ] 7.2 Linux Permissions & Users 📱
+- [x] 7.2 Linux Permissions & Users 📱
 - [x] 7.3 Process Management 📱
 - [ ] 7.4 Hosting Options 📱💻
 - [x] 7.5 Domain, DNS, HTTPS 📱

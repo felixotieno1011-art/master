@@ -390,3 +390,83 @@ and saw the difference between private (600) and public (644).
 - 777 on anything = critical finding in any pentest
 - This is exactly what file permissions audits check
 - Real breaches have happened because of world-writable files
+## 7.2 Linux Permissions & Users — Phase B DONE ✅
+
+Explored users, groups, sudo, and chown on Termux/Android.
+Hit real limits (no sudo, no /tmp, no chown without root).
+
+### Core concepts
+- Linux users = identities that own files, run processes, log in
+- 3 types:
+  - root (UID 0) — superuser, unlimited power
+  - system users — created by OS for services (sshd, www-data)
+  - regular users — human users (u0_a333)
+- 3 types of groups:
+  - primary group — each user has one
+  - secondary groups — extra memberships
+  - system groups — created by OS
+- Key commands: whoami, id, groups, sudo, su, useradd,
+  usermod, userdel, passwd, chown, chmod
+- sudo = run one command as root (logged, safest)
+- su - = become root fully (needs root password)
+- sudo -i = become root fully (via sudo)
+
+### The 3 layers of Android security
+1. Unix permissions (rwx — 7.5.4)
+2. Android sandbox (each app = own user/UID)
+3. SELinux (even root restricted)
+
+### Real commands I ran
+- whoami → u0_a333
+- id → uid=10333, gid=10333, 6 groups, SELinux context
+- groups → u0_a333, ext_obb_rw, inet, everybody,
+  u0_a333_cache, all_a333
+- cat /etc/passwd → empty (Android doesn't use /etc/passwd)
+- sudo -l → "No superuser binary detected. Are you rooted?"
+- touch /tmp/testfile.txt → failed (no /tmp on Android)
+- touch $PREFIX/tmp/testfile.txt → worked
+- chown root:root $PREFIX/tmp/testfile.txt → "Operation not permitted"
+
+### Things I saw
+- UID=10333, GID=10333, 6 groups
+- SELinux context: u:r:untrusted_app_27:s0:c77,c257,c512,c768
+  = "untrusted app" label — one more restriction layer
+- /etc/passwd doesn't exist on Android
+- /tmp doesn't exist; $PREFIX/tmp is the Android temp
+- No sudo (phone not rooted)
+- chown blocked (not root, and SELinux as backup)
+- File permissions (chmod) work fine — that's the Unix layer
+
+### My own words (locked in)
+- UID = user ID, GID = group ID
+- u0_a333 = my Termux user (UID 10333)
+- Each Android app has its own UID → own sandbox
+- No app can read another app's files
+- sudo requires root. Android phones are not rooted by default.
+- No sudo = no chown, no useradd, no system file access
+- /etc/passwd doesn't exist on Android
+- /tmp doesn't exist; use $PREFIX/tmp
+- chown failed for 2 reasons:
+  1. Not root (primary)
+  2. SELinux (secondary)
+- chmod works (own files, Unix permissions)
+- chown doesn't (need root)
+- Security in depth: Unix permissions + sandbox + SELinux
+- On a real Linux server:
+  - /etc/passwd exists
+  - /tmp exists
+  - sudo exists (if admin)
+  - chown works (with sudo)
+- Different environment = different defaults
+- Same concept (rwx, users, groups) but different implementation
+
+### Real Linux vs Android
+| Feature | Normal Linux | Android |
+|---------|-------------|---------|
+| /etc/passwd | ✅ | ❌ |
+| /tmp | ✅ | ❌ (use $PREFIX/tmp) |
+| sudo | ✅ (if admin) | ❌ (unless rooted) |
+| useradd | ✅ (with sudo) | ❌ |
+| chown | ✅ (with sudo) | ❌ (blocked) |
+| rwx permissions | ✅ | ✅ |
+| SELinux | Optional | 🔴 Enforced |
