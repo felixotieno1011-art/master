@@ -201,3 +201,13 @@ _— Felix · Established 2026-10-05 · Merged 2026-10-12_
 - Practical = find the matching pos-lab lab (if one exists), run exploit + fix.
 - If no pos-lab match → fallback to concept + small Python/CLI practical.
 - pos-lab is a TOOL, not the syllabus.
+
+---
+
+## PART 15 — TWO FILES PER TOPIC (added 2026-10-19)
+- Every topic produces TWO files:
+  1. PRACTICALS/0X-.../topic-name/explore.md → raw exploration, commands, output
+  2. NOTES/0X-topic.md → the actual study note (concepts + my own words)
+- The note (NOTES/) is what gets ticked. The explore is the raw data.
+- Tick only when the NOTE exists, not just the explore.
+- Same rule for all future topics.
