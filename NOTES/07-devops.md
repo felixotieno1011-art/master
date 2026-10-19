@@ -315,3 +315,78 @@ Understood swap, OOM killer, and why phones kill apps.
   the settings app lied about storage, nothing verified it
 - "Verify, don't trust" applies to memory too:
   free -h tells the truth, not "system says 128 GB"
+## 7.5.4 File Systems & Permissions — Phase B DONE ✅
+
+Tested permissions on pos-lab files, changed them with chmod,
+and saw the difference between private (600) and public (644).
+
+### Core concepts
+- File system = how the OS organizes files (names, folders, metadata)
+- Permissions = who can read, write, execute each file
+- Every file has 3 permission groups:
+  - User (owner) — created the file
+  - Group — a team of users
+  - Other — everyone else
+- Each group has 3 bits:
+  - r = read (4)
+  - w = write (2)
+  - x = execute (1)
+- A permission string has 10 characters:
+  - First char: type (- file, d dir, l symlink)
+  - Next 9: rwx for user, group, other
+- Octal notation: sum of bits per group
+  - rwx = 7, r-x = 5, rw- = 6, --- = 0
+  - rw------- = 600
+  - rw-r--r-- = 644
+
+### The core rule
+| Permission | Octal | Meaning | Use |
+|-----------|:-----:|---------|-----|
+| -rw------- | 600 | Owner read+write only | Secrets (.env, .pem, .db) |
+| -rw-r--r-- | 644 | Owner full, everyone read | Public files (README, HTML, images) |
+| -rwx------ | 700 | Owner full only | Private scripts |
+| -rwxr-xr-x | 755 | Owner full, everyone read+exec | Public scripts (/bin/) |
+| -rwxrwxrwx | 777 | Everyone full | NEVER USE |
+
+### Why 777 is dangerous
+- Anyone can read → secrets exposed
+- Anyone can write → attacker can modify/replace
+- Anyone can execute → attacker can run their own code
+- 777 is a red flag in every audit
+
+### Real commands I ran
+- ls -l ~/pos-lab/.env ~/pos-lab/keys/*.pem
+- chmod 644 public-readme.md
+- chmod 600 public-readme.md
+- ls -l private.txt public.txt
+- find ~/pos-lab -type f -perm -o=r (no output = no world-readable)
+- find ~/pos-lab -type f -perm -o=w (no output = no world-writable)
+
+### Things I saw
+- All pos-lab files are -rw------- (Termux's default umask 077)
+- Even README.md and jwt-public.pem are 600
+- No world-readable or world-writable files
+- After chmod 644: -rw-r--r--
+- After chmod 600: back to -rw-------
+- private.txt (600) vs public.txt (644) side by side
+
+### My own words (locked in)
+- rwx = read/write/execute
+- 3 groups = user, group, other
+- 600 = only I can read/write
+- 644 = I read/write, everyone else can read
+- 777 = everyone full access = disaster
+- Termux uses umask 077 = very strict by default
+- On a real server: 600 for secrets, 644 for public files
+- On your phone it's all 600 — fine for single-user, wrong for a web server
+- Never put 777 on anything
+- Test: after chmod, ls -l confirms the change
+- If a web server can't read a file (600 when it needs 644), the site breaks
+- If a file is 777, an attacker can own it
+
+### Security connection
+- 600 on .env and .pem = private keys protected
+- 644 on README.md = public info readable
+- 777 on anything = critical finding in any pentest
+- This is exactly what file permissions audits check
+- Real breaches have happened because of world-writable files
