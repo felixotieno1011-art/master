@@ -83,3 +83,95 @@ CREATE TABLE users (
   - MD5 = crackable in 10 ms
   - scrypt = uncrackable
   - This is why hashing matters
+## 6.2 SQL Basics — Phase B DONE ✅
+
+Ran real SQL queries against pos-lab's SQLite database.
+Found 5 products, computed margins, got aggregates.
+
+### Core concepts
+- SQL = Structured Query Language
+- Created 1974 by IBM (Donald Chamberlin & Raymond Boyce)
+- Same language across MySQL, PostgreSQL, SQLite, Oracle, SQL Server
+- 5 core verbs: SELECT, INSERT, UPDATE, DELETE, CREATE
+
+### The anatomy of a SELECT
+```sql
+SELECT name, base_price           -- columns (or * for all)
+FROM products                     -- table
+WHERE base_price < 100            -- filter rows
+ORDER BY base_price ASC           -- sort (ASC / DESC)
+LIMIT 10;                         -- take only 10
+## 6.2 SQL Basics — Phase B DONE ✅
+
+Ran real SELECT queries against pos-lab's SQLite database.
+Filtered, sorted, computed, and aggregated data.
+
+### Core concepts
+- SQL = Structured Query Language. Created 1974 at IBM. Still universal.
+- 5 core verbs: SELECT, INSERT, UPDATE, DELETE, CREATE
+- SELECT is the most-used (reading data)
+- SQL is like a Mad Lib: fill in the blanks
+  SELECT [columns] FROM [table] WHERE [condition]
+
+### The anatomy of SELECT
+SELECT name, base_price         ← columns
+FROM products                    ← table
+WHERE base_price < 100           ← filter rows
+ORDER BY base_price ASC          ← sort
+LIMIT 10;                        ← take first 10
+
+### WHERE operators
+=, !=, <, >, <=, >=, LIKE, IN, BETWEEN, IS NULL, AND, OR, NOT
+
+### Aggregates (computed across many rows)
+- SUM(col) → total
+- COUNT(*) → how many
+- AVG(col) → average
+- Use .get() (one row) not .all() (many rows)
+
+### Computed columns
+SELECT (base_price - cost_price) AS margin
+- Can do arithmetic in SELECT
+- AS gives the result a name
+- Can ORDER BY the computed value
+
+### Column naming rule (CRITICAL)
+- Always inspect schema before querying
+- `SELECT sql FROM sqlite_master WHERE name='table'`
+- pos-lab products has: cost_price and base_price, NOT price
+- My first query failed: "no such column: price" — real error
+
+### Real commands I ran
+- SELECT * FROM users → 3 users (boss, manager, seller)
+- SELECT * FROM products WHERE price < 100 → ERROR (no price column)
+- SELECT name, base_price FROM products WHERE base_price < 100 → 4 rows
+- SELECT ... ORDER BY base_price ASC → 5 rows sorted
+- SELECT (base_price - cost_price) AS margin ORDER BY margin DESC → Soap 40, Bread 20, Milk 20
+- SELECT SUM(base_price), COUNT(*), AVG(base_price) FROM products → 255.3, 5, 51.06
+
+### Things I saw
+- 3 users: boss (role=boss), manager (role=manager), seller (role=seller)
+- 5 products: Bread(60/40), Milk(75/55), Soap(120/80), Dime(0.1/0.1), Penny(0.2/0.2)
+- Margins: Soap=40 (highest), Bread=20, Milk=20, Dime=0, Penny=0
+- Total base value: 255.3 KES
+- Average price: 51.06 KES
+
+### My own words (locked in)
+- SELECT * = all columns. SELECT name = only name.
+- WHERE filters rows. ORDER BY sorts. ASC = small→large, DESC = large→small.
+- Aggregates compute one value across many rows (SUM, COUNT, AVG).
+- AS = alias. You can name a computed column.
+- Inspect schema before querying. Otherwise "no such column" errors.
+- The error "no such column: price" taught me more than the query would have.
+- Schema inspection = recon for databases.
+- Real-world queries answer business questions:
+  - Which product has the highest margin?
+  - What's my total inventory value?
+  - How many users?
+- The next topic (6.3 Joins) will show how to combine tables
+  (e.g., total inventory = products JOIN stock)
+
+### Compare to Python dicts
+- Python dict = one item in memory
+- Database = millions of dicts on disk, queryable in ms
+- SQL is how you "ask" the database for a subset
