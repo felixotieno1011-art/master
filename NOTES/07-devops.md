@@ -796,3 +796,83 @@ Each step down = 10x slower, 10x bigger.
 - 7.5.8 Computer Architecture Intro ✅
 
 8 of 8. Part 7.5 DONE.
+## 7.5.8 Project — Portable System Health Monitor — DONE ✅
+
+Built a working Bash script that monitors system health.
+Works on Android (tested) and should work on Linux (untested).
+
+### What the script does
+- Detects environment (Termux vs Linux)
+- Checks CPU cores + load average
+- Checks RAM + swap usage
+- Checks disk usage (/data on Android, / on Linux)
+- Shows top 3 CPU-consuming processes
+- Warns if any metric exceeds threshold
+
+### Environment-aware thresholds
+| Metric | Android | Linux |
+|--------|---------|-------|
+| Load | > cores × 2 | > cores × 1 |
+| Available RAM | < 500 MB | < 200 MB |
+| Swap | > 50% | > 30% |
+| Disk | > 85% | > 90% |
+
+### What I learned building it
+1. Scripts are text files with commands (not compiled programs)
+2. Shebang (#!) tells the OS which interpreter to use
+3. Variables, conditionals, loops work in bash — just like Python
+4. Android blocks some /proc files (/proc/loadavg) → need fallbacks
+5. /proc/cpuinfo works, /proc/loadavg doesn't → use `uptime` instead
+6. `~/bin` = where user programs live
+7. `~/.bashrc` = where aliases + env vars live (NOT scripts)
+8. Alias vs script: alias = shortcut, script = commands
+9. `.bashrc` with `bash script.sh` = floods every shell
+10. `.bashrc` with `alias cmd='...'` = only runs when typed
+
+### Real commands I ran
+- bash health-monitor.sh (multiple times, debugging)
+- chmod +x health-monitor.sh
+- cp health-monitor.sh ~/bin/health
+- health (from any directory)
+
+### Bugs I found and fixed
+1. `/proc/loadavg` permission denied on Android
+   → fallback to `uptime` command
+2. Load value had trailing comma (`28.51,`)
+   → `tr -d ' ,'` removes spaces and commas
+3. `COMMAND` header in top processes list
+   → added `|COMMAND` to the grep exclusion
+
+### The script's structure
+- SPEC at the top (comments)
+- Environment detection (if/else)
+- CPU section (cores, load, threshold)
+- Memory section (RAM, swap, percentages, warnings)
+- Disk section (partition, usage, warning)
+- Top processes section (excludes own commands)
+
+### My own words (locked in)
+- A script = a text file with commands, executed top to bottom
+- Shebang (#!) = which interpreter (bash, python, node)
+- Scripts are easier to write/read/change than compiled programs
+- `~/bin` = where user programs live
+- `.bashrc` = where aliases + env vars live
+- Alias ≠ script. Alias = shortcut. Script = commands.
+- `.bashrc` runs on shell start. Put aliases there, NOT scripts.
+- `bash script.sh` in .bashrc = floods every new shell
+- `alias health='...'` in .bashrc = only runs when typed
+- Both approaches work (alias vs ~/bin). I chose ~/bin.
+- Shell scripts are real tools — every sysadmin uses them
+- "Works on my machine" ≠ "works everywhere"
+- Testing matters (tested Android, not Linux yet)
+
+### Files
+- ~/master/PRACTICALS/07-devops/7.5.8-architecture/health-monitor/health-monitor.sh
+- ~/bin/health (copy, executable)
+
+### When I get a laptop
+- Test the script on Linux
+- Check if /proc/loadavg works (should)
+- Verify disk check uses /
+- Add to cron (run every hour, log to file)
+- Maybe add colored output
