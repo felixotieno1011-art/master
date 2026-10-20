@@ -121,7 +121,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 7.5.5 Env Vars & Shells 📱
 - [x] 7.5.6 System Monitoring 📱
 - [x] 7.5.7 System Design Basics 📱
-- [ ] 7.5.8 Computer Architecture Intro 📱
+- [x] 7.5.8 Computer Architecture Intro 📱
 
 ## Part 8 — Security Basics
 - [ ] 8.1 Web Security Basics 📱

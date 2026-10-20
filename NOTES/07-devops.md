@@ -700,3 +700,99 @@ User → DNS → CDN → Load Balancer → Server cluster
 - 6.3 (SQL Joins): database at scale
 - 12.7 (HTTPS): every hop encrypted
 - 7.5.6 (Monitoring): load avg, RAM, disk — the metrics you track
+## 7.5.8 Computer Architecture Intro — Phase B DONE ✅
+
+Explored CPU, clock speed, and cache on phone.
+Completed Part 7.5.
+
+### The core components
+- CPU = Central Processing Unit, the brain
+  - Fetch → Decode → Execute → Store → Repeat
+- ALU = Arithmetic Logic Unit (does math and logic)
+- Control Unit = directs the operation
+- Registers = tiny ultra-fast storage (16-64 of them)
+- Cache = L1/L2/L3, fast memory near CPU
+- RAM = fast but volatile (code + data live here)
+- Storage = permanent but slow (SSD/HDD)
+- Bus = wires carrying data between components
+- Clock = ticks billions of times per second
+
+### The memory hierarchy
+| Layer | Size | Speed |
+|-------|------|-------|
+| Registers | ~64 bytes | < 1 ns |
+| L1 cache | 32-256 KB | 1-2 ns |
+| L2 cache | 256 KB - 4 MB | 3-10 ns |
+| L3 cache | 4-64 MB | 10-40 ns |
+| RAM | 4-128 GB | 60-100 ns |
+| SSD | 100 GB - 4 TB | 10-100 µs |
+| HDD | 500 GB - 20 TB | 1-20 ms |
+
+Each step down = 10x slower, 10x bigger.
+
+### What I saw on my phone
+- CPU: ARM Cortex-A53 (CPU part 0xd03)
+- Cores: 8 (visible 3 in `head -30`)
+- Architecture: ARMv8 = 64-bit = aarch64
+- Features: fp, asimd, aes, sha1, sha2, crc32
+  → hardware-accelerated crypto! (fast HTTPS)
+- Current clock: 2,139,000 kHz = 2.139 GHz
+- Max clock: 2,301,000 kHz = 2.301 GHz
+- Cache: hidden from Termux (Android sandbox)
+- RAM: 3.7 GiB
+- Storage: 51 GB (/data)
+
+### Real commands I ran
+- cat /proc/cpuinfo | head -30
+- cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq
+  → 2139000 (current, 2.139 GHz)
+- cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq
+  → 2301000 (max, 2.301 GHz)
+- Attempted: cat /sys/devices/system/cpu/cpu0/cache/*
+  → "No such file or directory" (Android hides cache)
+
+### My own words (locked in)
+- CPU = brain, ALU = math, registers = tiny fast storage
+- Clock speed = how many cycles per second
+- 2.14 GHz = 2.14 billion cycles/sec
+- 8 cores = 8 brains working in parallel
+- Memory hierarchy: registers > L1 > L2 > L3 > RAM > disk
+- Cache faster than RAM because it's physically closer
+- Cache = workbench. RAM = warehouse.
+- Hardware crypto (aes/sha) makes HTTPS fast
+- Android hides CPU internals from apps (security)
+- Same pattern as /etc/passwd and /tmp
+- Android is NOT normal Linux
+- Real Linux servers let you see all CPU info via /sys
+- 8-core ARM Cortex-A53 is a 2014-era mid-range design
+
+### Real-world implications
+- 2 billion operations/sec is normal on phones today
+- ARM is the most common CPU architecture in the world
+  (every phone, many servers)
+- Hardware crypto explains why HTTPS is so fast
+- CPU cache is why "hot loops" are fast and "cold" ones are slow
+- Android's sandbox hides CPU info to prevent side-channel attacks
+  (Spectre, Meltdown)
+
+### Compare to earlier topics
+- 7.5.1 (OS) — OS runs on this CPU
+- 7.5.2 (Processes) — 8 cores run many processes in parallel
+- 7.5.3 (Memory) — RAM lives here, cache is even faster
+- 7.5.4 (Permissions) — CPU doesn't care, kernel enforces
+- 7.5.5 (Env Vars) — passed from one process to another via OS
+- 7.5.6 (Monitoring) — load average counts processes waiting for CPU
+- 7.5.7 (System Design) — horizontal scale uses many CPUs
+- All these connect to the CPU underneath
+
+### Part 7.5 COMPLETE ✅
+- 7.5.1 What is an OS ✅
+- 7.5.2 Processes vs Threads ✅
+- 7.5.3 Memory Management ✅
+- 7.5.4 File Systems & Permissions ✅
+- 7.5.5 Env Vars & Shells ✅
+- 7.5.6 System Monitoring ✅
+- 7.5.7 System Design Basics ✅
+- 7.5.8 Computer Architecture Intro ✅
+
+8 of 8. Part 7.5 DONE.
