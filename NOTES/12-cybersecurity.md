@@ -650,3 +650,69 @@ PCI-DSS, HIPAA, SOC 2, GDPR.
 - Example: SQLi (PROD-01) violates 4 frameworks simultaneously
 - This is the business impact of every vulnerability you exploit
 - A pentester who can say "this fails PCI-DSS 6.2" wins the CTO's attention
+## 12.9 Digital Signatures & Certificates — Phase B DONE ✅
+
+Signed a real message with a real RSA private key.
+Verified with the public key. Tampered. Verification failed.
+
+### The 4 steps I ran
+1. Key check → jwt-private.pem + jwt-public.pem exist
+2. Message → "Hello from Felix"
+3. Sign with private key → message.sig (256 bytes)
+4. Verify with public key → "Verified OK"
+5. Tamper message → "Hello from HACKER"
+6. Verify again → "Verification failure: bad signature"
+
+### What a digital signature proves
+- ✅ Authenticity — came from the private key holder
+- ✅ Integrity — hasn't changed since signing
+- ✅ Non-repudiation — signer can't deny it
+- ❌ NOT confidentiality — anyone can read the message
+
+### Core concepts
+- Signature ≠ encryption. Signature proves, encryption hides.
+- Sign = hash(message) + private key → signature
+- Verify = hash(message) + public key → compare to signature
+- Change one character of the message → hash changes → signature fails
+- Only the private key can create a valid signature
+- Only the matching public key can verify it
+
+### Real commands I ran
+- ls -la ~/pos-lab/keys/
+- echo "Hello from Felix" > message.txt
+- openssl dgst -sha256 -sign ~/pos-lab/keys/jwt-private.pem -out ~/message.sig ~/message.txt
+- openssl dgst -sha256 -verify ~/pos-lab/keys/jwt-public.pem -signature ~/message.sig ~/message.txt
+  → Verified OK
+- echo "Hello from HACKER" > message.txt
+- openssl dgst -sha256 -verify ~/pos-lab/keys/jwt-public.pem -signature ~/message.sig ~/message.txt
+  → Verification failure: bad signature
+
+### Things I saw
+- Signature file = 256 bytes (2048-bit RSA signature)
+- Before tamper: "Verified OK"
+- After tamper:  "Verification failure" + rsa bad signature error
+- The signature stayed the same. The message changed. Verification caught it.
+
+### My own words (locked in)
+- A signature proves the message is from the key holder AND unchanged
+- It does NOT hide the message
+- Only the private key can sign. Only the public key can verify.
+- One character change = verification fails
+- Signing is like a wax seal: proves who sent it, proves it wasn't broken
+- Digital signature = hash + private key
+- Digital verification = hash + public key + compare
+- This is how HTTPS, JWT, PDFs, Bitcoin, software updates all work
+- Signature guarantees: authenticity, integrity, non-repudiation
+- Signature does NOT guarantee: confidentiality (that's encryption's job)
+- The tamper test is the ultimate proof of how signatures work
+- Real-world: "Verified OK" = trust. "Verification failure" = do not trust.
+
+### Real-world use of digital signatures
+- HTTPS/TLS: certificates signed by CAs
+- JWT: payload signed by the server
+- PDF: documents signed by Adobe or self-signed
+- Bitcoin: every transaction signed by the sender
+- Software updates: vendor signs the installer
+- Email: DKIM signs the message
+- Git commits: can be GPG-signed
+- The entire web of trust runs on signatures
