@@ -876,3 +876,92 @@ Works on Android (tested) and should work on Linux (untested).
 - Verify disk check uses /
 - Add to cron (run every hour, log to file)
 - Maybe add colored output
+## 7.4 Hosting Options — Phase B DONE ✅
+
+Learned where apps live. Understood domain vs hosting distinction.
+Compared 6 hosting types.
+
+### Core concepts
+- Hosting = running your server on a device the internet can reach
+- Domain = the name (typed in browser)
+- DNS = link between domain and hosting IP
+- Three separate things, all needed for www.mysite.com to work
+- Running != hosting. Hosting = running + publicly reachable.
+
+### The 6 hosting types
+| Type | What | Cost | Best for |
+|------|------|------|----------|
+| Own device | Phone, home PC | Free | Local testing |
+| VPS | Rent a virtual server | $5-20/mo | Small-medium apps, learning |
+| Cloud | AWS/GCP/Azure | $10-$1000s | Scale, enterprises |
+| PaaS | Push code, done | Free/$7+ | MVPs, fast deploys |
+| Serverless | Functions on demand | Pay per request | APIs, event processing |
+| Managed services | Databases, queues | $10-100 | Every production app |
+
+### Why your phone can't host (yet)
+1. Your phone has a private IP (behind Safaricom NAT)
+2. Safaricom blocks incoming connections
+3. No port forwarding on mobile networks
+4. No public IP
+= Only devices on the same WiFi can reach it.
+
+### What "public hosting" actually needs
+1. Public IP address (VPS or cloud gives you this)
+2. Open ports (80/443)
+3. Domain pointing at the IP (DNS)
+= Then the world can reach you.
+
+### Domain vs Hosting
+- Domain: a NAME (e.g. poslab.com)
+- Registrar: sells you the name ($10-15/year)
+- Hosting: a SERVER (e.g. VPS at $5/month)
+- DNS: link between them
+- Domain alone = "site can't be reached"
+- Hosting alone = "no name, only IP"
+- Both = www.poslab.com works
+
+### DNS infrastructure (bonus)
+- .com operated by Verisign
+- .ke operated by KeNIC
+- .org operated by PIR
+- ICANN coordinates all TLDs
+- Building your own TLD = $185K+ application, millions in infrastructure
+- Only companies do it (.google, .aws, .bmw)
+
+### Private networks
+- You CAN build your own DNS on your own devices
+- hosts file on each device (/etc/hosts)
+- mDNS (.local) works on local WiFi automatically
+- dnsmasq in Termux for a real local DNS server
+- Free, no ICANN needed
+- Cannot be reached from the internet
+
+### Real-world decision for pos-lab
+- Best: VPS $5/month (DigitalOcean, Hetzner, Contabo)
+- Alternative: Render free tier (sleeps after inactivity)
+- Not: serverless (SQLite won't work)
+- Why: Node + SQLite needs persistent storage + full control
+- VPS = you learn real server management
+- PaaS = zero maintenance, faster deploy
+
+### Real commands I ran
+- cat /etc/hosts
+- Explored hosting options conceptually (no actual deployment yet)
+
+### My own words (locked in)
+- Domain = name. Hosting = reachable server. DNS = link.
+- You can't host on your phone without a public IP + port forwarding
+- VPS = $5/month, full root access, learning path
+- PaaS = fastest to deploy, least control
+- Serverless = pay per request, no persistent storage
+- Cloud = powerful but complex, easy to overspend
+- For pos-lab: VPS is the right choice
+- Building your own TLD: impossible for individuals, possible for $185K+ companies
+- But you CAN build a private .local DNS for your own devices (free)
+- The real internet needs ICANN-approved TLDs. Private networks don't.
+
+### The jump from "running" to "hosted"
+- Running = localhost, only you
+- Hosted = public IP + open port + DNS
+- Once hosted, anyone with the URL can reach it
+- That's the difference between a demo and a product

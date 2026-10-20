@@ -99,7 +99,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 7.1 Linux Server Basics 📱
 - [x] 7.2 Linux Permissions & Users 📱
 - [x] 7.3 Process Management 📱
-- [ ] 7.4 Hosting Options 📱💻
+- [x] 7.4 Hosting Options 📱💻
 - [x] 7.5 Domain, DNS, HTTPS 📱
 - [x] 7.6 Docker & Containers 📱💻
 - [ ] 7.7 Docker Compose 💻
