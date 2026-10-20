@@ -470,3 +470,84 @@ Hit real limits (no sudo, no /tmp, no chown without root).
 | chown | ✅ (with sudo) | ❌ (blocked) |
 | rwx permissions | ✅ | ✅ |
 | SELinux | Optional | 🔴 Enforced |
+## 7.5.5 Env Vars & Shells — Phase B DONE ✅
+
+Explored environment variables step by step on Termux.
+Set, exported, unset. Proved child processes inherit.
+
+### Core concepts
+- Environment variable = named value available to programs
+- The OS gives every process a set of variables (its environment)
+- Child processes inherit from the parent (only if exported)
+- The shell is the interpreter that runs commands and passes variables
+
+### Key variables (on my phone)
+| Variable | Value |
+|----------|-------|
+| HOME | /data/data/com.termux/files/home |
+| USER | (empty on Termux) |
+| LOGNAME | (empty on Termux) |
+| PWD | current directory |
+| SHELL | /data/data/com.termux/files/usr/bin/bash |
+| PREFIX | /data/data/com.termux/files/usr |
+| PATH | colon-separated command search paths |
+| LANG | en_US.UTF-8 |
+| TERMUX_VERSION | 0.118.3 |
+| ANDROID_API_LEVEL | 33 |
+
+### Key commands
+- env → list all env vars
+- printenv → same as env
+- echo $VAR → show one
+- VAR=value → set (current shell only)
+- export VAR=value → set + pass to children
+- unset VAR → delete
+- which cmd → find where a command lives
+- $PATH → where the shell searches for commands
+
+### The full cycle I ran
+1. echo $HOME → shows home path
+2. echo $USER → empty (Termux quirk)
+3. whoami → u0_a333 (system call, not env var)
+4. echo $PWD / pwd → both match
+5. echo $SHELL / echo $0 → both bash
+6. echo $PATH → long colon-separated list
+7. export MY_TEST=hello
+8. echo $MY_TEST → hello
+9. bash -c 'echo "Child sees: $MY_TEST"' → hello (child inherited)
+10. unset MY_TEST
+11. echo "Parent sees: $MY_TEST" → empty
+12. bash -c 'echo ...' → empty (child didn't inherit after unset)
+13. env | head -20 → full environment list
+
+### Things I saw
+- USER and LOGNAME are empty on Termux (env var not set)
+- whoami still works (asks the kernel, not the env)
+- $PWD and pwd both match
+- $PATH has /home/bin repeated 6 times (config bug, not critical)
+- Termux commands all live in $PREFIX/bin
+- LD_PRELOAD=libtermux-exec-ld-preload.so
+  → this is the magic that makes /bin, /usr work on Android
+- EXTERNAL_STORAGE=/sdcard
+- ANDROID_API_LEVEL=33 (Android 13)
+
+### My own words (locked in)
+- $PATH = list of folders the shell searches for commands
+- export = pass the variable to child processes
+- unset = remove from shell + future children
+- Env vars are COPIES, not live links
+  → already-running children keep their old copy
+- $USER can be empty. whoami is more reliable (asks kernel).
+- $PWD can be stale. pwd is more reliable.
+- $SHELL = login shell. $0 = program running right now.
+- $PREFIX = Termux install root
+- LD_PRELOAD is Termux's magic (makes Linux paths work on Android)
+- Env vars can leak secrets → /proc/<pid>/environ
+- Never export PASSWORD= on a shared system
+- .env files are safer than exports for apps
+
+### Security insight
+- PATH hijacking: write to an early $PATH folder → shadow real commands
+- Env var leaks: /proc/<pid>/environ shows all vars
+- Real breaches happen when API keys are exported instead of loaded from files
+- "Never trust env vars blindly" = the same pattern as $USER and $PWD

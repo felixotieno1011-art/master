@@ -118,7 +118,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 7.5.2 Processes vs Threads 📱
 - [x] 7.5.3 Memory Management 📱
 - [x] 7.5.4 File Systems & Permissions 📱
-- [ ] 7.5.5 Env Vars & Shells 📱
+- [x] 7.5.5 Env Vars & Shells 📱
 - [ ] 7.5.6 System Monitoring 📱
 - [ ] 7.5.7 System Design Basics 📱
 - [ ] 7.5.8 Computer Architecture Intro 📱
