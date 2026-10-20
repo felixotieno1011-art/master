@@ -624,3 +624,79 @@ Load 26 on 8 cores, RAM 3.7 GiB, disk 87% full.
 - On a real server: ps aux shows all processes
 - The classic debugging flow: uptime → top → ps → kill
 - 50 years old, still works
+## 7.5.7 System Design Basics — Phase B DONE ✅
+
+Learned the architecture of big systems. Understood why
+horizontal scaling wins over vertical. Mapped the building blocks.
+
+### Scaling
+- Vertical (scale up)  = bigger machine. Simple. Expensive. Limit.
+- Horizontal (scale out) = more machines. Cheap. Fault-tolerant. The real answer.
+
+### The building blocks
+- Load balancer  = distributes traffic across many servers
+  Examples: Nginx, HAProxy, AWS ALB, Cloudflare
+- Cache          = stores frequent answers fast
+  Examples: Redis, Memcached, CDN
+- Database       = source of truth, often the bottleneck
+  Solutions: replication, sharding, read/write split
+- Queue          = async processing
+  Examples: RabbitMQ, Kafka, AWS SQS
+- CDN            = serves static files near users
+  Examples: Cloudflare, Akamai, AWS CloudFront
+
+### Typical architecture
+User → DNS → CDN → Load Balancer → Server cluster
+     → Cache → Database
+
+### pos-lab vs real systems
+- pos-lab: 1 server, 1 SQLite file, no scale
+- Real: 100s of servers, load balanced, cached, replicated
+- pos-lab works for 1 user. Would fail at 100.
+- WhatsApp: 450M users on ~50 engineers because they built for horizontal scale
+
+### The full stack (real world)
+- DNS: where is example.com?
+- CDN: serve static files from nearby
+- Load Balancer: distribute requests
+- App servers: run the actual code (many)
+- Cache: Redis for fast reads
+- Database: PostgreSQL/MySQL with replicas
+- Queue: Kafka/SQS for async work
+- Object storage: S3 for files
+
+### My own words (locked in)
+- Vertical = bigger machine. Horizontal = more machines.
+- Horizontal is the real answer for web scale
+- Load balancer = distributes traffic, removes single point of failure
+- Cache = fast answers for frequent questions, reduces DB load
+- Cache != login (that's session data — also cached, but not the primary use)
+- Supercomputer = wrong for web scale (expensive, single point of failure, geography)
+- Hundreds of thousands of commodity servers = correct
+- WhatsApp: 450M users on ~50 engineers, built for horizontal scale
+- The architecture choice you make at 1,000 users determines whether you
+  can handle 1 billion
+- Small pieces that work together > one big thing that works alone
+
+### Why supercomputer is wrong
+- Expensive ($100M+)
+- Single point of failure (one crash = everything down)
+- Geography (can't be near users in Kenya AND Brazil)
+- Can't add capacity gradually
+- Hard to upgrade
+- Web scale needs MANY machines, not ONE big one
+
+### Real-world examples
+- Google: DNS returns many IPs (load balancing at DNS level)
+- Cloudflare: CDN + WAF + DDoS protection
+- Redis: cache for sessions and hot data
+- Kafka: event streaming for async work
+- AWS: the "servers you don't own" — managed infrastructure
+
+### Connection to earlier topics
+- 7.6 (Docker): containers are the "many small things"
+- 7.9 (Nginx): reverse proxy + load balancer
+- 7.11 (Kubernetes): orchestrates many containers
+- 6.3 (SQL Joins): database at scale
+- 12.7 (HTTPS): every hop encrypted
+- 7.5.6 (Monitoring): load avg, RAM, disk — the metrics you track

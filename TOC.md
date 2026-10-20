@@ -120,7 +120,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 7.5.4 File Systems & Permissions 📱
 - [x] 7.5.5 Env Vars & Shells 📱
 - [x] 7.5.6 System Monitoring 📱
-- [ ] 7.5.7 System Design Basics 📱
+- [x] 7.5.7 System Design Basics 📱
 - [ ] 7.5.8 Computer Architecture Intro 📱
 
 ## Part 8 — Security Basics
