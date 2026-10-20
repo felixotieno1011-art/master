@@ -5,7 +5,7 @@
 - Completed: 67
 - Remaining: 115
 - Progress: 36%
-- Last updated: 2026-10-20 17:56
+- Last updated: 2026-10-20 18:05
 
 ## By Part
 | Part | Title | Done | Total | % |
@@ -24,10 +24,10 @@
 | 11 | Specialization | 0 | 8 | 0% |
 
 ## Milestones
-- [ ] First project pushed to GitHub
-- [ ] Part 1 complete
-- [ ] Part 2 complete
-- [ ] 25% overall
+- [x] First project pushed to GitHub
+- [x] Part 1 complete
+- [x] Part 2 complete
+- [x] 25% overall
 - [ ] First deployed app
 - [ ] 50% overall
 - [ ] First capstone done

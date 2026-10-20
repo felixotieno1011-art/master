@@ -1,5 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # tick.sh — toggle topics in TOC.md and regenerate PROGRESS.md
+# Now with auto-calculated milestones.
 
 MASTER="$HOME/master"
 TOC="$MASTER/TOC.md"
@@ -84,14 +85,63 @@ percent=0
 
   echo
   echo "## Milestones"
-  echo "- [ ] First project pushed to GitHub"
-  echo "- [ ] Part 1 complete"
-  echo "- [ ] Part 2 complete"
-  echo "- [ ] 25% overall"
+
+  # Count per part
+  p1_done=$(grep -c -e "^- \[x\] 1\." "$TOC")
+  p2_done=$(grep -c -e "^- \[x\] 2\." "$TOC")
+
+  # Helper: prints [x] if 1, [ ] if 0
+  check() {
+    if [ "$1" -eq 1 ]; then echo "[x]"; else echo "[ ]"; fi
+  }
+
+  # Milestone 1: any topic ticked = project pushed (assumption: once you start, you push)
+  if [ "$done_count" -gt 0 ]; then
+    echo "- [x] First project pushed to GitHub"
+  else
+    echo "- [ ] First project pushed to GitHub"
+  fi
+
+  # Milestone 2: Part 1 complete (6 topics)
+  if [ "$p1_done" -eq 6 ]; then
+    echo "- [x] Part 1 complete"
+  else
+    echo "- [ ] Part 1 complete"
+  fi
+
+  # Milestone 3: Part 2 complete (15 topics)
+  if [ "$p2_done" -eq 15 ]; then
+    echo "- [x] Part 2 complete"
+  else
+    echo "- [ ] Part 2 complete"
+  fi
+
+  # Milestone 4: 25% overall
+  if [ "$percent" -ge 25 ]; then
+    echo "- [x] 25% overall"
+  else
+    echo "- [ ] 25% overall"
+  fi
+
+  # Milestone 5: first deployed app (manual — cannot be auto-detected)
   echo "- [ ] First deployed app"
-  echo "- [ ] 50% overall"
+
+  # Milestone 6: 50% overall
+  if [ "$percent" -ge 50 ]; then
+    echo "- [x] 50% overall"
+  else
+    echo "- [ ] 50% overall"
+  fi
+
+  # Milestone 7: first capstone done (manual — requires checking Part 10)
   echo "- [ ] First capstone done"
-  echo "- [ ] 100% complete 🎉"
+
+  # Milestone 8: 100% complete
+  if [ "$percent" -ge 100 ]; then
+    echo "- [x] 100% complete 🎉"
+  else
+    echo "- [ ] 100% complete 🎉"
+  fi
 } > "$PROG"
 
 echo "📊 PROGRESS.md updated ($done_count/$total — $percent%)"
