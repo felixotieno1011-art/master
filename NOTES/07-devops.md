@@ -551,3 +551,76 @@ Set, exported, unset. Proved child processes inherit.
 - Env var leaks: /proc/<pid>/environ shows all vars
 - Real breaches happen when API keys are exported instead of loaded from files
 - "Never trust env vars blindly" = the same pattern as $USER and $PWD
+## 7.5.6 System Monitoring — Phase B DONE ✅
+
+Ran uptime, free, df, and ps on phone. Saw real system metrics.
+Load 26 on 8 cores, RAM 3.7 GiB, disk 87% full.
+
+### The 5 core monitoring tools
+| Tool | Shows |
+|------|-------|
+| uptime | Load average + uptime |
+| free -h | RAM + swap usage |
+| df -h | Disk usage per partition |
+| ps aux --sort=-%cpu | Top CPU consumers |
+| top | Live updating view |
+
+### What I measured on my phone
+**Uptime:**
+- Up 4 days, 5:34
+- Load average: 25.71, 26.30, 26.32
+- On 8 cores = ~3x overloaded
+
+**Memory (free -h):**
+- Total: 3.7 GiB (not 4 GB — GB vs GiB + reserved)
+- Used: 2.8 GiB
+- Free: 71 MiB (very low)
+- Buff/cache: 1.0 GiB (reclaimable)
+- Available: 869 MiB (real usable)
+- Swap: 4.0 GiB total, 1.7 GiB used (43% — memory pressure)
+
+**Disk (df -h):**
+- /data = 51 GB total, 44 GB used, 6.7 GB free (87% full) ← the real one
+- / = 3.3 GB, 100% full (NORMAL for Android, read-only)
+- /cache = 193M, 9% full
+- /storage/emulated = same as /data (via FUSE)
+- 20+ /apex/* partitions — ignore, system packages
+
+**Processes:**
+- Only 4 visible (Termux sandbox)
+- Top CPU = my own ps and head commands (100% only because running)
+- Real CPU hogs hidden by Android sandbox
+
+### The 5 key metrics
+1. CPU usage — %user, %sys, %idle
+2. Memory — total, used, free, buff/cache, available, swap
+3. Load average — processes waiting (want < 2 × cores)
+4. Disk usage — used %, >90% is a problem
+5. Disk I/O — busy %, read/write rates
+
+### My own words (locked in)
+- Load average 26 on 8 cores = overloaded (about 3x)
+- Fix: restart, kill background apps, stop unused services
+- RAM 3.7 GiB not 4 GB because: GB vs GiB (280MB) + reserved (kernel, GPU, modem)
+- / at 100% is NORMAL for Android — system partition is read-only
+- /data at 87% is what matters — this is my real writable space
+- If /data hits 100%, apps crash
+- Termux can only see its own processes
+- Android hides the rest (sandbox)
+- Need root to see Android's full process list
+- Buff/cache can be reclaimed → available is the real number
+- Swap at 43% = memory pressure → restart helps
+
+### Commands I ran
+- uptime → load avg 25.71, 26.30, 26.32
+- ps aux --sort=-%cpu | head -10 → only my own processes
+- free -h → 3.7Gi total, 2.8Gi used, 71Mi free, 869Mi available
+- df -h → /data at 87%, / at 100% (normal)
+
+### Security insight
+- High load + hidden processes = sandbox at work
+- You can't see what's eating CPU without root
+- That's why Android security is layered
+- On a real server: ps aux shows all processes
+- The classic debugging flow: uptime → top → ps → kill
+- 50 years old, still works
