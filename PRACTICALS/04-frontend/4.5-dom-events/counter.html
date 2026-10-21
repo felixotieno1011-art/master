@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Click Counter</title>
+  <style>
+    body { font-family: Arial; padding: 30px; text-align: center; }
+    h1 { color: #2e9e5b; }
+    button {
+      padding: 15px 30px;
+      font-size: 20px;
+      background: #2e9e5b;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    button:hover { background: #1f7a42; }
+  </style>
+</head>
+<body>
+  <h1 id="count">0</h1>
+  <button id="btn">Click me</button>
+
+<script>
+  const countEl = document.querySelector("#count");
+  const btn = document.querySelector("#btn");
+  const debugEl = document.querySelector("#debug");
+
+  let count = 0;
+
+  btn.addEventListener("click", () => {
+    count = count + 1;
+    countEl.textContent = count;
+    debugEl.textContent = "DOM says: " + countEl.textContent;
+  });
+</script>
+</body>
+</html>

@@ -215,3 +215,65 @@ for (const item of [1,2,3]) { ... }         // like Python "for x in list"
 - Frontend + backend + mobile (React Native) + desktop (Electron)
 - 98% of websites use JS on the client side
 - The most popular language in the world
+## 4.5 DOM & Events — Phase B DONE ✅
+
+Built a click counter. Clicked 5 times, number went up.
+Proved DOM is live (not static HTML) with a debug paragraph.
+
+### Core concepts
+- DOM = Document Object Model. The ENTIRE page as a live tree in memory.
+  - Not just the button — the whole tree: html, body, h1, button, p, etc.
+  - Changes show up instantly without page reload.
+- querySelector = find an element by CSS selector (#id, .class, tag)
+- querySelectorAll = find all matching elements
+- addEventListener = attach a listener: "when X happens, run Y"
+- textContent = read or set the text content of an element
+- The `<script>` tag runs JS in the browser
+
+### The DOM tree
+document
+  └── html
+      └── body
+          ├── h1#count   (text: "5" after 5 clicks)
+          ├── button#btn (text: "Click me")
+          └── p#debug    (text: "DOM says: 5")
+
+### The click event flow
+1. User clicks the button
+2. Browser fires "click" event on button
+3. Event listener catches it
+4. Handler function runs
+5. Handler updates DOM (textContent)
+6. Browser re-renders
+= Instant visual change, no page reload
+
+### Real commands I ran
+- python -m http.server 8080
+- Opened http://127.0.0.1:8080/counter.html
+- Clicked 5 times
+
+### Things I saw
+- Number went 0 → 1 → 2 → 3 → 4 → 5
+- Debug paragraph updated in sync
+- Both the <h1> and <p> updated simultaneously
+- The DOM is live — the values changed in memory
+
+### My own words (locked in)
+- The DOM is the WHOLE page in memory, not just one button
+- querySelector uses CSS-like syntax to find elements
+- addEventListener is "watch this element, run this on event"
+- textContent reads or sets the text inside an element
+- After 5 clicks, the <h1> contains "5"
+- DOM manipulation is how every interactive website works
+- The button is one node. The DOM is the whole tree.
+- This is why pages can update without reloading
+- Before DOM (1998), each browser had its own way to manipulate pages
+  — and they broke each other constantly
+- The DOM standard fixed this — same JS works everywhere
+
+### Real-world use
+- Every counter, every toggle, every modal, every dropdown
+- Forms that validate as you type
+- Real-time chat (append new messages)
+- Infinite scroll (add more items)
+- Single-page apps (React, Vue — they all manipulate the DOM)
