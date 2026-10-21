@@ -53,7 +53,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 4.1 HTML5 📱
 - [x] 4.2 CSS3 📱
 - [x] 4.3 Responsive Design 📱
-- [ ] 4.4 JavaScript Core 📱
+- [x] 4.4 JavaScript Core 📱
 - [ ] 4.5 DOM & Events 📱
 - [ ] 4.6 ES6+ Features 📱
 - [ ] 4.7 Fetch API & JSON 📱

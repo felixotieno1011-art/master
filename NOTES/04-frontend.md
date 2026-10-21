@@ -133,3 +133,85 @@ Media queries verified in code (visual diff needs laptop DevTools).
 ### Files changed
 - ~/master/PRACTICALS/04-frontend/4.1-html5/index.html
   Added viewport meta tag + @media (min-width: 768px) + @media (min-width: 1024px)
+## 4.4 JavaScript Core — Phase B DONE ✅
+
+Wrote and ran my first JavaScript file. Variables, functions, loops, arrays.
+Compared with Python. Saw the === trap.
+
+### Core concepts
+- JavaScript = language of the web. Also runs on servers (Node.js).
+- Different from Java — name is marketing, not technical.
+- Same logic as Python, different syntax.
+
+### Variables
+- const → can't be reassigned (use by default)
+- let   → can be reassigned (use when needed)
+- var   → legacy, never use
+
+### Data types
+- Number (int + float combined in JS)
+- String
+- Boolean
+- Array   (like Python list)
+- Object  (like Python dict)
+- null vs undefined (two kinds of "empty")
+
+### Functions
+function greet(name) { return "Hello, " + name; }
+const greet = (name) => "Hello, " + name;  // arrow function
+
+### Conditionals
+if (x > 5) { ... } else if (x > 3) { ... } else { ... }
+
+### Loops
+for (let i = 0; i < 5; i++) { ... }        // classic
+for (const item of [1,2,3]) { ... }         // like Python "for x in list"
+
+### The === trap
+- "5" ==  5  → true  (JS converts types — BAD)
+- "5" === 5  → false (strict — GOOD)
+- ALWAYS use === (and !==)
+- The only exception: == null checks both null and undefined
+
+### const and objects
+- const prevents REASSIGNING the variable
+- const does NOT prevent modifying object CONTENTS
+- const user = { name: "Felix" };
+  user.name = "Hacker";  // ALLOWED
+  user = { ... };         // ERROR
+- To freeze contents: Object.freeze(obj)
+
+### My own words (locked in)
+- let = can change. const = can't reassign.
+- Use const by default. Use let only when you need to reassign.
+- === checks type too. == is a trap.
+- const doesn't freeze the object, only the variable.
+- Python is cleaner (indentation). JS is noisier (braces + semicolons).
+- Same logic, different syntax.
+- JavaScript has quirks because it was made in 10 days in 1995.
+- Node.js lets JS run outside the browser.
+- pos-lab uses JavaScript (Node.js).
+
+### Real commands I ran
+- node test.js
+
+### Things I saw
+- Hello, Felix
+- Age: 25
+- Hello, Mombasa!
+- Count: 1, 2, 3
+- apple, banana, orange
+- true     ← "5" == 5
+- false    ← "5" === 5
+- Original: [ 3, 1, 4, 1, 5 ]
+- Sorted:   [ 1, 1, 3, 4, 5 ]
+- Length:   5
+
+### Real-world use
+- Every webpage uses JavaScript
+- React (4.9) is JS
+- Vue, Angular, Svelte are JS
+- Node.js (pos-lab, backends) is JS
+- Frontend + backend + mobile (React Native) + desktop (Electron)
+- 98% of websites use JS on the client side
+- The most popular language in the world
