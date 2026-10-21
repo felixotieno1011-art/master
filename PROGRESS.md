@@ -2,10 +2,10 @@
 
 ## Overall
 - Total topics: 182
-- Completed: 69
-- Remaining: 113
-- Progress: 37%
-- Last updated: 2026-10-21 07:04
+- Completed: 70
+- Remaining: 112
+- Progress: 38%
+- Last updated: 2026-10-21 09:24
 
 ## By Part
 | Part | Title | Done | Total | % |
@@ -14,7 +14,7 @@
 | 2 | Networking | 15 | 15 | 100% |
 | 3 | Programming | 12 | 12 | 100% |
 | 4 | Frontend | 5 | 14 | 35% |
-| 5 | Backend | 0 | 16 | 0% |
+| 5 | Backend | 1 | 16 | 6% |
 | 6 | Databases | 2 | 10 | 20% |
 | 7 | DevOps | 14 | 24 | 58% |
 | 7.5 | Systems | 8 | 8 | 100% |

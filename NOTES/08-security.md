@@ -126,3 +126,73 @@ Scanned pos-lab with nmap. Mapped my attacks to the 5 phases.
 - Every vulnerability = one env var away
 - The 5 phases will be explored deeply in 12.11-12.15
 - The next topics will build on this
+## 8.1 Web Security Basics — Phase B DONE ✅
+
+Learned the attack surface of web apps. Understood the 5 principles.
+Identified pos-lab's attack surface.
+
+### Core concepts
+- Web security = protecting every "door" of the app
+- Attack surface = all entry points an attacker can try
+- Every endpoint is a door. Every input is a risk.
+- Every component has an attack surface:
+  - HTML, CSS, JS, forms, APIs, login, uploads, database, cookies, server
+
+### The 5 security principles
+1. Input validation — never trust user input
+2. Authentication — prove who you are
+3. Authorization — prove what you're allowed to do
+4. Session management — keep users logged in safely
+5. Logging & monitoring — detect attacks
+
+### Input validation — the #1 rule
+"Never trust user input" means:
+- Every piece of data from outside (URL, form, cookie, header, JSON, file)
+  could be malicious
+- Not "trust the person" — "assume the data is hostile"
+
+### If you trust input — the damage
+- SQL Injection → input becomes SQL commands
+- XSS → input becomes JavaScript
+- Command Injection → input becomes shell commands
+- Path traversal → input becomes file paths
+- Null / missing fields → crashes, corruption, auth bypass
+
+### Real commands I ran
+- ls ~/pos-lab/routes/
+
+### Things I saw
+- pos-lab has 9 route files (auth, products, sales, uploads, finance)
+- Every route is a door
+- Every endpoint accepts some input
+
+### pos-lab's attack surface
+| Endpoint | Input | Risk |
+|----------|-------|------|
+| /api/auth/login | username, password | Auth, rate limit |
+| /api/products | search | SQLi (PROD-01) |
+| /api/users/:id | user id | IDOR (PROD-03) |
+| /api/sales | quantity, price | SALE-01 to 05 |
+| /api/uploads | file | FILE-01 to 04 |
+| /api/finance | amount | validation |
+
+### My own words (locked in)
+- Web security = protecting every door
+- Attack surface = all entry points
+- 5 principles: input validation, auth, authz, session, logging
+- Every endpoint is a door
+- Never trust input
+- "Trust" in security = "assume the data is hostile"
+- Input can become SQL, JS, shell, file paths
+- Null / undefined input can crash apps or bypass auth
+- SQLi is still the most common despite 20+ years of warnings
+  because devs forget parameterized queries
+
+### Connection to other topics
+- 4.1 (HTML) — structure exposed to attackers
+- 4.4 (JS) — XSS runs JS in user's browser
+- 4.5 (DOM) — DOM manipulation is the XSS target
+- 6.1 (Databases) — SQL injection target
+- 7.5 (HTTPS) — prevents MITM
+- 12.15 (Web Hacking) — hands-on exploitation
+- pos-lab has all these vulnerabilities live

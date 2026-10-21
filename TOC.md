@@ -66,7 +66,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 4.14 Build Tools 💻
 
 ## Part 5 — Backend
-- [ ] 5.1 How Backend Works 📱
+- [x] 5.1 How Backend Works 📱
 - [ ] 5.2 Python Backend (Flask) 📱
 - [ ] 5.3 Python Backend (Django) 📱
 - [ ] 5.4 Node.js & Express 📱
