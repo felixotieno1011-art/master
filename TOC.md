@@ -124,7 +124,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 7.5.8 Computer Architecture Intro 📱
 
 ## Part 8 — Security Basics
-- [ ] 8.1 Web Security Basics 📱
+- [x] 8.1 Web Security Basics 📱
 - [ ] 8.2 OWASP Top 10 📱
 - [x] 8.3 HTTPS, TLS, Certificates 📱
 - [ ] 8.4 Secure Coding 📱
