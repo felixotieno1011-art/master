@@ -196,3 +196,85 @@ Identified pos-lab's attack surface.
 - 7.5 (HTTPS) — prevents MITM
 - 12.15 (Web Hacking) — hands-on exploitation
 - pos-lab has all these vulnerabilities live
+## 8.2 OWASP Top 10 — Phase B DONE ✅
+
+Read pos-lab's OWASP map. Verified it against the actual code.
+Found 2 documentation errors (A08 and A10 are covered but marked missing).
+
+### What OWASP is
+- OWASP = Open Worldwide Application Security Project
+- Non-profit, free, community-driven
+- Publishes the Top 10 + tools + guides
+- owasp.org
+
+### The OWASP Top 10 (2021)
+| Rank | Category | Meaning |
+|------|----------|---------|
+| A01 | Broken Access Control | Users access things they shouldn't (IDOR) |
+| A02 | Cryptographic Failures | Weak/missing crypto (MD5, no HTTPS) |
+| A03 | Injection | Input becomes code (SQLi, XSS, command) |
+| A04 | Insecure Design | Missing rate limits, weak logic |
+| A05 | Security Misconfiguration | Missing headers, CORS *, verbose errors |
+| A06 | Vulnerable and Outdated Components | Old libraries with CVEs |
+| A07 | Auth Failures | Weak passwords, no MFA, predictable sessions |
+| A08 | Software and Data Integrity Failures | Unsafe deserialization, unsigned updates |
+| A09 | Logging & Monitoring Failures | No audit trail, no alerts |
+| A10 | Server-Side Request Forgery (SSRF) | Server fetches arbitrary URLs |
+
+### pos-lab coverage (corrected)
+| Rank | Category | Covered? | pos-lab IDs |
+|------|----------|---------|-------------|
+| A01 | Broken Access Control | ✅ | PROD-03, SALE-02 |
+| A02 | Cryptographic Failures | ✅ | AUTH-01, 02, 03, 06, SESS-03, HDR-03 |
+| A03 | Injection | ✅ | PROD-01, PROD-02, LOG-01 |
+| A04 | Insecure Design | ✅ | SALE-01, 02, 03, FILE-01, FILE-03 |
+| A05 | Security Misconfiguration | ✅ | HDR-01, 02, 03, API-02, 04, FILE-03 |
+| A06 | Vulnerable Components | ❌ | (none — zero dependencies) |
+| A07 | Auth Failures | ✅ | AUTH-04, 05, SESS-01, 02 |
+| A08 | Integrity Failures | ✅ | INTG-01 (routes/cart.js eval) |
+| A09 | Logging & Monitoring | ✅ | LOG-01, 02, 03 |
+| A10 | SSRF | ✅ | SSRF-01 (routes/ssrf.js) |
+
+**Coverage: 9 of 10** (not 7 as the doc claimed).
+
+### Documentation errors I found
+The doc `docs/OWASP-MAP.md` says A08 and A10 are not covered.
+BUT:
+- `routes/ssrf.js` = SSRF lab (A10)
+- `routes/cart.js` = eval-based deserialization (A08, INTG-01)
+
+### Real commands I ran
+- cat ~/pos-lab/docs/OWASP-MAP.md | head -80
+- grep -rn "fetch(|http.get|https.get" routes/ lib/ middleware/
+- grep -rn "eval(|new Function(|vm.run" routes/ lib/ middleware/
+
+### Things I saw
+- routes/ssrf.js line 61: fetch(url, ...) — SSRF exists
+- routes/cart.js line 16: eval('(' + obj.slice(...) + ')') — eval deserialization
+- routes/cart.js.bak says "INTG-01: vuln mode deserializes with eval()"
+- The OWASP map is OUTDATED
+
+### My own words (locked in)
+- OWASP = Open Worldwide Application Security Project (non-profit)
+- The Top 10 is updated every 3-4 years
+- 2021 list: A01-A10
+- pos-lab covers 9 of 10, but the doc says only 7
+- Documentation can be wrong. Code is truth. Verify.
+- A06 is genuinely missing (zero dependencies)
+- I found A08 and A10 by grepping the code, not trusting the doc
+- "Documentation is a claim. Code is the truth."
+- The doc's "A10 not covered" was written before ssrf.js was added
+- The doc's "A08 not covered" was written before cart.js was added
+- The doc wasn't updated when the code changed
+- Real-world lesson: docs drift from code. Always verify.
+
+### Deep dives deferred to Part 12
+- 12.15: Web hacking (SQLi, XSS, CSRF)
+- 12.31: OWASP Top 10 deep dive
+- 12.33: API Security Top 10
+- 12.35: Container/K8s security
+
+### The OWASP API Top 10 (2023) — pos-lab coverage
+- 8 of 10 covered (BOLA, Auth, Property, Rate, Function, Business, Misconfig, Inventory)
+- API7 (SSRF) — actually covered by ssrf.js too
+- API10 (Unsafe Consumption) — genuinely missing
