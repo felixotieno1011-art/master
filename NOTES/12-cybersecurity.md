@@ -849,3 +849,82 @@ The attack was blocked by modern browser defenses.
 - SQLi = inject code into database
 - XSS = inject code into browser
 - CSRF = trick the browser into sending requests
+
+## 12.17 Password Attacks — Phase B DONE ✅
+
+Ran a real password cracking attack on pos-lab.
+Cracked MD5 hashes in 9 ms. Scrypt blocked it.
+
+### The 9 types of password attacks
+1. Brute Force — try every combination (slow)
+2. Dictionary — try known passwords (RockYou)
+3. Rule-based — mutate dictionary words (P@ssw0rd)
+4. Credential Stuffing — reuse breached passwords on other sites
+5. Password Spraying — one common password against many users
+6. Rainbow Tables — precomputed hash lookups (defeated by salt)
+7. Phishing — trick the user into giving the password
+8. Keyloggers — malware records keystrokes
+9. Online vs Offline — online is slow/blocked, offline is fast/invisible
+
+### The attack I ran
+- Tool: node tests/crack-md5.js
+- Wordlist: 28 passwords
+- Result in VULNERABLE mode (MD5): 3/3 CRACKED in ~11 ms total
+- Result in SECURE mode (scrypt): 0/3 cracked, attack blocked
+
+### The math (why MD5 fails)
+- MD5: 0.05 ms per hash
+- scrypt: 152 ms per hash
+- Ratio: ~3000x slower
+- 1 million MD5 guesses: 49 seconds
+- 1 million scrypt guesses: ~42 hours
+- RockYou wordlist (14M) with scrypt: ~25 days per user
+- Strong password not in wordlist: millions of years
+
+### Why the cracker stopped on scrypt
+- The script checks the prefix (md5$ vs scrypt$)
+- It's a training tool for MD5, not a full cracker
+- Even if it tried scrypt, 28 words × 152 ms = 4+ seconds, and it would fail
+- Real attackers would use Hashcat/GPU but still hit the same wall (scrypt is too slow)
+
+### Why pos-lab has MD5
+- It's an intentionally vulnerable training lab
+- The code has BOTH md5 and scrypt, toggled by SECURE_MODE
+- We flip to MD5 to learn how bad it is
+- Real-world apps must NEVER use MD5 for passwords
+
+### Defenses (the full stack)
+1. Slow hashing (scrypt/bcrypt/argon2)
+2. Unique salt per user
+3. Password length (12+ chars, length > complexity)
+4. No composition rules (they create patterns)
+5. Breach check (Have I Been Pwned)
+6. Rate limiting (slow online attacks)
+7. Account lockout (stops brute force)
+8. MFA (second factor even if password stolen)
+9. Unique password per site (defeats credential stuffing)
+
+### My own words (locked in)
+- MD5 is banned for passwords (NIST, 2008)
+- scrypt is 3000× slower per hash → attack fails
+- The cracker didn't "unhash" anything — it guessed, hashed, compared
+- Salt kills rainbow tables and cross-user cracking
+- Slow hashing kills brute force and dictionary attacks
+- The only way to defend is to make guessing too expensive
+- Length > complexity (long passwords are stronger than complex short ones)
+- NIST 2017 changed the rules: no forced rotation, no composition rules
+- pos-lab uses MD5 only for training
+
+### Real-world breaches
+- LinkedIn 2012: 6.5M MD5 hashes leaked → cracked in weeks
+- RockYou 2009: 32M plaintext passwords → became the standard wordlist
+- Adobe 2013: 150M accounts, weak 3DES-ECB
+- Every breach → stronger hashing standards
+
+### Connection to other topics
+- 12.6 (cryptography) — the math
+- 12.7 (symmetric vs asymmetric) — encryption vs hashing
+- 12.8 (hashing) — MD5 vs SHA vs scrypt
+- 8.7 (password hashing) — salt, pepper, timing attacks
+- 12.15 (web hacking) — the attack surface (login forms)
+- 12.18 (social engineering) — the human side
