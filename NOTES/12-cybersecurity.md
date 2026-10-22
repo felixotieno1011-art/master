@@ -795,3 +795,57 @@ Any server can claim "I am google.com". PKI is the trust system.
 - 7.5 (domain/DNS/HTTPS) — certs enable HTTPS
 - 8.3 (HTTPS/TLS/Certificates) — same concepts, deeper
 - 12.10 (PKI) — the trust system that ties them together
+## 12.15 (Part 2) — CSRF — Phase B DONE ✅
+
+Attempted a CSRF attack using pos-lab's evil.html.
+The attack was blocked by modern browser defenses.
+
+### The attack
+- evil.html is a fake "You won a prize!" page.
+- It contains a hidden <form> that auto-submits to /api/sales.
+- It was designed to create a sale in the victim's name.
+- I fixed the port, opened the page, waited 3 seconds.
+- The database remained empty (the attack was blocked).
+
+### Why it was blocked
+1. SameSite Cookies: the browser refused to send the session cookie
+   on a cross-site request.
+2. Modern browser protections: block cross-origin form submissions
+   that would cause state changes without CORS permission.
+
+### How CSRF works (concept)
+- The victim is logged into site A (pos-lab).
+- The attacker hosts site B (evil.com).
+- Site B makes a request to site A.
+- The browser automatically attaches site A's cookie.
+- Site A thinks the victim made the request.
+
+### How to fix CSRF (defenses)
+1. CSRF Tokens: server gives a secret token. Forms must include it.
+   The attacker cannot read it (Same-Origin Policy).
+2. SameSite Cookies: tells the browser not to send the cookie
+   on cross-site requests.
+3. Origin/Referer checks: reject requests from other domains.
+
+### The three major web attacks — summary
+- SQL Injection: input becomes SQL. Fix: parameterized queries (?).
+- XSS: input becomes HTML/JS. Fix: textContent, escape HTML.
+- CSRF: attacker tricks the browser into making a request.
+  Fix: CSRF tokens + SameSite cookies.
+
+### My own words (locked in)
+- CSRF = tricking the victim's browser into sending a request
+  they didn't intend to send.
+- It relies on the browser auto-sending cookies.
+- It is blocked by SameSite cookies (modern default).
+- It is also blocked by CSRF tokens.
+- The attack requires the victim to be logged in.
+- If the cookie is HttpOnly and SameSite=Strict, CSRF is very hard.
+- The pos-lab evil.html attack was stopped by the browser,
+  not by pos-lab's code (we were in vulnerable mode).
+- Modern browsers are the first line of defense against CSRF.
+
+### The 3 attacks in one sentence
+- SQLi = inject code into database
+- XSS = inject code into browser
+- CSRF = trick the browser into sending requests
