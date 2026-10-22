@@ -131,7 +131,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 8.5 Network Security 📱🔁
 - [x] 8.6 Ethical Hacking Intro 📱
 - [x] 8.7 Password Hashing & Crypto 📱
-- [ ] 8.8 Authentication Attacks 📱🔁
+- [x] 8.8 Authentication Attacks 📱🔁
 - [ ] 8.9 Rate Limiting & DDoS 📱
 - [ ] 8.10 Secure API Design 📱
 - [ ] 8.11 SASE & Zero Trust Architecture 📱

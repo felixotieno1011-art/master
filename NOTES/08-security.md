@@ -457,3 +457,86 @@ Always store a slow, salted hash.
 7. User logs in → server hashes input with stored salt + pepper
 8. Server compares with timingSafeEqual
 9. If match → session created (JWT or cookie)
+## 8.8 Authentication Attacks — Phase B DONE ✅
+
+Found username enumeration in pos-lab (AUTH-05).
+Saw the session vulnerabilities (SESS-01 to SESS-04).
+
+### The 6 authentication attacks
+1. Username Enumeration — different errors reveal which users exist
+2. Brute Force (online) — try many passwords on the login form
+3. Credential Stuffing — reuse breached passwords on other sites
+4. Session Hijacking — steal the session cookie
+5. Session Fixation — attacker sets a known session ID
+6. MFA Bypass — attack the second factor (SIM swap, OTP phishing)
+
+### Username enumeration (AUTH-05) — I did this
+Vulnerable mode:
+- Real user + wrong password → "Wrong password"
+- Fake user + any password → "User not found"
+→ Attacker learns which users exist
+
+Secure mode:
+- Both → "Invalid credentials"
+→ Attacker learns nothing
+
+### Why enumeration matters
+- Halves the attack surface
+- Lets attacker focus brute force on valid users
+- First step of a targeted attack
+
+### Session vulnerabilities (pos-lab)
+| ID | Vulnerability | Fix |
+|----|--------------|-----|
+| SESS-01 | Sessions never expire | Idle + absolute timeout |
+| SESS-02 | No logout-all | revokeAllForUser() |
+| SESS-03 | Predictable IDs (8 hex) | 32 random bytes (64 hex) |
+| SESS-04 | Session fixation (client supplies ID) | Always generate server-side |
+
+### Session security best practices
+1. Random session IDs (32+ bytes, crypto-random)
+2. HttpOnly cookie (XSS can't read)
+3. Secure cookie (only HTTPS)
+4. SameSite cookie (CSRF protection)
+5. Idle timeout (24h)
+6. Absolute timeout (30 days)
+7. Revocation on logout (and on password change)
+8. Logout-all endpoint
+9. Bind session to user agent / IP (optional, breaks mobile)
+10. Regenerate session ID on login (fixation fix)
+
+### Real commands I ran
+- sed -i 's/^SECURE_MODE=.*/SECURE_MODE=true/' .env
+- node ~/pos-lab/db/init.js
+- grep -n "createSession|sessionId|maxAge|expires" ~/pos-lab/lib/sessions.js
+
+### Things I saw
+- Vulnerable mode: "Wrong password" vs "User not found"
+- Secure mode: both "Invalid credentials"
+- 8-hex session IDs = 4 billion combinations (guessable in seconds)
+- 64-hex session IDs = 10^77 combinations (impossible)
+- Session fixation: client can supply session ID in vuln mode
+- No logout-all in vuln mode
+
+### My own words (locked in)
+- Online attacks attack the login form
+- Offline attacks attack stolen hashes
+- Username enumeration = information leak via error messages
+- Fix: same error message for both cases
+- Credential stuffing = reuse leaked passwords
+- Session hijacking = steal the cookie
+- Session fixation = attacker supplies the session ID
+- Predictable session IDs = guessable = account takeover
+- No logout-all = can't kick out a stolen session
+- Sessions must expire (idle + absolute)
+- Every login should regenerate the session ID
+- Every password change should invalidate all sessions
+- MFA is the strongest defense against credential attacks
+- Deepfake voice attack (2019) — €220K stolen by voice imitation
+
+### Connection to other topics
+- 12.17 (Password Attacks) — offline side
+- 12.7 (Auth Failures) — concept
+- 12.15 (Web Hacking) — XSS can steal cookies
+- 12.18 (Social Engineering) — human factor
+- pos-lab's session code in lib/sessions.js
