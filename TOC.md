@@ -130,7 +130,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 8.4 Secure Coding 📱
 - [ ] 8.5 Network Security 📱🔁
 - [x] 8.6 Ethical Hacking Intro 📱
-- [ ] 8.7 Password Hashing & Crypto 📱
+- [x] 8.7 Password Hashing & Crypto 📱
 - [ ] 8.8 Authentication Attacks 📱🔁
 - [ ] 8.9 Rate Limiting & DDoS 📱
 - [ ] 8.10 Secure API Design 📱

@@ -352,3 +352,108 @@ until validated.
 - [ ] Rate limiting on login
 - [ ] Session cookies HttpOnly, Secure, SameSite
 - [ ] CSRF tokens on state-changing requests
+## 8.7 Password Hashing & Crypto — Phase B DONE ✅
+
+Measured hash speed on my phone. Understood salt vs pepper.
+Learned the full modern password storage rules.
+
+### The measurement (on my phone)
+| Algorithm | Time for 1000 hashes | Per hash |
+|-----------|---------------------|----------|
+| MD5       | 49 ms               | 0.05 ms  |
+| scrypt    | 152,200 ms (est.)   | 152 ms   |
+
+**scrypt is ~3000x slower than MD5 per hash.**
+- 1 million MD5 guesses: 49 seconds
+- 1 million scrypt guesses: ~42 hours
+- 14 million (RockYou) with scrypt: ~25 days
+- Strong password (not in wordlist): millions of years
+
+### The #1 rule
+NEVER store passwords in plaintext.
+Always store a slow, salted hash.
+
+### The password storage stack (best practice)
+1. Generate random salt (16+ bytes)
+2. Add pepper (from .env, NOT the DB)
+3. Hash with argon2id or bcrypt/scrypt
+4. Store: algorithm$salt$hash
+5. Never log passwords, never transmit plaintext
+
+### Salt vs Pepper
+| | Salt | Pepper |
+|--|------|--------|
+| Random? | Yes, unique per user | No, same for all |
+| Stored where? | In the DB (with the hash) | Outside the DB (.env / secrets manager) |
+| Defeats? | Rainbow tables, cross-user cracking | DB-only breaches |
+| If lost? | Recoverable (it's in the hash) | All passwords invalid (must reset) |
+
+### The hash algorithm timeline
+| Algorithm | Year | Status for passwords |
+|-----------|------|---------------------|
+| MD5 | 1991 | 💀 Broken — 0.05 ms/hash |
+| SHA-1 | 1995 | 💀 Broken |
+| SHA-256 | 2001 | ⚠️ Too fast — not for passwords |
+| bcrypt | 1999 | ✅ Good — 30+ years of use |
+| scrypt | 2009 | ✅ Better — memory-hard |
+| argon2 | 2015 | ✅ Best — winner of PHC |
+
+**Modern recommendation: argon2id (or bcrypt).**
+
+### The 7 rules of password storage
+1. NEVER store plaintext
+2. Use slow hashes (bcrypt/scrypt/argon2)
+3. Use random salt per user (16+ bytes)
+4. Optionally add pepper (stored outside DB)
+5. Use constant-time compare (timingSafeEqual)
+6. Never log passwords, never transmit plaintext
+7. Validate policy: 12+ chars, breach check, no composition rules
+
+### Timing attacks (subtle bug)
+- Bad:  if (hash(input) === storedHash)
+- Good: if (crypto.timingSafeEqual(hash(input), storedHash))
+- === returns as soon as a difference is found
+- timingSafeEqual takes the same time regardless
+- Prevents character-by-character hash guessing
+
+### Real commands I ran
+- node -e "... MD5 1000 hashes ... scrypt 10 hashes ..."
+
+### Things I saw
+- MD5: 1000 hashes in 49 ms (0.05 ms each)
+- scrypt: 10 hashes in 1522 ms (152 ms each)
+- Ratio: ~3000× slower
+- scrypt is the defense against DB leaks
+
+### My own words (locked in)
+- MD5 is fast → great for checksums, terrible for passwords
+- scrypt is slow → perfect for passwords
+- 3000× slower = attacker tries 3000× fewer passwords per second
+- Salt = random data per user, stored in DB
+- Pepper = secret data for all users, stored OUTSIDE DB
+- Salt defeats rainbow tables
+- Pepper defeats DB-only breaches
+- Never store plaintext
+- Never use MD5/SHA-1/SHA-256 for passwords
+- bcrypt/scrypt/argon2 are the only acceptable options
+- Use timingSafeEqual, not ===
+- Long passwords > composition rules
+- NIST 2017: no forced rotation, no composition rules
+- Bill Burr (NIST 2003) publicly admitted his advice was wrong
+
+### Real-world breach history
+- LinkedIn 2012: 6.5M MD5 hashes leaked, all cracked in weeks
+- Adobe 2013: 150M accounts, weak 3DES-ECB
+- RockYou 2009: 32M plaintext passwords
+- Every breach teaches the same lesson: never store weak hashes
+
+### The complete secure login flow
+1. User signs up with password
+2. Server validates (12+ chars, breach check)
+3. Server generates random salt (16 bytes)
+4. Server adds pepper (from .env)
+5. Server hashes with argon2id or scrypt
+6. Server stores: algorithm$salt$hash
+7. User logs in → server hashes input with stored salt + pepper
+8. Server compares with timingSafeEqual
+9. If match → session created (JWT or cookie)
