@@ -132,7 +132,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 8.6 Ethical Hacking Intro 📱
 - [x] 8.7 Password Hashing & Crypto 📱
 - [x] 8.8 Authentication Attacks 📱🔁
-- [ ] 8.9 Rate Limiting & DDoS 📱
+- [x] 8.9 Rate Limiting & DDoS 📱
 - [ ] 8.10 Secure API Design 📱
 - [ ] 8.11 SASE & Zero Trust Architecture 📱
 

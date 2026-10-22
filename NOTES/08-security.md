@@ -540,3 +540,80 @@ Secure mode:
 - 12.15 (Web Hacking) — XSS can steal cookies
 - 12.18 (Social Engineering) — human factor
 - pos-lab's session code in lib/sessions.js
+
+## 8.9 Rate Limiting & DDoS — Phase B DONE ✅
+
+Tested rate limiting on pos-lab login.
+5 attempts allowed, then 429 Too Many Requests.
+Understood DDoS and the defense stack.
+
+### Rate limiting
+- Only N requests per time window per identity
+- Identity = IP, user, API key, or combination
+- Exceeding it → HTTP 429 (Too Many Requests)
+- Retry-After header tells when to try again
+- Common: 5 attempts/min for login, 100 requests/min for API
+
+### The rate limiter in pos-lab
+- `makeRateLimiter({ max: 5, windowSeconds: 60 })`
+- Key: `IP|username` (per user, per IP)
+- Resets on successful login
+- In-memory (zero dependencies)
+- Sweep interval to prevent memory growth
+
+### The test I ran
+- 15 rapid login attempts with wrong password
+- Attempts 1-5: 401 Unauthorized
+- Attempts 6-15: 429 Too Many Requests
+- The server blocked me after 5 failures
+
+### Why rate limiting matters
+- Brute force: 5 attempts/min = 10,000 passwords takes 33 hours
+- Credential stuffing: limits reuse attempts
+- Scraping: prevents bulk data extraction
+- Detection: you can see the attack in logs
+
+### DDoS (Distributed Denial of Service)
+- Not one attacker — a botnet of 100,000+ compromised devices
+- Types:
+  1. Volumetric (UDP flood, ICMP flood, DNS amplification)
+  2. Protocol (SYN flood, Ping of Death)
+  3. Application layer (HTTP flood, Slowloris)
+- Goal: exhaust bandwidth, connections, or CPU
+
+### DDoS defense stack
+- Layer 1: CDN (Cloudflare, Akamai) — absorbs volumetric
+- Layer 2: Load balancer — distributes traffic
+- Layer 3: WAF — blocks known attack patterns
+- Layer 4: Rate limiting — throttles individual clients
+- Layer 5: Application logic — rejects invalid requests fast
+- Layer 6: Auto-scaling — adds capacity under load
+
+### Real DDoS attacks
+- 2016 Mirai botnet: 620 Gbps vs KrebsOnSecurity
+- 2018 GitHub: 1.35 Tbps
+- 2020 AWS: 2.3 Tbps
+- Record keeps growing
+- Cost for attacker: $10/hour on cloud services
+
+### My own words (locked in)
+- Rate limiting = throttle requests per identity
+- 429 = Too Many Requests (HTTP status code)
+- 5 login attempts per minute is standard
+- Rate limiting doesn't make passwords unbreakable — it makes attacks slow enough to detect
+- DDoS = many attackers, one target (botnet)
+- Brute force = one attacker, many requests
+- The difference is scale and distribution
+- Defense in depth: CDN → LB → WAF → Rate limit → App → Auto-scale
+- Every layer matters. Attackers try to break any one.
+- Mirai botnet used default passwords on IoT devices
+- The biggest DDoS records keep growing
+- DDoS attacks are cheap for attackers, expensive for defenders
+
+### Connection to other topics
+- 12.17 (Password Attacks) — the reason we need rate limiting
+- 8.8 (Authentication Attacks) — brute force on login
+- 7.5 (Load Balancing) — part of DDoS defense
+- 7.9 (Nginx/Reverse Proxy) — where rate limiting is often implemented
+- 7.12 (Monitoring) — how you detect the attack
+- pos-lab's limiter in middleware/ratelimit.js
