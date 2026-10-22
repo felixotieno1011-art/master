@@ -981,3 +981,49 @@ Using `crt.sh` (Certificate Transparency Logs) with the query `%.safaricom.co.ke
 - A single cert log can reveal the entire structure of a company
 - Recon takes time, but it's the most valuable phase
 - "Know yourself, know your enemy" — Sun Tzu
+## 12.12 Scanning & Enumeration — Phase B DONE ✅
+
+Ran an aggressive nmap scan (-A) against pos-lab.
+Extracted headers, cookies, and service behavior.
+
+### Core concepts
+- Passive Recon (12.11) = no touching the target
+- Active Recon (12.12) = sending packets to the target
+- Port scanning = finding open doors (ports)
+- Service detection = identifying what's behind the door
+- Enumeration = extracting specific details (users, shares, headers)
+
+### nmap commands
+- `nmap -p 1-1000 127.0.0.1` = scan first 1000 ports
+- `nmap -sV 127.0.0.1` = service version detection
+- `nmap -A 127.0.0.1` = aggressive (OS, version, scripts, traceroute)
+- `nmap -sS 127.0.0.1` = stealth SYN scan (needs root)
+- `nmap --script vuln` = run vulnerability scan scripts
+
+### The aggressive scan output (-A)
+- `3001/tcp open` (the only port)
+- `X-Lab-Mode: secure` (instantly reveals the mode)
+- `Content-Security-Policy` (XSS defense active)
+- `X-Frame-Options: DENY` (clickjacking defense active)
+- `Strict-Transport-Security` (HTTPS enforced)
+- `Set-Cookie: csrf_token` (CSRF protection active)
+- `Service unrecognized` (custom Node.js app, not a known fingerprint)
+
+### My own words (locked in)
+- Ports are doors; scanning knocks on them
+- nmap -A is like a full inspection of the building
+- nmap sends different protocols (HTTP, NCP) to see how the server reacts
+- The server responds with 400 Bad Request to junk (good behavior)
+- Headers leak a lot of information to attackers
+- A missing security header (e.g., no X-Frame-Options) = immediate vulnerability clue
+- `-sV` gives versions; versions tell you about CVEs
+- Enumeration is where the real dirt is found
+- Always get permission before scanning (12.37)
+
+### Connection to other topics
+- 12.11 (OSINT) = passive recon
+- 12.12 (Scanning) = active recon
+- 7.5 (Networking) = ports and protocols
+- 8.1 (Web Security) = headers
+- 12.15 (Web Hacking) = what to do after finding a service
+- pos-lab nmap scan showed exactly what a secure Node app looks like

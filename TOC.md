@@ -192,7 +192,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 
 ### Module 3 — Offensive Security
 - [x] 12.11 Reconnaissance & OSINT 📱🔁
-- [ ] 12.12 Scanning & Enumeration 📱🔁
+- [x] 12.12 Scanning & Enumeration 📱🔁
 - [ ] 12.13 Vulnerability Assessment 📱🔁
 - [ ] 12.14 Exploitation Basics (Metasploit) 📱🔁
 - [x] 12.15 Web Hacking (SQLi, XSS, CSRF) 📱🔁
