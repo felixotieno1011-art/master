@@ -188,7 +188,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.7 Symmetric vs Asymmetric Encryption 📱
 - [x] 12.8 Hashing (MD5, SHA, bcrypt) 📱
 - [x] 12.9 Digital Signatures & Certificates 📱
-- [ ] 12.10 Public Key Infrastructure (PKI) 📱
+- [x] 12.10 Public Key Infrastructure (PKI) 📱
 
 ### Module 3 — Offensive Security
 - [ ] 12.11 Reconnaissance & OSINT 📱🔁

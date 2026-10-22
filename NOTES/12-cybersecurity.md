@@ -716,3 +716,82 @@ Verified with the public key. Tampered. Verification failed.
 - Email: DKIM signs the message
 - Git commits: can be GPG-signed
 - The entire web of trust runs on signatures
+## 12.10 Public Key Infrastructure (PKI) — Phase B DONE ✅
+
+Traced the certificate chain for google.com.
+Understood how trust flows from Root → Intermediate → Leaf.
+
+### The problem PKI solves
+How does your browser trust a random server it's never seen?
+Any server can claim "I am google.com". PKI is the trust system.
+
+### The chain of trust (3 levels)
+1. ROOT CA (pre-installed in OS/browser)
+   - Example: GTS Root R4, DigiCert Global Root, ISRG Root X1
+   - Private key is sacred (offline, in an HSM)
+   - Signs intermediates
+2. INTERMEDIATE CA (online)
+   - Example: Google Trust Services WE2, DigiCert TLS RSA 2020
+   - Signed by root
+   - Signs leaf certificates
+3. LEAF CERTIFICATE (the website's cert)
+   - Example: *.google.com
+   - Contains: subject, public key, issuer, validity, signature
+   - Signed by intermediate
+
+### Why intermediates exist
+- Root private key is too valuable to expose online
+- Intermediates do the daily signing
+- If an intermediate is compromised → revoke only it
+- Root stays safe
+
+### The trust store
+- Every device has a list of trusted Root CAs (~150)
+- Pre-installed by OS/browser (Android, Chrome, Firefox, Windows, macOS)
+- If a root is in the list → certs it signs are trusted
+- If not → "not private" red warning
+
+### Certificate revocation
+- CRL (Certificate Revocation List) — old, slow
+- OCSP (Online Certificate Status Protocol) — real-time
+- If a CA is compromised → browsers remove it entirely
+
+### Real commands I ran
+- openssl s_client -connect google.com:443 -servername google.com </dev/null 2>/dev/null | grep -E "^ [0-9] s:"
+
+### Things I saw
+- 3 levels in the chain
+- Leaf: CN=*.google.com
+- Intermediate: C=US, O=Google Trust Services, CN=WE2
+- Root: C=US, O=Google Trust Services LLC, CN=GTS Root R4
+- Google is their own Certificate Authority
+
+### My own words (locked in)
+- PKI = the system of certs + authorities that creates trust on the internet
+- Chain of trust: Root → Intermediate → Leaf
+- Root CA is trusted because it's in the OS/browser trust store
+- Intermediates exist so the Root key stays offline (safer)
+- If any link in the chain fails → browser shows warning
+- Google has its own Root CA (GTS Root R4) and its own intermediate
+- Small sites buy from Let's Encrypt, DigiCert, etc.
+- If you create your own Root CA → browsers show red warning
+  (because it's not in their trust store)
+- Corporate IT installs their own Root CA on work laptops
+  → can intercept HTTPS (that's how "corporate spying" works)
+- Certificate revocation: CRL (old), OCSP (new)
+- Entire CAs can be removed from browser trust stores if compromised
+
+### Real-world incident
+- Symantec 2017: issued fake certs for google.com and other domains
+- Google distrusted all Symantec certs in Chrome
+- Cost Symantec ~$3 billion
+- Sold its CA business to DigiCert
+- One CA failure = billions lost
+- The whole system depends on trust. Lose it = lose everything.
+
+### Connection to earlier topics
+- 12.7 (asymmetric) — keys are the foundation
+- 12.9 (signatures) — certs are signed
+- 7.5 (domain/DNS/HTTPS) — certs enable HTTPS
+- 8.3 (HTTPS/TLS/Certificates) — same concepts, deeper
+- 12.10 (PKI) — the trust system that ties them together
