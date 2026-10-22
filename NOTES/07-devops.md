@@ -965,3 +965,53 @@ Compared 6 hosting types.
 - Hosted = public IP + open port + DNS
 - Once hosted, anyone with the URL can reach it
 - That's the difference between a demo and a product
+
+## 7.10 Cloud Platforms — Phase B DONE ✅
+
+Learned the Big 3 (AWS, GCP, Azure). Understood Regions, AZs, IAM, and the Shared Responsibility Model.
+
+### The Big 3
+| Platform | Market Share | Known for |
+|----------|--------------|-----------|
+| AWS | ~32% | First, most services, most complex |
+| Azure | ~23% | Enterprise, Windows integration |
+| GCP | ~10% | Data/ML, Kubernetes, BigQuery |
+
+### Core concepts
+- **Regions:** Geographic areas (e.g., us-east-1, af-south-1)
+- **Availability Zones (AZs):** Isolated data centers within a region. Deploy across 2+ AZs for high availability.
+- **Compute:** EC2 (AWS), VMs (Azure), Compute Engine (GCP), Lambda/Functions (serverless)
+- **Storage:** S3 (AWS), Blob Storage (Azure), Cloud Storage (GCP)
+- **Databases:** RDS (AWS), DynamoDB (NoSQL), BigQuery (GCP)
+- **Networking:** VPC (private network), Subnets, Security Groups (firewalls), Load Balancers
+- **IAM (Identity & Access Management):** Who can do what. The most important cloud concept.
+
+### The Shared Responsibility Model
+- **Cloud Provider:** Physical security, hardware, hypervisor.
+- **You (the customer):** Operating system, app code, data, IAM config, network config.
+- "AWS secures the cloud. You secure what's in the cloud."
+
+### Real commands I ran
+- grep -rn "JWT_SECRET\|secret" ~/pos-lab/.env
+
+### Things I saw
+- pos-lab stores `JWT_SECRET` in `.env` (fine locally, bad in cloud)
+- On AWS, this should be in AWS Secrets Manager
+- The secret was 64 hex characters (256-bit) — strong, but stored poorly
+
+### My own words (locked in)
+- Cloud = renting someone else's computers
+- VPS = one server. Cloud = many services (compute, storage, DB, network)
+- Regions/AZs = geographic isolation for fault tolerance
+- IAM = the most important cloud concept (and the biggest breach vector)
+- Secrets should NEVER be in `.env` on a cloud server
+- Use AWS Secrets Manager, not `.env`
+- The Shared Responsibility Model: provider secures the building, you secure the doors
+- Capital One 2019: SSRF on an EC2 server → over-permissioned IAM role → S3 breach (106M records)
+- AWS was secure. Capital One's config wasn't.
+
+### Cloud architecture (pos-lab on AWS)
+- User → Route 53 (DNS) → CloudFront (CDN) → Application Load Balancer → EC2 instances (2 AZs) → RDS (database)
+- Static files → S3 (served via CloudFront)
+- Secrets → AWS Secrets Manager
+- Monitoring → CloudWatch
