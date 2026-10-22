@@ -2,10 +2,10 @@
 
 ## Overall
 - Total topics: 182
-- Completed: 82
-- Remaining: 100
+- Completed: 83
+- Remaining: 99
 - Progress: 45%
-- Last updated: 2026-10-22 20:26
+- Last updated: 2026-10-22 20:58
 
 ## By Part
 | Part | Title | Done | Total | % |
@@ -18,7 +18,7 @@
 | 6 | Databases | 2 | 10 | 20% |
 | 7 | DevOps | 15 | 24 | 62% |
 | 7.5 | Systems | 8 | 8 | 100% |
-| 8 | Security | 8 | 11 | 72% |
+| 8 | Security | 9 | 11 | 81% |
 | 9 | Career | 0 | 12 | 0% |
 | 10 | Capstone | 0 | 8 | 0% |
 | 11 | Specialization | 0 | 8 | 0% |

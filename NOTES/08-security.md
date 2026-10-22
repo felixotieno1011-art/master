@@ -617,3 +617,62 @@ Understood DDoS and the defense stack.
 - 7.9 (Nginx/Reverse Proxy) — where rate limiting is often implemented
 - 7.12 (Monitoring) — how you detect the attack
 - pos-lab's limiter in middleware/ratelimit.js
+## 8.5 Network Security — Phase B DONE ✅
+
+Understood network defense layers.
+Checked pos-lab's bind address (local vs public).
+Explored firewalls, IDS/IPS, and segmentation.
+
+### Core concepts
+- **Firewall:** Controls incoming/outgoing traffic.
+  - Stateless: checks packets one by one.
+  - Stateful: remembers connections.
+  - NGFW/WAF: inspects application layer (Cloudflare, Imperva).
+  - Default Deny: block everything, allow only what's needed.
+- **Network Segmentation:** Don't put everything on one network.
+  - DMZ: public servers sit here.
+  - Private Subnet: databases sit here, only web servers can talk to them.
+  - Microsegmentation: even inside a subnet, restrict traffic.
+- **IDS (Detection):** watches traffic, alerts admin, does NOT block.
+- **IPS (Prevention):** inline, blocks attacks automatically.
+- **VPN:** encrypted tunnel over the internet.
+- **Zero Trust:** "Never trust, always verify." No inherent trust inside the network.
+
+### The "Localhost vs Public" rule
+- `127.0.0.1` (localhost) = safe. Only this device can connect.
+- `0.0.0.0` = dangerous. Open to the whole network.
+- pos-lab uses `process.env.HOST || '127.0.0.1'` (safe default).
+
+### Real commands I ran
+- `netstat -tuln` (failed: Android limitation)
+- `grep -n "listen|127.0.0.1|0.0.0.0" ~/pos-lab/server.js`
+
+### Things I saw
+- pos-lab binds to `127.0.0.1` by default.
+- To expose it, you must change `HOST` to `0.0.0.0`.
+- Android blocks `netstat -tuln` (sandbox).
+
+### My own words (locked in)
+- Firewalls are the perimeter. Segmentation is the inside walls.
+- IDS watches. IPS blocks.
+- DMZ is where public servers go. DBs go in private subnets.
+- Target was breached because HVAC was on the same network as POS.
+- Zero Trust means even if you are inside, you must verify.
+- Binding to `127.0.0.1` makes a server invisible to the network.
+- Binding to `0.0.0.0` exposes it to everyone.
+- Security is about layers (defense in depth).
+- The weakest link is usually the human (phishing).
+- Big companies get hacked because of third parties, zero-days, and misconfigurations.
+
+### Real-world incident
+- Target 2013: HVAC vendor credentials → network → POS → 40M credit cards.
+- $18.5M settlement.
+- The lesson: the air conditioning should not be on the same network as the credit card terminal.
+
+### Connection to other topics
+- 2.5 (Firewalls) — the concept
+- 2.13 (IDS/IPS) — the deeper dive
+- 7.5.4 (File Permissions) — similar "who can access what" concept
+- 12.11/12.12 (Recon/Scanning) — the attacks this defends against
+- 12.15 (Web Hacking) — what gets through the firewall
+- 8.1 (Web Security) — application layer defense

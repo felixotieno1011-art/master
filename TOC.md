@@ -128,7 +128,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 8.2 OWASP Top 10 📱
 - [x] 8.3 HTTPS, TLS, Certificates 📱
 - [x] 8.4 Secure Coding 📱
-- [ ] 8.5 Network Security 📱🔁
+- [x] 8.5 Network Security 📱🔁
 - [x] 8.6 Ethical Hacking Intro 📱
 - [x] 8.7 Password Hashing & Crypto 📱
 - [x] 8.8 Authentication Attacks 📱🔁
