@@ -2,10 +2,10 @@
 
 ## Overall
 - Total topics: 182
-- Completed: 79
-- Remaining: 103
+- Completed: 80
+- Remaining: 102
 - Progress: 43%
-- Last updated: 2026-10-22 18:27
+- Last updated: 2026-10-22 18:46
 
 ## By Part
 | Part | Title | Done | Total | % |

@@ -928,3 +928,56 @@ Cracked MD5 hashes in 9 ms. Scrypt blocked it.
 - 8.7 (password hashing) — salt, pepper, timing attacks
 - 12.15 (web hacking) — the attack surface (login forms)
 - 12.18 (social engineering) — the human side
+## 12.11 Reconnaissance & OSINT — Phase B DONE ✅
+
+Did passive recon on safaricom.co.ke using Certificate Transparency logs.
+Found dozens of internal subdomains without touching their servers.
+
+### Core concepts
+- Passive Recon = gathering info without touching the target (they don't know)
+- Active Recon = sending traffic to the target (they can detect it)
+- OSINT = Open Source Intelligence (public info)
+- Google Dorking = using search operators (site:, filetype:, inurl:)
+- Certificate Transparency = public logs of every SSL cert ever issued
+- Job postings reveal tech stack
+- GitHub repos can leak secrets (API keys, .env files)
+- Shodan indexes internet-connected devices (routers, servers, cameras)
+
+### The OSINT finding (Safaricom)
+Using `crt.sh` (Certificate Transparency Logs) with the query `%.safaricom.co.ke`:
+- Found dozens of subdomains
+- Highlights:
+  - `api.safaricom.co.ke` (main API)
+  - `selfcare.safaricom.co.ke` (customer portal)
+  - `smartinventorytest.safaricom.co.ke` (TEST SERVER)
+  - `shubtest.safaricom.co.ke` (TEST SERVER)
+  - `testsperesmanager.safaricom.co.ke` (TEST SERVER)
+
+### Why this matters
+- Test servers often have weaker security (default passwords, debug mode)
+- Company naming conventions are revealed
+- Attack surface expands dramatically
+
+### The Google Dork attempt
+- Tried `site:github.com ext:env DB_PASSWORD`
+- Google's AI blocked it (refused to show results for credential searching)
+- Lesson: search engines actively block dorking for secrets
+- Real attackers use specialized tools (GitHub secret scanning bypasses) or manual OSINT
+
+### Real commands I ran
+- `whois safaricom.co.ke`
+- `dig safaricom.co.ke ANY`
+- Browser: `https://crt.sh/?q=%25.safaricom.co.ke`
+- Browser: `https://www.google.com/search?q=site%3Agithub.com+ext%3Aenv+DB_PASSWORD` (blocked by Google)
+
+### My own words (locked in)
+- OSINT = open source intelligence (public info)
+- Passive = no touching the target (they don't know)
+- Active = touching the target (they can detect)
+- crt.sh is a goldmine for finding subdomains
+- Test servers are the easiest targets
+- Google blocks dorking for secrets
+- Attackers don't guess — they gather
+- A single cert log can reveal the entire structure of a company
+- Recon takes time, but it's the most valuable phase
+- "Know yourself, know your enemy" — Sun Tzu

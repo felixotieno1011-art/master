@@ -191,7 +191,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.10 Public Key Infrastructure (PKI) 📱
 
 ### Module 3 — Offensive Security
-- [ ] 12.11 Reconnaissance & OSINT 📱🔁
+- [x] 12.11 Reconnaissance & OSINT 📱🔁
 - [ ] 12.12 Scanning & Enumeration 📱🔁
 - [ ] 12.13 Vulnerability Assessment 📱🔁
 - [ ] 12.14 Exploitation Basics (Metasploit) 📱🔁
