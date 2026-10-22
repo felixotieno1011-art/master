@@ -278,3 +278,77 @@ BUT:
 - 8 of 10 covered (BOLA, Auth, Property, Rate, Function, Business, Misconfig, Inventory)
 - API7 (SSRF) — actually covered by ssrf.js too
 - API10 (Unsafe Consumption) — genuinely missing
+## 8.4 Secure Coding — Phase B DONE ✅
+
+Learned the defender's playbook. Connected every fix to the
+vulnerability it prevents. Saw pos-lab's secure code.
+
+### The core rule
+NEVER TRUST USER INPUT. Assume everything is malicious
+until validated.
+
+### The 7 rules of secure coding
+1. Validate input — type, length, format. Reject if invalid.
+2. Parameterize queries — use ? placeholders, never string concat
+3. Escape output — textContent (not innerHTML), encode HTML entities
+4. Use HTTPS — encrypt data in transit
+5. Hash passwords — scrypt/bcrypt/argon2 (never MD5)
+6. Least privilege — DB user only gets what it needs
+7. Fail securely — don't leak errors, don't log secrets, use
+   generic error messages (prevents enumeration)
+
+### The pattern across all vulnerabilities
+- SQLi = input becomes SQL code (bad: ${q}, good: ?)
+- XSS = input becomes HTML/JS (bad: innerHTML, good: textContent)
+- Weak passwords = input not processed with enough cost
+  (bad: MD5, good: scrypt)
+- Common thread: treat input as DATA, not CODE
+
+### Real code I saw in pos-lab
+- routes/products.js line 40: `if (vuln('PROD-01'))` = vulnerable version
+- routes/products.js line 42: `WHERE name LIKE '%${q}%'` = string concat
+- routes/products.js line 58: `// SECURE: parameterized query`
+- routes/products.js line 62: `WHERE name LIKE ?` = safe
+
+### Real commands I ran
+- grep -n "PROD-01\|parameterized\|?" ~/pos-lab/routes/products.js
+
+### Things I saw
+- Both the vulnerable and secure versions live in the same file
+- SECURE_MODE decides which one runs
+- The vulnerability is ONE line of code
+- The fix is ONE line of code
+- The difference: `?` vs `${q}`
+- Same pattern for XSS: textContent vs innerHTML
+- Same pattern for passwords: scrypt vs md5
+
+### Real-world cases
+- Equifax 2017: 143M people, $575M fine, unpatched Apache Struts
+- Fix was available for months
+- One update would have prevented it
+- This is why A06 (Vulnerable Components) exists in OWASP Top 10
+
+### My own words (locked in)
+- Never trust user input
+- Every vulnerability comes from treating input as code
+- SQLi, XSS, weak hashing: same class of mistake
+- The fix is always "input is data, not code"
+- Validate → parameterize → escape → hash → use HTTPS
+- Fail securely: generic errors, no stack traces, no logs of secrets
+- Least privilege: DB user only needs the minimum
+- Secure coding = writing code that resists attacks by design
+- Most real breaches come from a known vulnerability that wasn't patched
+
+### The full secure coding checklist
+- [ ] Input validated on every endpoint
+- [ ] SQL uses ? parameters
+- [ ] HTML uses textContent
+- [ ] Passwords use scrypt/bcrypt
+- [ ] HTTPS enforced (HSTS)
+- [ ] DB user has least privilege
+- [ ] Errors are generic (no stack traces)
+- [ ] Passwords never logged
+- [ ] Dependencies updated (npm audit)
+- [ ] Rate limiting on login
+- [ ] Session cookies HttpOnly, Secure, SameSite
+- [ ] CSRF tokens on state-changing requests
