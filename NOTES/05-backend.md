@@ -82,3 +82,58 @@ GET (read) · POST (create) · PUT (update full) · PATCH (update partial) · DE
 - 8.1 (Web security) — every endpoint is a door
 - 12.6-12.8 (crypto) — hashes are filtered at the handler
 - pos-lab's actual code demonstrates all of this
+## 5.2 Python Backend (Flask) — Phase B DONE ✅
+
+Built my first Python backend using Flask.
+It reads from a database, accepts POST requests, and saves data.
+
+### Core concepts
+- Flask = a micro-framework for Python. Minimal, easy to start.
+- `@app.route('/path')` = defines a route (URL → function).
+- `request.args` = query string (?name=Felix).
+- `request.get_json()` = reads JSON body from POST request.
+- `return` = sends the response back to the client.
+- `if __name__ == '__main__':` = starts the server (must be at the bottom).
+
+### The two HTTP methods we used
+- `GET /messages` = read the database, return JSON.
+- `POST /messages` = insert into the database, return success.
+
+### SQLite integration
+- `sqlite3.connect('guestbook.db')` = connects to the database file.
+- `c.execute("INSERT ... VALUES (?, ?)")` = parameterized query (safe from SQLi).
+- `conn.commit()` = saves the changes.
+- `c.fetchall()` = reads all rows.
+
+### Real commands I ran
+- `pip install flask`
+- `python app.py`
+- `curl -X POST http://127.0.0.1:5000/messages -H "Content-Type: application/json" -d '{"author":"Felix","content":"Hello"}'`
+
+### Things I saw
+- `/` returned "Welcome to the Guestbook API"
+- `/messages` GET returned `{"messages": []}` (empty at first)
+- POST returned `{"status": "saved!"}`
+- GET returned `{"messages": [{"author":"Felix","content":"Hello"}]}`
+- After restarting the server, the message was still there (data persisted in `guestbook.db`).
+- The file `guestbook.db` is now in the same folder.
+
+### My own words (locked in)
+- Flask is a micro-framework. It doesn't force you to use a specific structure.
+- `@app.route()` is the link between the URL and the Python function.
+- `request.args.get('name')` reads the query string.
+- `request.get_json()` reads the JSON body from the client.
+- `?name=Felix` is a GET parameter (visible in the URL).
+- The `if __name__ == '__main__'` block is essential. Without it, the server doesn't start.
+- SQLite stores data in a file (`guestbook.db`), so it survives restarts.
+- `INSERT` and `SELECT` are the core of any backend.
+- Parameterized queries (`?`) protect against SQL injection (from 8.4).
+- This is exactly how pos-lab works, just on a smaller scale.
+
+### Connection to other topics
+- 5.1 (Backend loop) — this is the loop in action.
+- 6.1 (Databases) — SQLite is the DB.
+- 6.2 (SQL basics) — INSERT and SELECT.
+- 8.4 (Secure coding) — parameterized queries.
+- 8.10 (Secure API) — GET and POST design.
+- 12.15 (Web hacking) — SQL injection would break this if we didn't use `?`.
