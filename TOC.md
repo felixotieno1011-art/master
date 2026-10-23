@@ -228,7 +228,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.37 Cyber Laws 📱
 - [x] 12.38 Ethical Hacking Legal Framework 📱
 - [x] 12.39 Compliance (ISO 27001, PCI-DSS) 📱
-- [ ] 12.40 Reporting & Documentation 📱
+- [x] 12.40 Reporting & Documentation 📱
 
 ### Module 8 — Career & Practice
 - [ ] 12.41 Setting Up Your Hacking Lab 📱

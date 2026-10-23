@@ -1027,3 +1027,58 @@ Extracted headers, cookies, and service behavior.
 - 8.1 (Web Security) = headers
 - 12.15 (Web Hacking) = what to do after finding a service
 - pos-lab nmap scan showed exactly what a secure Node app looks like
+
+## 12.40 Reporting & Documentation — Phase B DONE ✅
+
+Wrote a real pentest report for pos-lab (SQLi + XSS).
+Learned the structure of professional security documentation.
+
+### The difference between Legal Docs and Reports
+- Legal Docs (12.38): Written BEFORE the test (NDA, Scope, RoE).
+- Pentest Report (12.40): Written AFTER the test (Findings, Fixes).
+
+### The anatomy of a good report
+1. **Executive Summary** — 1 page, no jargon. For the CEO.
+2. **Methodology** — What tools, what scope, what dates.
+3. **Findings** — Per vulnerability:
+   - Title
+   - Severity (CVSS)
+   - Location (URL/file)
+   - Description
+   - Proof of Concept (PoC)
+   - Impact
+   - Remediation (Fix)
+4. **Evidence** — Screenshots, logs, payloads.
+5. **Remediation Plan** — Prioritized (Today, This Week, This Month).
+
+### CVSS Scores (Severity)
+- **9.0 - 10.0 (Critical):** SQLi, RCE, full DB dump.
+- **7.0 - 8.9 (High):** Stored XSS, auth bypass.
+- **4.0 - 6.9 (Medium):** Username enumeration, missing rate limit.
+- **0.1 - 3.9 (Low):** Missing headers, version disclosure.
+
+### Proof of Concept (PoC)
+- Not the vulnerability name.
+- The exact steps/payload to reproduce it.
+- SQLi PoC: `search=' OR 1=1 --`
+- XSS PoC: `<img src=x onerror=alert('XSS')>`
+
+### Real commands I ran
+- nano ~/master/PRACTICALS/12-cybersecurity/12.40-reporting/pentest-report.md
+- cat ~/master/PRACTICALS/12-cybersecurity/12.40-reporting/pentest-report.md
+
+### Things I saw
+- A well-structured report.
+- Two findings (SQLi, XSS) mapped to CVSS scores.
+- A remediation plan with timelines.
+- The Executive Summary says "Two critical vulnerabilities" (note: XSS is usually High, not Critical, but that's a minor detail for the summary).
+
+### My own words (locked in)
+- A pentest without a report is useless.
+- CEOs read the Executive Summary. Devs read the Findings.
+- Proof of Concept = the "receipt" that proves the bug works.
+- CVSS = the universal language of severity.
+- Critical = drop everything. Low = put it on the backlog.
+- Remediation must be prioritized.
+- "Immediate", "This Week", "This Month" makes it actionable.
+- Documentation is a skill. You get better with practice.
