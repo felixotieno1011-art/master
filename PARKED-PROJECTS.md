@@ -185,3 +185,24 @@ Projects that need **specific conditions** we don't have yet (hardware, money, d
 - `JOURNAL.md` — daily log
 - `MASTER-RULES.md` — how I learn
 - `STOP-POINT.txt` — where I stopped last session
+## 6️⃣ SASE & Zero Trust Deep Dive 🏢
+
+**Status:** 🅿️ PARKED — needs dedicated enterprise research
+
+**Why parked:**
+- SASE is a massive enterprise architecture, not a single tool.
+- Requires understanding Identity Providers (Okta, Azure AD), SD-WAN, and Cloud Exchanges.
+- Best learned when you have a corporate network or a cloud lab to simulate.
+
+**What we already know (from 8.11):**
+- Zero Trust = "Never trust, always verify."
+- SASE = Cloud-delivered security (FWaaS, ZTNA, CASB, SWG).
+- Replaces the old VPN and Castle-and-Moat model.
+
+**What we want to learn deeply:**
+- How ZTNA (Zero Trust Network Access) actually replaces VPNs.
+- How Cloudflare Zero Trust (free tier) can secure a local network.
+- How Identity Providers (IdP) talk to SASE providers (SAML, OIDC).
+- The difference between Zscaler, Palo Alto Prisma, and Cloudflare One.
+
+**Resume at:** When building a cloud lab or when applying for a Cloud Security / Network Security role.
