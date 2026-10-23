@@ -1015,3 +1015,56 @@ Learned the Big 3 (AWS, GCP, Azure). Understood Regions, AZs, IAM, and the Share
 - Static files → S3 (served via CloudFront)
 - Secrets → AWS Secrets Manager
 - Monitoring → CloudWatch
+
+## 7.7 Docker Compose — Phase B DONE ✅
+
+Learned Docker Compose by running it in a GitHub Codespace (cloud Linux VM).
+Ran a multi-container app with one command.
+
+### What I learned about YAML
+- YAML is a configuration file format (not a programming language).
+- It uses indentation (spaces) to define structure.
+- It is used by Docker Compose to plan the containers.
+
+### The difference between Dockerfile, Image, and Compose
+- **Dockerfile:** The recipe to build ONE container.
+- **Image:** The frozen, built file.
+- **docker-compose.yml (YAML):** The party planner that runs MULTIPLE containers together.
+
+### How to send a project to a friend
+1. Send the code.
+2. Send the Dockerfile.
+3. Send the docker-compose.yml.
+4. Friend runs `docker compose up`.
+= It works on every machine.
+
+### Real commands I ran (in GitHub Codespace)
+- `docker run hello-world`
+- `docker run -it ubuntu bash` (entered a real Linux container!)
+- `ls /workspaces` (proved it was isolated)
+- `apt update` (proved it had internet)
+- `docker compose up -d` (started Postgres + Nginx)
+- `docker compose ps`
+
+### Things I saw
+- `docker run ubuntu bash` put me in `root@7b3c18cdc806:/#`
+- `ls /workspaces` failed inside the container (isolation)
+- `apt update` downloaded 26 MB (it's a real OS)
+- `docker compose up -d` created a network, volume, and two containers instantly
+- One command (`docker compose up -d`) did the work of 10 commands.
+
+### My own words (locked in)
+- YAML is just settings, not logic.
+- Docker Compose runs multiple containers together.
+- Containers are isolated from the host.
+- Docker images are frozen templates.
+- Containers are running instances.
+- You send the Dockerfile and Compose file to your friend, not a converted program.
+- The cloud VM (Codespace) is the only way to run Docker on a phone.
+- Docker Compose is used in real jobs to run databases and apps together.
+
+### The difference between running it locally vs Codespace
+- Termux can't run Docker (Android kernel blocks it).
+- GitHub Codespace is a cloud Linux VM with Docker pre-installed.
+- We SSH'd into it via `gh codespace ssh`.
+- Now we can run real Docker commands from the phone.
