@@ -1082,3 +1082,46 @@ Learned the structure of professional security documentation.
 - Remediation must be prioritized.
 - "Immediate", "This Week", "This Month" makes it actionable.
 - Documentation is a skill. You get better with practice.
+## 12.13 Vulnerability Assessment — Phase B DONE ✅
+
+Ran an automated vulnerability scan on pos-lab.
+Understood the difference between scanners and manual testing.
+
+### The 3 types of tools
+1. Network scanners (nmap, Nessus) — find CVEs in known services.
+2. Web app scanners (Burp, ZAP, Nikto) — crawl websites for OWASP bugs.
+3. SCA (Software Composition Analysis) — check npm/requirements for old libraries.
+
+### The 3 problems with scanners
+1. False Positives (says it's vulnerable, but it's not)
+2. False Negatives (says it's safe, but it's vulnerable)
+3. Overwhelm (1,000 findings, impossible to fix all at once)
+
+### The difference: Assessment vs Pentest
+- Assessment: Find the bugs (mostly automated).
+- Pentest: Prove you can break in (mostly manual).
+
+### The real scan I ran
+`nmap --script vuln -p 3001 127.0.0.1`
+- Result: Port open, service detected.
+- **Zero vulnerabilities found.**
+- Why? pos-lab is a custom Node.js app. nmap doesn't know how to test custom SQL injection. It only tests known CVEs in known software.
+
+### My own words (locked in)
+- Scanners are dumb. They look for patterns.
+- Humans are smart. We test logic.
+- nmap found the door (port 3001) but couldn't open it because the lock is custom-made.
+- A CVE is a public tracking number for a specific bug.
+- Not every vulnerability is a breach. An unpatched server is a vulnerability; an exploited server is a breach.
+- False positives will make you look foolish if you don't verify manually.
+- You must triage: fix Critical today, Low next quarter.
+- The best tool is your brain, verifying what the scanner says.
+
+### The difference between finding a bug and proving a breach
+- Assessment: "You have SQL injection."
+- Pentest: "I logged in as admin using SQL injection and downloaded your user table."
+
+### Real-world example
+- nmap missed the SQLi in pos-lab because pos-lab is custom code.
+- That's why real pentesters use their hands, not just scripts.
+- Companies that rely only on scanners get breached by custom logic bugs.
