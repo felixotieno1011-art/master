@@ -1125,3 +1125,53 @@ Understood the difference between scanners and manual testing.
 - nmap missed the SQLi in pos-lab because pos-lab is custom code.
 - That's why real pentesters use their hands, not just scripts.
 - Companies that rely only on scanners get breached by custom logic bugs.
+## 12.14 Exploitation Basics (Mini-MSF) — Phase B DONE ✅
+
+Built a working exploit framework (mini-msf) from scratch.
+Executed a reverse shell payload against pos-lab.
+Got a real shell (u0_a333).
+
+### The 5 parts of the framework
+1. Handler — socket → bind → listen → accept → Session per connection
+2. Console — input() loop + module registry
+3. Exploit — HTTP POST with auth cookie + eval payload
+4. Payload — Python reverse shell with os.dup2
+5. Session — send/recv over TCP
+
+### The critical insight
+`eval()` + `_$$ND_FUNC$$_` + `import('child_process').exec()` = RCE
+`os.dup2(sock.fileno(), 0/1/2)` = shell sees the socket as its terminal
+
+### Real commands I ran
+- `nc -lvnp 4444` (listener)
+- `python3 ~/test_shell.py` (payload)
+- Inside the session: `whoami` → `u0_a333`
+
+### Things I saw
+- Connection refused when the listener wasn't running.
+- Connection received when the listener was running.
+- `whoami` returned `u0_a333`.
+- The shell was interactive.
+
+### My own words (locked in)
+- Exploitation is proving the bug is real.
+- A reverse shell connects FROM the victim TO the attacker (bypasses firewalls).
+- `nc` is a simple listener. Metasploit is a full framework.
+- The core mechanism is the same: socket + accept + send/recv.
+- `os.dup2` redirects stdin/stdout/stderr to the socket.
+- The exploit is the delivery truck; the payload is the package.
+- Building your own framework is 100x better than using one.
+- This is how real attacks work (and why patching matters).
+- The eval() in pos-lab's cart was the entry point.
+- The Python shell was the payload.
+- The listener was the handler.
+- The shell was the result.
+- This is the core of exploitation.
+
+### Connection to other topics
+- 12.13 (Vuln Assessment) — found the bug.
+- 12.15 (Web Hacking) — the bug was SQLi/XSS/eval.
+- 8.4 (Secure Coding) — parameterized queries, no eval.
+- 8.10 (Secure API) — auth is not enough if the code is vulnerable.
+- 7.5.2 (Threads) — the handler uses threads.
+- 7.5 (Networking) — sockets and ports.

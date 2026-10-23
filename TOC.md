@@ -194,7 +194,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.11 Reconnaissance & OSINT 📱🔁
 - [x] 12.12 Scanning & Enumeration 📱🔁
 - [x] 12.13 Vulnerability Assessment 📱🔁
-- [ ] 12.14 Exploitation Basics (Metasploit) 📱🔁
+- [x] 12.14 Exploitation Basics (Metasploit) 📱🔁
 - [x] 12.15 Web Hacking (SQLi, XSS, CSRF) 📱🔁
 - [ ] 12.16 Network Attacks (MITM, ARP spoofing) 📱🔁
 - [x] 12.17 Password Attacks 📱🔁

@@ -2,10 +2,10 @@
 
 ## Overall
 - Total topics: 182
-- Completed: 90
-- Remaining: 92
-- Progress: 49%
-- Last updated: 2026-10-23 16:59
+- Completed: 91
+- Remaining: 91
+- Progress: 50%
+- Last updated: 2026-10-23 22:37
 
 ## By Part
 | Part | Title | Done | Total | % |
@@ -29,6 +29,6 @@
 - [x] Part 2 complete
 - [x] 25% overall
 - [ ] First deployed app
-- [ ] 50% overall
+- [x] 50% overall
 - [ ] First capstone done
 - [ ] 100% complete 🎉
