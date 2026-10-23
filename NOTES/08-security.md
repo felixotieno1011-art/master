@@ -676,3 +676,49 @@ Explored firewalls, IDS/IPS, and segmentation.
 - 12.11/12.12 (Recon/Scanning) — the attacks this defends against
 - 12.15 (Web Hacking) — what gets through the firewall
 - 8.1 (Web Security) — application layer defense
+## 8.10 Secure API Design — Phase B DONE ✅
+
+Learned the rules for building APIs that don't leak data.
+Mapped the OWASP API Top 10 to pos-lab fixes.
+
+### The OWASP API Top 10 (and how to fix them)
+1. BOLA (IDOR) — Check ownership on EVERY request. `if (user.id !== requested_id) return 403`
+2. Broken Auth — JWT, MFA, rate limits
+3. Property-Level Auth — Ignore fields the user isn't allowed to set (mass assignment)
+4. Resource Consumption — Rate limits, pagination caps
+5. Function-Level Auth — Check roles, not just UI hiding
+6. Business Flow Abuse — Rate-limit workflows (e.g., checkout)
+7. SSRF — Never fetch user-supplied URLs blindly
+8. Misconfiguration — HTTPS, security headers, no verbose errors
+9. Inventory Management — API versioning (`/api/v1/`), deprecate old endpoints
+10. Unsafe Consumption — Verify third-party API responses
+
+### The core rule
+Never trust the client. Check authorization on the server for every request, even if the UI hides the button.
+
+### Real commands I ran
+- grep -n "v1|versioning|API-01" ~/pos-lab/server.js
+
+### Things I saw
+- Line 254: secure mode only accepts /api/v1/*. Unversioned returns 410 Gone.
+- Line 271: The server rewrites /api/v1/products → /api/products internally.
+- API versioning prevents attackers from finding forgotten endpoints.
+
+### My own words (locked in)
+- BOLA = changing the ID in the URL to see someone else's data
+- Fix: check if the user owns the ID, every time
+- The UI is a suggestion; the server is the law
+- API versioning forces clients to upgrade to the secure version
+- Never return password hashes or secrets in the API response
+- Pagination caps prevent DoS (limit=1000000)
+- Filter errors (no stack traces)
+- Use `curl` to test your own API like an attacker
+- Parler 2021: 70TB scraped in a weekend due to BOLA (sequential IDs)
+
+### Connection to other topics
+- 5.1 (How Backend Works) — the API is the backend
+- 8.1 (Web Security) — attack surface
+- 8.2 (OWASP) — API Top 10
+- 8.4 (Secure Coding) — input validation, parameterized queries
+- 8.9 (Rate Limiting) — prevents brute force
+- 12.15 (Web Hacking) — how APIs get broken
