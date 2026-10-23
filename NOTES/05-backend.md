@@ -137,3 +137,57 @@ It reads from a database, accepts POST requests, and saves data.
 - 8.4 (Secure coding) — parameterized queries.
 - 8.10 (Secure API) — GET and POST design.
 - 12.15 (Web hacking) — SQL injection would break this if we didn't use `?`.
+
+## 5.4 Node.js & Express — Phase B DONE ✅
+
+Built my first Node.js backend using Express.
+Ran it on port 5000 and tested with the browser.
+
+### Core concepts
+- Node.js = a runtime for JavaScript on the server.
+- Express = the most popular Node.js framework (like Flask for Python).
+- Node is asynchronous (non-blocking), which makes it fast for I/O.
+- `app.get(path, handler)` = defines a route.
+- `app.listen(port, callback)` = starts the server.
+- `req.query.name` = reads the query string.
+- `res.send()` = sends the response.
+
+### Flask vs Express (side-by-side)
+| Feature | Flask (Python) | Express (JS) |
+|---------|----------------|--------------|
+| Install | `pip install flask` | `npm install express` |
+| Route | `@app.route('/')` | `app.get('/', ...)` |
+| Query param | `request.args.get('name')` | `req.query.name` |
+| Send response | `return "..."` | `res.send("...")` |
+| Start server | `app.run(port=5000)` | `app.listen(5000)` |
+
+### Real commands I ran
+- `npm init -y`
+- `npm install express`
+- `node server.js`
+
+### Things I saw
+- Server printed "Server running on http://127.0.0.1:5000"
+- `/` returned "Hello, Felix! Node.js and Express are alive."
+- `/greet?name=Felix` returned "Hello, Felix! You are using Node.js."
+
+### My own words (locked in)
+- Node.js is JavaScript on the server.
+- Express is a micro-framework, like Flask.
+- The concepts are the same: route, request, response.
+- `req` = what the client sent.
+- `res` = what the server sends back.
+- Node.js is async, so it handles many requests at once without blocking.
+- `npm` is the package manager (like `pip`).
+- `npm install express` installs the framework.
+- `node server.js` starts the server.
+- Express is used by Netflix, PayPal, Uber, and LinkedIn.
+- pos-lab uses Node.js, so I can read its code more easily now.
+
+### Connection to other topics
+- 5.1 (Backend loop) — same loop, different language.
+- 5.2 (Flask) — same concepts, Python syntax.
+- 7.5.2 (Processes/Threads) — Node is single-threaded but async.
+- 8.4 (Secure coding) — input validation applies to both.
+- 8.10 (Secure API) — same API design principles.
+- 12.15 (Web hacking) — SQLi/XSS apply to both Flask and Express.
