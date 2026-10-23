@@ -722,3 +722,62 @@ Never trust the client. Check authorization on the server for every request, eve
 - 8.4 (Secure Coding) — input validation, parameterized queries
 - 8.9 (Rate Limiting) — prevents brute force
 - 12.15 (Web Hacking) — how APIs get broken
+
+## 8.11 SASE & Zero Trust Architecture — Phase B DONE ✅
+
+Learned the modern security model that replaces the "Castle and Moat."
+**PART 8 COMPLETE.**
+
+### The old model (Castle & Moat)
+- Firewall at the perimeter.
+- Inside = trusted. Outside = untrusted.
+- VPN lets you inside.
+- **Flaw:** If an attacker steals a password/session, they are inside and trusted. They can roam freely (SolarWinds hack).
+
+### The new model (Zero Trust)
+- **"Never trust, always verify."**
+- No inherent trust based on network location.
+- **Principles:**
+  1. Verify explicitly (identity, device health, location).
+  2. Least privilege (JIT, JEA).
+  3. Assume breach (micro-segmentation, encryption, monitoring).
+- Even if you have a valid session cookie, every request checks authorization.
+
+### SASE (Secure Access Service Edge)
+- The technology that delivers Zero Trust in the cloud.
+- Combines: SD-WAN, SWG, CASB, ZTNA (replaces VPN), FWaaS.
+- Moves security from the office building to the cloud edge.
+
+### The difference between a Cookie and Zero Trust
+- **Cookie (old):** Proves you logged in. The server trusts you.
+- **Zero Trust:** Proves you logged in *AND* checks if you are allowed to touch this specific resource *right now*. If you steal a cookie, it might fail because the device/IP/permissions don't match.
+
+### Real commands I ran
+- (conceptual, no commands)
+
+### Things I saw
+- The CSRF attack (12.15) was stopped by the browser (SameSite). Zero Trust would stop it at the server (origin check).
+- A stolen JWT (12.7) would fail under Zero Trust if the IP or device fingerprint changed.
+
+### My own words (locked in)
+- Castle & Moat = trusted inside, vulnerable if breached.
+- Zero Trust = verify everything, even inside.
+- SASE = Zero Trust in the cloud (no VPN needed).
+- "Verify explicitly" means checking identity + device + location + permission.
+- Least privilege means giving the minimum access needed.
+- Assume breach means designing as if the attacker is already inside.
+- SolarWinds 2020 showed why Castle & Moat fails.
+- US government mandated Zero Trust by 2024.
+
+### Part 8 is complete 🎉
+- 8.1 Web Security Basics ✅
+- 8.2 OWASP Top 10 ✅
+- 8.3 HTTPS TLS Certificates ✅
+- 8.4 Secure Coding ✅
+- 8.5 Network Security ✅
+- 8.6 Ethical Hacking Intro ✅
+- 8.7 Password Hashing ✅
+- 8.8 Authentication Attacks ✅
+- 8.9 Rate Limiting & DDoS ✅
+- 8.10 Secure API Design ✅
+- 8.11 SASE & Zero Trust ✅
