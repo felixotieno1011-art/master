@@ -1286,3 +1286,65 @@ Successfully got a reverse shell and executed commands.
 - 7.5.2 (Threads) — the handler uses threads.
 - 7.5 (Networking) — sockets, ports, reverse shells.
 - Part 8 (Security) — defense: WAF, CSP, input validation.
+## 12.19 Blue Team Operations — Phase B DONE ✅
+
+Switched from Red Team (attacker) to Blue Team (defender).
+Looked at pos-lab's audit log to see what defenders see.
+
+### Core concepts
+- Blue Team = defenders. Detect, respond, contain.
+- SOC (Security Operations Center) = the war room. Runs 24/7.
+  - Tier 1: Triage alerts.
+  - Tier 2: Deep investigation.
+  - Tier 3: Threat hunting.
+- SIEM = collects logs from all systems and correlates them (Splunk, Sentinel).
+- EDR = endpoint detection (watches processes, like the reverse shell).
+- IDS/IPS = network detection.
+
+### The Kill Chain (7 steps)
+1. Reconnaissance
+2. Weaponization
+3. Delivery
+4. Exploitation
+5. Installation
+6. Command & Control (C2)
+7. Actions on Objectives
+
+The Blue Team tries to break the chain at any step.
+
+### Incident Response (6 steps)
+1. Preparation
+2. Identification
+3. Containment
+4. Eradication
+5. Recovery
+6. Lessons Learned
+
+### Real commands I ran
+- `tail -20 ~/pos-lab/logs/audit.log`
+
+### Things I saw
+- `login_failed target=admin` (username enumeration attempt).
+- `login actor=Sam Seller` (normal login).
+- `sale_create actor=Sam Seller target=INV-...` (normal action).
+- **Missing:** The IDOR access to user/1 was NOT logged.
+
+### My own words (locked in)
+- Blue Team detects and responds. Red Team attacks.
+- SIEM is the central brain. It collects logs.
+- EDR catches what SIEM misses (endpoint behavior).
+- The Kill Chain is the attacker's path. Break it anywhere.
+- Incident Response is the playbook.
+- A09 (Logging & Monitoring Failures) is dangerous because attackers can move without being seen.
+- pos-lab's audit log missed the IDOR attack (because the app didn't log authorization failures).
+- In a real SOC, that missing log = a blind spot.
+- A good Blue Team demands that developers log EVERY authorization failure.
+- Without logs, there is no detection.
+- Without detection, there is no incident response.
+
+### Connection to other topics
+- 12.11–12.15 (Red Team) — what Blue Team defends against.
+- 8.5 (Network Security) — IDS/IPS.
+- 8.2 (OWASP) — A09 Logging Failures.
+- 12.24 (Incident Response) — deep dive.
+- pos-lab's logs in `logs/audit.log`.
