@@ -1348,3 +1348,55 @@ The Blue Team tries to break the chain at any step.
 - 8.2 (OWASP) — A09 Logging Failures.
 - 12.24 (Incident Response) — deep dive.
 - pos-lab's logs in `logs/audit.log`.
+## 12.16 Network Attacks (MITM, ARP Spoofing) — Phase B DONE ✅
+
+Learned how attackers intercept network traffic.
+Saw unencrypted HTTP traffic in plain text with nc.
+
+### Core concepts
+- MITM (Man-in-the-Middle) = attacker sits between you and the server.
+- ARP Spoofing = attacker tells your computer they are the router, so all traffic goes to them.
+- DNS Spoofing = attacker returns a fake IP for a domain.
+- Sniffing = passively reading network traffic.
+- Rogue WiFi = fake hotspot that steals credentials.
+- HTTPS is the defense (encrypts traffic).
+- VPN is the defense (encrypts everything, including DNS).
+
+### How MITM works (the attack chain)
+1. Attacker joins the same WiFi.
+2. Attacker sends fake ARP replies (spoofing the router).
+3. Your device sends traffic to the attacker instead of the router.
+4. Attacker reads/modifies the traffic.
+5. If HTTPS, attacker sees only encrypted gibberish.
+6. If HTTP, attacker sees everything (passwords, cookies, messages).
+
+### Real commands I ran
+- `nc -lvnp 8080` (listener)
+- `curl -v http://127.0.0.1:8080/test` (client)
+- The listener showed the full HTTP request in plain text.
+
+### Things I saw
+- The GET request, the Host header, the User-Agent, the Accept header.
+- All in plain text (no encryption).
+- If this were HTTP login, the password would be visible.
+
+### My own words (locked in)
+- HTTPS is not optional. It is mandatory.
+- An attacker on the same WiFi can read HTTP traffic.
+- ARP spoofing makes the attacker the router.
+- DNS spoofing makes the attacker the phonebook.
+- The defense is encryption (HTTPS, VPN).
+- You can't do ARP spoofing on Android without root (but you can on a laptop).
+- Sniffing is passive. ARP spoofing is active.
+- Rogue WiFi is the easiest MITM (you voluntarily connect to the attacker).
+- tcpdump and tshark are the tools (unavailable on Termux due to mirror issues, but `nc` worked).
+- The `nc` listener shows the raw HTTP request — exactly what an attacker sees.
+
+### Connection to other topics
+- 12.7 (Symmetric vs Asymmetric) — HTTPS encryption.
+- 7.5 (Domain, DNS, HTTPS) — DNS and TLS.
+- 8.5 (Network Security) — firewalls, IDS.
+- 12.11 (Recon) — finding the target's network.
+- 12.12 (Scanning) — finding open ports.
+- 12.15 (Web Hacking) — application-layer attacks.
+- 12.16 (Network Attacks) — infrastructure-layer attacks.
