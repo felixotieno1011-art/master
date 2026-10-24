@@ -1119,3 +1119,54 @@ User → Nginx (80/443) → Backend (3001) → Database
 - 8.9 (Rate Limiting) — API Gateways do this.
 - 8.10 (Secure API) — API Gateways enforce auth.
 - 4.4/4.6 (Frontend) — Nginx serves the frontend files.
+## 7.9 Nginx / Reverse Proxy — Phase B DONE ✅
+
+Installed Nginx in a GitHub Codespace. Configured it to proxy traffic to a Python backend.
+
+### Core concepts
+- Nginx = a reverse proxy and web server.
+- The backend is hidden behind Nginx.
+- Nginx listens on 80/443. Backend listens on a private port (3001).
+- Nginx handles SSL, static files, and load balancing.
+- `proxy_pass` is the directive that forwards traffic.
+
+### The architecture
+User → Nginx (port 80) → Backend (port 3001)
+- The user never talks to the backend directly.
+
+### Real commands I ran
+- `sudo apt install nginx -y`
+- `python3 backend.py &` (started the backend)
+- `sudo nano /etc/nginx/sites-available/default` (configured the proxy)
+- `sudo nginx -t` (tested the config)
+- `sudo nginx` (started Nginx)
+- `curl -s http://127.0.0.1` (hit Nginx, not the backend)
+- `sudo tail -5 /var/log/nginx/access.log` (saw the request)
+
+### Things I saw
+- `nginx: master process` + `worker processes` (the server is running).
+- The `curl` request returned the backend's HTML.
+- The backend logged the request (`GET / 200`).
+- Nginx logged the request in `/var/log/nginx/access.log`.
+- When the Codespace closed, I lost the connection to Nginx.
+
+### My own words (locked in)
+- Nginx is the front door. The backend is hidden inside.
+- The user only knows the domain/port 80. They never know about 3001.
+- Nginx handles the SSL certificate (we didn't do SSL today, but that's next).
+- If the backend dies, Nginx returns 502 (Bad Gateway).
+- Nginx is fast. It can serve static files without touching the backend.
+- Nginx runs as a master process and worker processes.
+- The access log is how you see traffic.
+- This is how real production servers are set up.
+- Nginx is used by Netflix, Cloudflare, and 30% of the web.
+
+### Connection to other topics
+- 7.5 (Domain/DNS/HTTPS) — Nginx is where the SSL cert lives.
+- 7.5.7 (System Design) — Nginx is the load balancer.
+- 7.7 (Docker) — Nginx runs in a container.
+- 7.10 (Cloud) — Nginx runs on EC2/VPS.
+- 8.5 (Network Security) — Nginx is the perimeter.
+- 8.9 (Rate Limiting) — Nginx can rate limit.
+- 5.1 (Backend) — Nginx sits in front of it.
+- 12.11–12.15 (Attacks) — Nginx stops a lot of them (WAF).
