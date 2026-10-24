@@ -1400,3 +1400,63 @@ Saw unencrypted HTTP traffic in plain text with nc.
 - 12.12 (Scanning) — finding open ports.
 - 12.15 (Web Hacking) — application-layer attacks.
 - 12.16 (Network Attacks) — infrastructure-layer attacks.
+## Fun Project: Home Network Security Audit — DONE ✅
+
+Ethically hacked my own home WiFi/router.
+Found a critical vulnerability (default credentials) and fixed it.
+
+### The findings
+- Router: Airtel (192.168.1.1)
+- Open ports: 80 (HTTP), 443 (HTTPS), 53 (DNS)
+- Admin panel: `http://192.168.1.1` (default login: admin/admin)
+- WiFi encryption: WPA3 (excellent)
+- SSH: Closed (good)
+- Devices on network: Only router + my phone (clean)
+- DNS: Working correctly
+
+### The vulnerability found
+- Default credentials on the admin panel (`admin` / `admin`).
+- If left unchanged, an attacker on the WiFi could log in and:
+  - Change the WiFi password (lock me out).
+  - Set up DNS spoofing (redirect to fake sites).
+  - Open port forwarding (backdoor into my network).
+- Severity: Critical.
+- Fix: Changed the admin password to a strong one.
+
+### Real commands I ran
+- `ip route` (failed: Android sandbox)
+- `ifconfig` (found `wlan0: 192.168.1.114`)
+- `ping -c 3 192.168.1.1` (router alive)
+- `nmap -p 80,443,22,53,8080 192.168.1.1` (found ports)
+- `nslookup google.com 192.168.1.1` (DNS working)
+- `for i in {1..20}; do ping ...` (host discovery)
+
+### Things I saw
+- Router is at `192.168.1.1`.
+- My phone is at `192.168.1.114`.
+- Ports 80, 443, 53 are open. Port 22 (SSH) is closed.
+- The admin panel is an Airtel SPA (Single Page App, with `#/login`).
+- `admin` / `admin` logged me in.
+- `nslookup` returned Google's real IP (`142.251.38.14`).
+
+### My own words (locked in)
+- Default credentials are the #1 way routers get hacked.
+- WPA3 is secure (much better than WPA2).
+- `ifconfig` gives you your IP and netmask.
+- `nmap` can scan local IPs (fast).
+- `nslookup` tests DNS.
+- A clean network has no unknown devices.
+- The admin panel is the router's control center.
+- If you don't change the password, anyone on the WiFi can control your router.
+- I fixed the vulnerability (changed the password).
+- This was a real, legal, ethical hack of my own network.
+
+### Connection to other topics
+- 12.11 (Recon) — finding the router.
+- 12.12 (Scanning) — nmap.
+- 12.16 (Network Attacks) — DNS spoofing, MITM.
+- 8.7 (Password Hashing) — password strength.
+- 12.15 (Web Hacking) — the admin panel is a web app.
+- 8.5 (Network Security) — router as perimeter.
+- 12.19 (Blue Team) — I patched the vulnerability.
+- 12.37/12.38 (Legal) — it's my own network, so legal.
