@@ -217,7 +217,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 12.30 Mobile Forensics 📱
 
 ### Module 6 — Web & Cloud Security
-- [ ] 12.31 OWASP Top 10 (deep) 📱
+- [x] 12.31 OWASP Top 10 (deep) 📱
 - [ ] 12.32 Web Application Firewall (WAF) 📱
 - [ ] 12.33 API Security 📱
 - [ ] 12.34 Cloud Security 📱💻

@@ -1,4 +1,68 @@
-,# 🔐 PART 12 — CYBERSECURITY & ETHICAL HACKING
+## 12.31 OWASP Top 10 (Deep Dive) — Phase B DONE ✅
+
+Went deep into the OWASP Top 10. Exploited Broken Access Control (A01) on pos-lab.
+Saw the fix in code.
+
+### The OWASP Top 10 (2021) — full list
+- A01: Broken Access Control (the #1 most dangerous)
+- A02: Cryptographic Failures
+- A03: Injection
+- A04: Insecure Design
+- A05: Security Misconfiguration
+- A06: Vulnerable and Outdated Components
+- A07: Identification and Authentication Failures
+- A08: Software and Data Integrity Failures
+- A09: Security Logging and Monitoring Failures
+- A10: Server-Side Request Forgery (SSRF)
+
+### The A01 deep dive (Broken Access Control)
+- The #1 most dangerous vulnerability globally.
+- Two types:
+  - Vertical: access admin features as a normal user.
+  - Horizontal (IDOR): access another user's data (e.g., user 5 accessing user 1).
+- Real-world: Parler 2021 (70TB leaked via sequential IDs), First American 2019 (885M records).
+- The fix: check `if (req.user.id !== requestedId && req.user.role !== 'admin') return 403`.
+- Pos-lab: `canSeeUser()` check is skipped in vulnerable mode.
+
+### The A02 deep dive (Cryptographic Failures)
+- Weak or missing cryptography.
+- Example: MD5 passwords, no HTTPS, hardcoded secrets.
+- Real-world: Adobe 2013 (150M records, 3DES-ECB mode).
+- The fix: scrypt/bcrypt/argon2, TLS 1.3, env vars for secrets.
+
+### The A03 deep dive (Injection)
+- Input becomes code.
+- Types: SQLi, XSS, Command Injection, NoSQL Injection, LDAP Injection.
+- Real-world: TalkTalk 2015 (157K customers, £400K fine).
+- The fix: parameterized queries, output encoding, input validation.
+
+### Real commands I ran
+- `curl -s -c seller_cookies.txt -X POST http://127.0.0.1:3001/api/auth/login ...`
+- `curl -s -b seller_cookies.txt http://127.0.0.1:3001/api/users/1`
+- `sed -n '65,85p' ~/pos-lab/routes/users.js`
+
+### Things I saw
+- Logged in as seller (id: 3).
+- Requested user id 1 (boss).
+- Got the boss's full profile (name, email, role).
+- The code shows the fix: `if (!canSeeUser(req.user, row)) return 403`.
+
+### My own words (locked in)
+- Broken Access Control is the #1 most dangerous vulnerability.
+- It's hard to protect with automated tools because the request looks normal.
+- The fix is 3 lines of code: check ownership.
+- IDOR (changing the ID in the URL) is the most common form.
+- A01 is the #1 cause of massive data breaches (Parler, First American).
+- WAFs can't stop A01 because the request is legitimate.
+- Testing: log in as a low-privilege user, change the ID, see if it works.
+
+### Connection to other topics
+- 8.2 (OWASP overview) — the list.
+- 12.13 (Vuln assessment) — finding the bugs.
+- 12.15 (Web hacking) — exploiting them.
+- 12.14 (Exploitation) — the full attack chain.
+- 8.10 (Secure API) — the fix (BOLA check).
+- 12.33 (API Security) — deeper API-specific OWASP.,# 🔐 PART 12 — CYBERSECURITY & ETHICAL HACKING
 
 Notes for Phase 2 — started 2026-10-09
 
