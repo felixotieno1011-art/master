@@ -277,3 +277,45 @@ document
 - Real-time chat (append new messages)
 - Infinite scroll (add more items)
 - Single-page apps (React, Vue — they all manipulate the DOM)
+## 4.6 ES6+ Features — Phase B DONE ✅
+
+Learned the biggest JavaScript update (ES6, 2015).
+Wrote and ran ES6 code side by side with older syntax.
+
+### Core concepts
+- ES6 (ECMAScript 2015) = the biggest update to JavaScript.
+- ES6+ = ES6 + all updates since (ES2016 to today).
+
+### The 6 biggest features
+1. `let` and `const` — block scoping. `const` can't be reassigned.
+2. Arrow functions — `(a, b) => a + b`. Shorter syntax.
+3. Template literals — `` `Hello, ${name}` `` (backticks and `${}`).
+4. Destructuring — `const { name, age } = user;` (extract properties).
+5. Spread operator — `[...arr1, ...arr2]` (unpack arrays/objects).
+6. Modules — `import`/`export` (split code across files).
+
+### Real commands I ran
+- `node es6.js`
+
+### Things I saw
+- `Hello, Felix! You are 25.` (template literal)
+- `Add: 8` (arrow function)
+- `User: felix Role: admin` (destructuring)
+- `Combined: [1, 2, 3, 4, 5]` (spread)
+- `Sum: 15` (rest + reduce)
+
+### My own words (locked in)
+- Template literals use backticks to insert variables directly into strings.
+- Arrow functions are cleaner than `function() {}`.
+- Destructuring pulls values out of objects/arrays into variables.
+- Spread (`...`) unpacks an array or object.
+- Rest (`...` in function arguments) collects arguments into an array.
+- Modules let you `import` and `export` code between files.
+- This is the modern JavaScript that React, Vue, and Node.js use.
+- `var` is legacy. `let` and `const` are the standard.
+
+### Connection to other topics
+- 4.4 (JS Core) — the basics.
+- 4.9 (React) — uses ES6 heavily (components, state, props).
+- 5.4 (Node.js) — uses ES6 modules and arrow functions.
+- pos-lab's frontend uses template literals and arrow functions.
