@@ -1170,3 +1170,70 @@ User → Nginx (port 80) → Backend (port 3001)
 - 8.9 (Rate Limiting) — Nginx can rate limit.
 - 5.1 (Backend) — Nginx sits in front of it.
 - 12.11–12.15 (Attacks) — Nginx stops a lot of them (WAF).
+
+## 7.9 Nginx Practical & Metasploit Intro — DONE ✅
+
+Ran Nginx as a reverse proxy in a GitHub Codespace.
+Installed the real Metasploit Framework in the cloud.
+Understood the difference between my mini-msf and the real tool.
+
+### The Nginx practical (in Codespace)
+- Installed Nginx (`sudo apt install nginx -y`).
+- Wrote a Python backend running on port 3001.
+- Configured Nginx (`/etc/nginx/sites-available/default`) to proxy port 80 to port 3001.
+- Tested with `curl http://127.0.0.1` → returned the backend HTML.
+- Verified with `sudo tail -5 /var/log/nginx/access.log` → saw the request logged by Nginx.
+- Confirmed Nginx hides the backend (the backend is on 3001, the public is on 80).
+
+### The Metasploit practical (in Codespace)
+- Installed Metasploit (`curl ... | bash`).
+- Opened `msfconsole` (the real Metasploit, 2,677 exploits).
+- Used `db_nmap` to scan 127.0.0.1 (ports 80, 443) → found nothing (closed).
+- Used `auxiliary/scanner/ssh/ssh_version` → got "Connection refused" (no SSH on port 22).
+- Lesson: Metasploit can only exploit what is actually open.
+
+### Why we used the Codespace
+- Termux (Android) cannot run Docker or Nginx or Metasploit.
+- The Codespace is a real Linux machine in the cloud.
+- Termux SSH'd into it (`gh codespace ssh`).
+- The cloud did the heavy lifting. Termux was the remote control.
+
+### Real commands I ran
+- `sudo apt install nginx nmap`
+- `sudo nginx -t` (config test)
+- `sudo nginx` (start)
+- `python3 backend.py &`
+- `curl http://127.0.0.1`
+- `msfconsole`
+- `db_nmap -sV -p 80,443 127.0.0.1`
+- `use auxiliary/scanner/ssh/ssh_version`
+- `set RHOSTS 127.0.0.1`
+- `run`
+
+### Things I saw
+- Nginx logged the request (`GET / 200`).
+- The backend was hidden behind Nginx.
+- Metasploit found no open ports (80/443 closed in that moment).
+- Metasploit couldn't scan SSH (ECONNREFUSED).
+- Metasploit has 2,677 exploits (my mini-msf had 1).
+- The core mechanism is the same: scan, select, set, run.
+
+### My own words (locked in)
+- Nginx is the front door. The backend is hidden.
+- The Codespace is a free cloud Linux machine.
+- Termux is the remote control. The cloud does the work.
+- Metasploit is just a huge collection of modules (like my mini-msf).
+- `db_nmap` stores scan results in the Metasploit database.
+- If a port is closed, Metasploit cannot exploit it.
+- My mini-msf has 1 exploit. Metasploit has 2,677.
+- The workflow is identical: use, set, run, sessions.
+- I am not scared of Metasploit anymore.
+
+### Connection to other topics
+- 7.6 (Docker) — ran in the Codespace.
+- 7.9 (Nginx) — the practical.
+- 12.13 (Vuln assessment) — scanning for open ports.
+- 12.14 (Exploitation) — Metasploit vs my mini-msf.
+- 5.1 (Backend) — the Python backend that Nginx proxied.
+- 12.11/12.12 (Recon/Scanning) — nmap.
+- 12.19 (Blue Team) — logs in Nginx.
