@@ -1068,3 +1068,54 @@ Ran a multi-container app with one command.
 - GitHub Codespace is a cloud Linux VM with Docker pre-installed.
 - We SSH'd into it via `gh codespace ssh`.
 - Now we can run real Docker commands from the phone.
+## 7.9 Nginx / Reverse Proxy — Phase B DONE ✅
+
+Understood how Nginx sits between the frontend and the backend.
+Wrote a real nginx.conf file.
+
+### Core concepts
+- Nginx = a high-performance web server and reverse proxy.
+- Reverse Proxy = sits in front of the backend, forwards requests to it.
+- Forward Proxy = sits in front of the client (e.g., VPN).
+- Nginx listens on ports 80 (HTTP) and 443 (HTTPS).
+- The backend listens on a private port (e.g., 3001) and is NOT exposed to the internet.
+- Nginx handles SSL/TLS (the backend doesn't have to).
+
+### The 4 superpowers of Nginx
+1. Reverse Proxy — forwards requests to the backend.
+2. SSL/TLS Termination — decrypts HTTPS, sends HTTP to the backend.
+3. Load Balancing — distributes traffic across multiple backends.
+4. Static File Serving — serves images, CSS, HTML directly (fast).
+
+### The architecture
+User → Nginx (80/443) → Backend (3001) → Database
+- The user never touches the backend directly.
+- Nginx is the front door.
+
+### Real commands I ran
+- (Conceptual) Created `nginx.conf` with upstream and proxy_pass.
+- Understood that Nginx doesn't run natively on Termux.
+
+### Things I saw
+- `upstream pos_backend { server 127.0.0.1:3001; ... }` defines the backend group.
+- `proxy_pass http://pos_backend` sends traffic to the group.
+- `location /static/` serves static files directly.
+
+### My own words (locked in)
+- Nginx is not the backend. It's the traffic cop in front of it.
+- The backend is hidden behind Nginx.
+- Nginx handles SSL, load balancing, and static files.
+- Mobile apps also use reverse proxies (API Gateways).
+- API Gateways add rate limiting, API keys, and versioning.
+- The user only sees the domain. They never see the port or the backend IP.
+- Nginx is used by Netflix, Cloudflare, and 30% of the web.
+
+### Connection to other topics
+- 7.5 (Domain/DNS/HTTPS) — Nginx holds the SSL cert.
+- 7.5.7 (System Design) — Nginx is the load balancer.
+- 7.7 (Docker) — Nginx can run in a container.
+- 7.10 (Cloud) — Nginx runs on EC2/VPS.
+- 8.5 (Network Security) — Nginx is the perimeter.
+- 8.9 (Rate Limiting) — API Gateways do this.
+- 8.10 (Secure API) — API Gateways enforce auth.
+- 4.4/4.6 (Frontend) — Nginx serves the frontend files.
