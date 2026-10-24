@@ -1237,3 +1237,27 @@ Understood the difference between my mini-msf and the real tool.
 - 5.1 (Backend) — the Python backend that Nginx proxied.
 - 12.11/12.12 (Recon/Scanning) — nmap.
 - 12.19 (Blue Team) — logs in Nginx.
+## 7.8 CI/CD Pipelines — Phase B DONE ✅
+
+Understood CI/CD and how it connects to Docker.
+Learned YAML syntax (it's just JSON without brackets).
+
+### Core concepts
+- **CI (Continuous Integration):** Automatically run tests, lint, and build on every push.
+- **CD (Continuous Deployment):** Automatically deploy the built artifact to the server.
+- **Pipeline:** The sequence of steps (checkout → test → build → push → deploy).
+- **GitHub Actions:** The CI/CD tool built into GitHub (uses `.github/workflows/*.yml`).
+
+### The connection to Docker
+- Docker builds the container.
+- CI/CD builds the container automatically on push.
+- CI/CD pushes the container to a registry (Docker Hub).
+- CI/CD tells the server to pull and run the new container.
+
+### YAML syntax rules
+1. **Indentation = structure.** Use spaces, NEVER tabs. (2 spaces is standard).
+2. **Colon + space** for key-value: `name: Felix` (NOT `name:Felix`).
+3. **Dash + space** for lists:
+   ```yaml
+   - item1
+   - item2

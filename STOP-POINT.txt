@@ -1,0 +1,1 @@
+STOPPED: 7.8 CI/CD done. 53% complete (97/182). Next: 4.7 Fetch API. Resting.
