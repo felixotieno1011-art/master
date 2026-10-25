@@ -1438,3 +1438,59 @@ Checked pos-lab's `.gitignore` and created a `.env.example`.
 - 8.4 (Secure Coding) — never hardcode secrets.
 - 8.10 (Secure API) — the JWT secret in `.env`.
 - 12.17 (Password Attacks) — why secrets matter.
+
+## 7.14 Infrastructure as Code (IaC) — Phase B DONE ✅
+
+Installed Terraform. Wrote a `.tf` file to create a Docker container.
+Ran the full lifecycle: init, plan, apply, destroy.
+
+### Core concepts
+- **IaC** = managing infrastructure with code, not manual clicks.
+- **Declarative:** You say *what* you want, not *how* to do it.
+- **Terraform** = the industry standard tool (by HashiCorp).
+- **State file** (`terraform.tfstate`) = records what Terraform has created.
+- **Providers** = plugins that let Terraform talk to AWS, Docker, Azure, etc.
+
+### The lifecycle
+1. `terraform init` — download providers.
+2. `terraform plan` — preview changes (dry run).
+3. `terraform apply` — create/update infrastructure.
+4. `terraform destroy` — tear it all down.
+
+### Real commands I ran
+- `terraform init`
+- `terraform plan`
+- `terraform apply`
+- `curl http://127.0.0.1:8081` (verified Nginx)
+- `terraform destroy`
+- `docker ps -a | grep ...` (found leftover containers)
+- `docker rm -f ...` (removed leftovers)
+
+### Things I saw
+- `terraform plan` showed `Plan: 2 to add, 0 to change, 0 to destroy.`
+- `terraform apply` created the image and the container.
+- `curl` returned the Nginx welcome page.
+- `terraform destroy` failed because a leftover `codespace-app-1` container was using the image.
+- Removed the leftover containers.
+- `terraform destroy` then succeeded.
+
+### My own words (locked in)
+- IaC = write code, not clicks.
+- Declarative = you describe the end state. Terraform figures out how to get there.
+- The state file is the source of truth. Terraform knows what it created.
+- Terraform can't clean up containers it didn't create. Leftovers block cleanup.
+- `terraform destroy` is the reverse of `apply`.
+- `terraform plan` is the dry run. Always plan before apply.
+- This is how companies build 100 servers in 3 minutes.
+- If you click, you will make mistakes. If you code, the machine does it perfectly.
+- Terraform works with AWS, Azure, GCP, Docker, Kubernetes, and more.
+- The state file should be committed to Git (but not always, depending on the team's workflow).
+
+### Connection to other topics
+- 7.4 (Hosting) — Terraform creates the servers.
+- 7.6 (Docker) — Terraform created a Docker container.
+- 7.10 (Cloud) — Terraform is used to provision AWS/Azure/GCP.
+- 7.11 (Kubernetes) — Terraform can create Kubernetes clusters.
+- 7.8 (CI/CD) — Terraform runs in the CI/CD pipeline.
+- 7.13 (Env Management) — Terraform uses variables for secrets.
+- 12.19 (Blue Team) — IaC makes infrastructure reproducible and auditable.

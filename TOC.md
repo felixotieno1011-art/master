@@ -109,7 +109,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 7.11 Kubernetes Basics 💻
 - [x] 7.12 Monitoring & Logging 📱
 - [x] 7.13 Environment Management 📱
-- [ ] 7.14 Infrastructure as Code 💻
+- [x] 7.14 Infrastructure as Code 💻
 - [ ] 7.15 Ansible Deep Dive 📱🔁
 - [ ] 7.16 Multi-Cloud Networking 📱💻
 
