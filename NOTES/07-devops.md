@@ -1326,3 +1326,60 @@ Saw Pods, Deployments, and self-healing in action.
 - 7.5.7 (System Design) — horizontal scaling in action.
 - 7.5.2 (Threads) — Pods run on nodes (processes).
 
+## 7.12 Monitoring & Logging — Phase B DONE ✅
+
+Learned the difference between metrics and logs.
+Collected real system metrics manually on Android.
+
+### Core concepts
+- **Metrics** = numbers that track system health over time.
+  - CPU, memory, disk, requests/sec, response time, error rate.
+  - Collected by **Prometheus**. Visualized by **Grafana**.
+  - Agent on each server: **Node Exporter**.
+- **Logs** = text records of what happened.
+  - Errors, logins, warnings, requests.
+  - Collected by **ELK** (Elasticsearch, Logstash, Kibana) or **Loki**.
+- **Alerting** = notify when a metric crosses a threshold.
+  - Alertmanager, PagerDuty, Slack.
+
+### The architecture
+Server 1 ─┐
+Server 2 ─┼─> Prometheus (pull metrics) ─> Grafana (dashboard)
+Server 3 ─┘
+
+Server 1 ─┐
+Server 2 ─┼─> Logstash (ship logs) ─> Elasticsearch (store) ─> Kibana (view)
+Server 3 ─┘
+
+### Real commands I ran
+- `vmstat 1 5` (failed: Android sandbox)
+- `cat /proc/loadavg` (failed: Permission denied)
+- `free -m` (worked)
+- `df -h ~` (worked)
+
+### Things I saw
+- RAM: 3777 MB total, 2788 used, 988 available.
+- Swap: 4095 MB total, 1279 used.
+- Disk: 51G total, 43G used, 85% full.
+- Android blocks `/proc/loadavg` and `vmstat`.
+- But `free` and `df` work.
+
+### My own words (locked in)
+- Metrics = numbers. Logs = text.
+- Prometheus collects metrics. Grafana visualizes them.
+- ELK collects and visualizes logs.
+- Monitoring without alerting is useless (nobody sees it).
+- Android blocks some `/proc` files. That's why we need Linux servers or Codespaces for full monitoring.
+- Metrics tell you "what." Logs tell you "why."
+- You need both.
+- A sysadmin's job is 50% monitoring, 50% logs.
+- In Kubernetes, Prometheus is the standard for metrics.
+- In production, Grafana dashboards show CPU, memory, disk, network, and app metrics all in one place.
+
+### Connection to other topics
+- 7.5.6 (System Monitoring) — the basics (`top`, `free`, `df`).
+- 7.11 (Kubernetes) — Prometheus runs as a Pod.
+- 7.10 (Cloud) — CloudWatch is AWS's monitoring tool.
+- 8.9 (Rate Limiting) — alerts on too many failed logins.
+- 12.19 (Blue Team) — SIEM uses logs for security.
+- 12.26 (Forensics) — logs are evidence.
