@@ -211,7 +211,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 
 ### Module 5 — Digital Forensics
 - [x] 12.26 Forensics Fundamentals 📱
-- [ ] 12.27 Disk & File System Forensics 📱
+- [x] 12.27 Disk & File System Forensics 📱
 - [ ] 12.28 Memory Forensics 📱
 - [ ] 12.29 Network Forensics 📱
 - [ ] 12.30 Mobile Forensics 📱

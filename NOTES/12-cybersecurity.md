@@ -1511,3 +1511,56 @@ Captured volatile and persistent data on my phone.
 - 7.5.4 (File Systems) — disk is persistent evidence.
 - 12.14 (Exploitation) — the attacker's process is in the RAM.
 - 12.11 (Recon) — the attacker's footprint on disk.
+## 12.27 Disk & File System Forensics — Phase B DONE ✅
+
+Created a virtual disk, hid a file, deleted it, and recovered it using debugfs.
+
+### Core concepts
+- **Inode:** Stores file metadata (owner, permissions, size, timestamps, block locations).
+- **Data blocks:** Store the actual content.
+- **Directory entry:** Maps the filename to the inode.
+- **Deletion:** The OS marks the inode as free and removes the directory entry.
+  - The data blocks are NOT wiped.
+  - The data remains until overwritten.
+- **File carving:** Recovering files without the file system metadata (using file signatures).
+- **Slack space:** Leftover space between the end of a file and the end of its block.
+
+### The forensic process
+1. Image the disk (bit-for-bit copy).
+2. Hash the image (prove integrity).
+3. Analyze the image (not the original).
+4. Extract artifacts (deleted files, slack space, metadata).
+5. Document (chain of custody).
+
+### Real commands I ran
+- `dd if=/dev/zero of=disk.img bs=1M count=10` (create blank disk)
+- `mkfs.ext4 disk.img` (format as ext4)
+- `echo "SECRET: ..." > secret.txt` (create secret)
+- `debugfs -w -R "write secret.txt /secret.txt" disk.img` (put file inside)
+- `debugfs -R "ls -l /" disk.img` (see it)
+- `debugfs -w -R "rm /secret.txt" disk.img` (delete it)
+- `debugfs -R "lsdel" disk.img` (find deleted inodes)
+- `debugfs -R "cat <13>" disk.img` (recover the content)
+
+### Things I saw
+- `secret.txt` was inode 13.
+- After deletion, it was gone from `ls -l`.
+- `lsdel` showed inode 13 as deleted.
+- `cat <13>` recovered the content: "SECRET: The password is felix123".
+
+### My own words (locked in)
+- Deleting a file does not delete the data.
+- It removes the directory entry and marks the inode as free.
+- The data survives until overwritten.
+- `debugfs` can recover deleted files.
+- In real forensics, investigators use `photorec`, `sleuthkit`, `autopsy`.
+- Disk images are taken with `dd` or `dcfldd`.
+- Hashes prove the image wasn't tampered with.
+- This is how criminals get caught: the evidence was still there.
+
+### Connection to other topics
+- 12.26 (Forensics Fundamentals) — chain of custody, order of volatility.
+- 7.5.4 (File Systems) — inodes, permissions, disk layout.
+- 12.15 (Web Hacking) — attackers try to delete logs (data remains).
+- 12.19 (Blue Team) — detection leads to forensic analysis.
+- 8.5 (Network Security) — logs are persistent evidence.
