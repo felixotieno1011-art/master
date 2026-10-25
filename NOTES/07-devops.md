@@ -1611,3 +1611,53 @@ Understood VPC peering, VPN, and Direct Connect.
 - 12.16 (Network Attacks) — why VPNs are needed (to avoid MITM).
 - 7.11 (Kubernetes) — multi-cluster networking.
 - 7.14/7.15 (Terraform/Ansible) — automating multi-cloud.
+
+## 7.0 Final Pipeline Project — COMPLETE ✅
+
+Built and deployed a full-stack production pipeline.
+Node.js app + Docker + Nginx reverse proxy + health check.
+
+### What I built
+- **Node.js app** (`server.js`): JSON response on `/`, health check on `/health`.
+- **Dockerfile**: `node:20-alpine`, copies files, installs deps, exposes 3000.
+- **Docker Compose**: app + nginx, using `network_mode: host`.
+- **Nginx config**: reverse proxy from port 80 to 127.0.0.1:3000.
+
+### The bug I fixed
+- Docker bridge network in Codespaces was dropping packets between containers.
+- `wget http://app:3000` from Nginx hung forever.
+- Fix: `network_mode: host` on both services + `proxy_pass http://127.0.0.1:3000`.
+
+### Real commands I ran
+- `docker compose up -d --build`
+- `docker compose logs app`
+- `docker compose exec -T nginx cat /etc/nginx/conf.d/default.conf`
+- `docker compose exec -T nginx wget -qO- http://app:3000` (hung)
+- `docker compose down` / `docker compose up -d --build` (after fix)
+- `curl -s http://127.0.0.1` → JSON message
+- `curl -s http://127.0.0.1/health` → `{"status":"ok","uptime":...}`
+
+### Things I saw
+- App logs: `Server running on port 3000`.
+- Nginx logs: `499 Client Closed Request` (the hang).
+- App IP: `172.21.0.2`. Nginx IP: `172.21.0.3`.
+- `nc` could open the TCP connection, but HTTP data didn't flow.
+- The fix was `network_mode: host`.
+
+### My own words (locked in)
+- Docker bridge networks can be broken in Docker-in-Docker environments.
+- `network_mode: host` bypasses the bridge.
+- Nginx proxies to `127.0.0.1:3000` when on host network.
+- Health checks are critical in production.
+- Debugging: check logs, check IPs, test connectivity with `nc`/`wget`.
+- `docker compose down && up` rebuilds cleanly.
+- This is a real DevOps pipeline.
+
+### Connection to other topics
+- 7.6 (Docker) — the image.
+- 7.7 (Docker Compose) — the orchestration.
+- 7.9 (Nginx) — the reverse proxy.
+- 7.15 (Ansible) — could automate this deployment.
+- 7.14 (Terraform) — could provision the server.
+- 7.8 (CI/CD) — could deploy this on every push.
+- 7.12 (Monitoring) — `/health` is the monitoring endpoint.
