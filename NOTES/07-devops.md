@@ -1494,3 +1494,63 @@ Ran the full lifecycle: init, plan, apply, destroy.
 - 7.8 (CI/CD) — Terraform runs in the CI/CD pipeline.
 - 7.13 (Env Management) — Terraform uses variables for secrets.
 - 12.19 (Blue Team) — IaC makes infrastructure reproducible and auditable.
+
+## 7.15 Ansible Deep Dive — Phase B DONE ✅
+
+Installed Ansible. Wrote a playbook to configure Nginx on localhost.
+Proved idempotency (second run changed nothing).
+
+### Core concepts
+- **Ansible** = configuration management tool.
+- **Agentless** = uses SSH (no agent on remote servers).
+- **YAML** = the playbook format (we know this).
+- **Idempotent** = safe to run many times. Checks state before changing.
+- **Inventory** = list of servers (IPs or hostnames).
+- **Playbook** = YAML file with tasks.
+- **Task** = one action (install, start, copy).
+- **Module** = the tool Ansible uses (apt, service, copy).
+- **Role** = a reusable bundle of tasks (for complex setups).
+- **Handler** = a task that runs only when notified (e.g., restart Nginx after config change).
+
+### The difference: Terraform vs Ansible
+- **Terraform** = provisions infrastructure (creates the server).
+- **Ansible** = configures infrastructure (installs software on the server).
+- Terraform = the architect. Ansible = the foreman.
+
+### Real commands I ran
+- `sudo apt install ansible -y`
+- `ansible --version`
+- `nano inventory.ini`
+- `nano playbook.yml`
+- `ansible-playbook -i inventory.ini playbook.yml` (first run: changed=2)
+- `curl -s http://127.0.0.1` (saw the HTML)
+- `ansible-playbook -i inventory.ini playbook.yml` (second run: changed=0)
+
+### Things I saw
+- First run: `ok=5, changed=2, failed=0`.
+- Second run: `ok=5, changed=0, failed=0`.
+- `curl` returned `<h1>Deployed by Ansible!</h1>`.
+- The playbook installed Nginx, started it, and replaced the HTML page.
+
+### My own words (locked in)
+- Ansible configures servers. Terraform provisions them.
+- Idempotent = safe to run many times.
+- Inventory = the list of servers.
+- Playbook = the YAML file.
+- Task = one action.
+- Module = the tool (apt, service, copy).
+- Ansible uses SSH, so no agent needed on remote servers.
+- Handlers only run when notified.
+- `changed=0` means "nothing needed to change."
+- This is how companies configure 1,000 servers at once.
+- Real-world: Red Hat bought Ansible for $150M.
+
+### Connection to other topics
+- 7.6 (Docker) — Ansible can install Docker.
+- 7.8 (CI/CD) — Ansible runs in pipelines.
+- 7.9 (Nginx) — Ansible configures Nginx.
+- 7.14 (Terraform) — Terraform creates, Ansible configures.
+- 7.11 (Kubernetes) — Ansible can deploy to K8s.
+- 7.13 (Env Management) — Ansible uses variables.
+- 12.19 (Blue Team) — Ansible ensures consistent configurations.
+
