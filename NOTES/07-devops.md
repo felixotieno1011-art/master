@@ -1383,3 +1383,58 @@ Server 3 ─┘
 - 8.9 (Rate Limiting) — alerts on too many failed logins.
 - 12.19 (Blue Team) — SIEM uses logs for security.
 - 12.26 (Forensics) — logs are evidence.
+
+## 7.13 Environment Management — Phase B DONE ✅
+
+Learned how to manage configuration and secrets across environments.
+Checked pos-lab's `.gitignore` and created a `.env.example`.
+
+### Core concepts
+- **Environment** = the context where the code runs (dev, staging, prod).
+- **Same code, different config.**
+- **12-Factor App** = a methodology. Factor #3: "Store config in the environment."
+- **Never hardcode secrets** in the code.
+- **Never commit `.env`** to Git.
+
+### The .env workflow
+1. Create `.env` (with real secrets).
+2. Add `.env` to `.gitignore`.
+3. Create `.env.example` (with placeholders).
+4. Commit `.env.example` (safe, no secrets).
+5. In production, use a **secrets manager** (AWS Secrets Manager, Vault).
+
+### The 3 environments
+- **Dev:** Your machine. Fake data. Debug on.
+- **Staging:** A copy of prod. Test before prod.
+- **Prod:** Real users. Real data. Debug off. Monitoring on.
+
+### Real commands I ran
+- `cat ~/pos-lab/.gitignore` (saw `.env`, `*.db`, `*.log` are ignored)
+- `nano ~/pos-lab/.env.example` (created the example file)
+- `git status -s` (failed: pos-lab is not a Git repo)
+
+### Things I saw
+- pos-lab's `.gitignore` already ignores `.env`, `*.db`, `*.log`.
+- Created `.env.example` with placeholders.
+- `git status` failed because pos-lab isn't a Git repo.
+
+### My own words (locked in)
+- Secrets go in `.env`. Never in code.
+- `.env` goes in `.gitignore`. Never in Git.
+- `.env.example` shows what variables are needed (no secrets).
+- Same code, different config (dev/staging/prod).
+- If a secret is in Git, it's leaked forever (even if you delete it).
+- Rotate any secret that was ever committed.
+- Production uses secrets managers, not `.env`.
+- pos-lab is not a Git repo. That's fine (it's a local lab).
+- The 12-Factor App is the industry standard.
+
+### Connection to other topics
+- 5.8 (Env Vars & Config) — the backend uses `.env`.
+- 7.5.5 (Env Vars & Shells) — how env vars work.
+- 7.8 (CI/CD) — GitHub Actions uses secrets.
+- 7.10 (Cloud) — AWS Secrets Manager.
+- 7.11 (Kubernetes) — Kubernetes Secrets.
+- 8.4 (Secure Coding) — never hardcode secrets.
+- 8.10 (Secure API) — the JWT secret in `.env`.
+- 12.17 (Password Attacks) — why secrets matter.
