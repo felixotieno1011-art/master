@@ -106,7 +106,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 7.8 CI/CD Pipelines 📱💻
 - [x] 7.9 Nginx / Reverse Proxy 💻
 - [x] 7.10 Cloud Platforms 📱💻
-- [ ] 7.11 Kubernetes Basics 💻
+- [x] 7.11 Kubernetes Basics 💻
 - [ ] 7.12 Monitoring & Logging 📱
 - [ ] 7.13 Environment Management 📱
 - [ ] 7.14 Infrastructure as Code 💻

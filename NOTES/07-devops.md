@@ -1261,3 +1261,68 @@ Learned YAML syntax (it's just JSON without brackets).
    ```yaml
    - item1
    - item2
+
+## 7.11 Kubernetes Basics — Phase B DONE ✅
+
+Deployed a real Kubernetes cluster in a Codespace using `kind`.
+Saw Pods, Deployments, and self-healing in action.
+
+### Core concepts
+- **Kubernetes (K8s)** = container orchestration platform.
+- **Node** = a server in the cluster.
+- **Pod** = the smallest unit (wraps one or more containers).
+- **Cluster** = all the nodes + the control plane.
+- **Deployment** = the object that says "I want X replicas of this image."
+- **kubectl** = the CLI tool to talk to the cluster.
+
+### The Desired State (Reconciliation Loop)
+- You say: "I want 5 Pods."
+- Kubernetes checks: "I only see 4."
+- Kubernetes creates 1 new Pod.
+- This happens automatically, forever.
+
+### Real commands I ran
+- `kind create cluster --name pos-cluster`
+- `kubectl get nodes`
+- `kubectl create deployment nginx --image=nginx:alpine`
+- `kubectl get pods`
+- `kubectl describe pod nginx-...`
+- `kubectl scale deployment busybox --replicas=5`
+- `kubectl delete pod busybox-...` (proved self-healing)
+- `kubectl get pods -w`
+- `kind delete cluster --name pos-cluster`
+
+### Things I saw
+- Cluster created in 60 seconds (control plane + node).
+- `kubectl get nodes` showed the node `Ready`.
+- `kubectl create deployment` created a Pod.
+- `kubectl get pods` showed `ContainerCreating`, then `ErrImagePull` (network issue).
+- `kubectl scale` created 5 Pods.
+- Deleting a Pod caused Kubernetes to immediately create a replacement.
+- `kubectl get pods -w` showed the live updates.
+
+### The network limitation
+- The Kubernetes cluster inside the Codespace couldn't reach Docker Hub.
+- `ErrImagePull` / `ImagePullBackOff` showed the image download failed.
+- This is a Codespace networking limitation, not a Kubernetes failure.
+- The orchestration worked perfectly (self-healing, scaling).
+
+### My own words (locked in)
+- Kubernetes is the conductor. Docker containers are the musicians.
+- You don't tell Kubernetes "start this." You tell it "I want this."
+- The Desired State is the magic. It always tries to reach it.
+- Self-healing: delete a Pod, it creates a new one.
+- Scaling: `replicas=5` creates 5 Pods.
+- Pods are ephemeral. They die and are replaced. You don't care about individual Pods, only the desired count.
+- The network issue (ErrImagePull) is a real-world problem. In a real cluster, the network works.
+- `kubectl` is the remote control. `kind` is the local Kubernetes.
+
+### Connection to other topics
+- 7.6 (Docker) — containers.
+- 7.7 (Docker Compose) — multi-container locally.
+- 7.8 (CI/CD) — pipelines deploy to Kubernetes.
+- 7.9 (Nginx) — the Ingress controller is Nginx.
+- 7.10 (Cloud) — EKS (AWS), GKE (Google), AKS (Azure).
+- 7.5.7 (System Design) — horizontal scaling in action.
+- 7.5.2 (Threads) — Pods run on nodes (processes).
+

