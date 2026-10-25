@@ -210,7 +210,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 12.25 Threat Hunting 📱
 
 ### Module 5 — Digital Forensics
-- [ ] 12.26 Forensics Fundamentals 📱
+- [x] 12.26 Forensics Fundamentals 📱
 - [ ] 12.27 Disk & File System Forensics 📱
 - [ ] 12.28 Memory Forensics 📱
 - [ ] 12.29 Network Forensics 📱

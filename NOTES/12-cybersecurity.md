@@ -1460,3 +1460,54 @@ Found a critical vulnerability (default credentials) and fixed it.
 - 8.5 (Network Security) — router as perimeter.
 - 12.19 (Blue Team) — I patched the vulnerability.
 - 12.37/12.38 (Legal) — it's my own network, so legal.
+
+## 12.26 Forensics Fundamentals — Phase B DONE ✅
+
+Learned the basics of digital forensics.
+Captured volatile and persistent data on my phone.
+
+### Core concepts
+- Digital Forensics = investigating a cybercrime after it happens.
+- Preserve evidence. Never alter the original.
+- Take a **forensic image** (bit-for-bit copy) of the disk.
+- Analyze the copy, not the original.
+
+### The 3 Golden Rules
+1. **Never alter the original** — image the disk first.
+2. **Order of Volatility** — collect the most volatile data first:
+   - CPU registers → RAM → Network connections → Processes → Disk → Backups → Physical.
+3. **Chain of Custody** — log everyone who touches the evidence (who, when, why).
+
+### The artifacts
+- **RAM:** Running processes, network connections, passwords.
+- **Disk:** Files, deleted files, logs, browser history.
+- **Network:** PCAP files, firewall logs.
+- **Mobile:** SMS, call logs, GPS.
+
+### Real commands I ran
+- `ps aux | head -5` (volatile data)
+- `ls -la ~/` (persistent data)
+
+### Things I saw
+- `bash`, `sshd`, `python -m http.server 8000` running (volatile).
+- Files in `~/` (persistent).
+- `ps aux` shows the live state of the system.
+
+### My own words (locked in)
+- Forensics is investigating a crime scene after the crime.
+- RAM is volatile. Disk is persistent.
+- Collect RAM first.
+- Never alter the original evidence.
+- Take a forensic image (copy).
+- Chain of custody proves the evidence wasn't tampered with.
+- The order of volatility: CPU → RAM → network → processes → disk → backups.
+- In real cases, investigators keep the laptop open (do not reboot) to preserve the RAM.
+- The Silk Road case (2013) is a perfect example: FBI grabbed the laptop and kept it open to preserve the session.
+
+### Connection to other topics
+- 12.19 (Blue Team) — detection leads to forensics.
+- 7.5.2 (Processes) — running processes are evidence.
+- 7.5.3 (Memory) — RAM is volatile evidence.
+- 7.5.4 (File Systems) — disk is persistent evidence.
+- 12.14 (Exploitation) — the attacker's process is in the RAM.
+- 12.11 (Recon) — the attacker's footprint on disk.
