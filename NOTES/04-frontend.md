@@ -319,3 +319,53 @@ Wrote and ran ES6 code side by side with older syntax.
 - 4.9 (React) — uses ES6 heavily (components, state, props).
 - 5.4 (Node.js) — uses ES6 modules and arrow functions.
 - pos-lab's frontend uses template literals and arrow functions.
+## 4.7 Fetch API & JSON — Phase B DONE ✅
+
+Connected the frontend to the backend using `fetch()`.
+Saw the CORS error and fixed it.
+
+### Core concepts
+- `fetch()` = modern way to make HTTP requests in JavaScript.
+- Returns a Promise.
+- Use `await` to wait for the response.
+- `response.json()` parses the JSON body.
+- `response.text()` reads plain text.
+- CORS (Cross-Origin Resource Sharing) = the browser's security policy.
+  - Blocks requests between different ports (8000 → 5000).
+  - Fixed by adding `Access-Control-Allow-Origin` header on the backend.
+
+### The full-stack flow
+1. Browser requests `frontend.html` from port 8000.
+2. Page loads. User clicks button.
+3. `fetch()` sends a GET to port 5000.
+4. Express backend receives request, processes it.
+5. Backend sends back a response.
+6. Browser displays the response.
+
+### Real commands I ran
+- `node server.js` (Express backend)
+- `python -m http.server 8000` (frontend server)
+- Opened `http://127.0.0.1:8000/frontend.html` in browser.
+
+### Things I saw
+- First attempt: `Error: Failed to fetch` (CORS blocked).
+- After adding CORS header: `Backend says: Hello, Felix! You are using Node.js.`
+
+### My own words (locked in)
+- `fetch()` is the bridge between frontend and backend.
+- The browser blocks cross-origin requests for security (CORS).
+- The backend can allow them with `Access-Control-Allow-Origin`.
+- `async/await` makes fetch easier to read.
+- `response.json()` parses the body.
+- This is how every modern web app works.
+- React, Vue, Angular all use `fetch()` under the hood.
+- The Same-Origin Policy is the reason CORS exists.
+
+### Connection to other topics
+- 5.1 (Backend loop) — what receives the request.
+- 5.2/5.4 (Flask/Express) — the server.
+- 4.5 (DOM) — updating the page with the response.
+- 4.6 (ES6+) — async/await, arrow functions.
+- 12.16 (MITM) — why Same-Origin Policy matters.
+- 8.10 (Secure API) — CORS is an API security control.
+- 12.15 (Web Hacking) — why CORS misconfigurations are dangerous (API-04).
