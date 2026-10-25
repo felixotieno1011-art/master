@@ -1554,3 +1554,60 @@ Proved idempotency (second run changed nothing).
 - 7.13 (Env Management) — Ansible uses variables.
 - 12.19 (Blue Team) — Ansible ensures consistent configurations.
 
+
+## 7.16 Multi-Cloud Networking — Phase B DONE ✅
+
+Simulated two isolated clouds (Docker networks) and a gateway.
+Understood VPC peering, VPN, and Direct Connect.
+
+### Core concepts
+- **Multi-cloud** = using two or more cloud providers (AWS + Azure + GCP).
+- **VPC** = Virtual Private Cloud. A private network inside a cloud.
+- **VPC Peering** = direct connection between two VPCs (fast, hard to scale).
+- **VPN** = encrypted tunnel over the public internet (slower, but works anywhere).
+- **Direct Connect / ExpressRoute** = dedicated private fiber (fast, expensive).
+
+### Why multi-cloud?
+- Avoid vendor lock-in.
+- Best-of-breed services (AWS for compute, GCP for ML).
+- Redundancy (if one cloud fails, the other takes over).
+- Regulations (data must stay in specific countries).
+
+### The challenges
+- Latency (crossing clouds is slower).
+- Security (must encrypt everything).
+- Cost (egress fees between clouds are expensive).
+- Complexity (different tools, different IAM).
+
+### Real commands I ran
+- `docker network create cloud-aws`
+- `docker network create cloud-azure`
+- `docker run -d --name aws-server --network cloud-aws nginx:alpine`
+- `docker run -d --name azure-server --network cloud-azure nginx:alpine`
+- `docker exec azure-server ping -c 2 aws-server` (failed: bad address)
+- `docker run -d --name cloud-gateway --network cloud-aws alpine sleep 3600`
+- `docker network connect cloud-azure cloud-gateway`
+- `docker exec cloud-gateway ping -c 1 aws-server` (resolved to 172.21.0.2, but no ping reply)
+
+### Things I saw
+- `azure-server` could not resolve `aws-server` (`bad address`).
+- The gateway was attached to both networks and could resolve `aws-server`.
+- Nginx doesn't reply to ping (ICMP) by default, but the network connection was proven.
+
+### My own words (locked in)
+- Two Docker networks are isolated, like two clouds.
+- A gateway container on both networks is the bridge.
+- In a real multi-cloud setup, you use a VPN or Direct Connect to bridge the clouds.
+- The key challenge is routing (making sure packets know where to go).
+- VPC peering is direct. VPN is encrypted over the internet. Direct Connect is a private line.
+- Multi-cloud is complex but powerful.
+- Egress fees (moving data out of a cloud) are a hidden cost.
+- Security is the #1 concern (encrypt everything).
+
+### Connection to other topics
+- 7.10 (Cloud) — the providers.
+- 7.5 (Domain/DNS) — how DNS resolves names across clouds.
+- 8.5 (Network Security) — segmentation and encryption.
+- 12.16 (Network Attacks) — why VPNs are needed (to avoid MITM).
+- 7.11 (Kubernetes) — multi-cluster networking.
+- 7.14/7.15 (Terraform/Ansible) — automating multi-cloud.
