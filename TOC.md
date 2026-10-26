@@ -203,7 +203,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 ### Module 4 — Defensive Security
 - [x] 12.19 Blue Team Operations 📱
 - [x] 12.20 SIEM & Log Analysis 📱
-- [ ] 12.21 Intrusion Detection & Prevention (deep) 📱
+- [x] 12.21 Intrusion Detection & Prevention (deep) 📱
 - [ ] 12.22 Endpoint Security (EDR, antivirus) 📱
 - [ ] 12.23 Firewall Rules & Network Defense 📱
 - [ ] 12.24 Incident Response 📱
