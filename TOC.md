@@ -86,7 +86,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 ## Part 6 — Databases
 - [x] 6.1 Database Fundamentals 📱
 - [x] 6.2 SQL Basics 📱
-- [ ] 6.3 SQL Joins, Indexes, Transactions 📱
+- [x] 6.3 SQL Joins, Indexes, Transactions 📱
 - [ ] 6.4 NoSQL (MongoDB, Redis) 📱💻
 - [ ] 6.5 ORMs 📱
 - [ ] 6.6 Database Design & Normalization 📱

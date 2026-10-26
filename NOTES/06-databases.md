@@ -175,3 +175,54 @@ SELECT (base_price - cost_price) AS margin
 - Python dict = one item in memory
 - Database = millions of dicts on disk, queryable in ms
 - SQL is how you "ask" the database for a subset
+
+## 6.3 SQL Joins, Indexes, Transactions — Phase B DONE ✅
+
+Wrote real JOINs against pos-lab's database.
+Created an index. Tested a transaction with rollback.
+
+### Core concepts
+- **JOIN** = connecting tables using a shared column (e.g., `users.id = sales.seller_id`).
+- **INNER JOIN** = only rows that match in both tables.
+- **LEFT JOIN** = all rows from the left table, plus matches (or NULL) from the right.
+- **RIGHT JOIN** = opposite of LEFT JOIN.
+- **FULL OUTER JOIN** = all rows from both tables.
+- **Index** = a lookup table that makes queries faster.
+  - Create: `CREATE INDEX idx_name ON table (column);`
+  - Speeds up WHERE, JOIN, ORDER BY.
+  - Slows down INSERT/UPDATE/DELETE.
+- **Transaction** = all or nothing. ACID.
+  - `BEGIN`, `COMMIT`, `ROLLBACK`.
+  - Atomicity, Consistency, Isolation, Durability.
+
+### Real commands I ran
+- `INNER JOIN users ON sales ON users.id = sales.seller_id` → only Sam Seller (5 rows).
+- `LEFT JOIN users ON sales ON users.id = sales.seller_id` → all users (7 rows, Boss/Manager with null).
+- `CREATE INDEX idx_sales_seller_id ON sales(seller_id);`
+- `BEGIN TRANSACTION; UPDATE products SET base_price = 999 WHERE id = 1; ROLLBACK;`
+
+### Things I saw
+- INNER JOIN: 5 rows, all Sam Seller.
+- LEFT JOIN: 7 rows, including The Boss and Mary Manager with `null` total_amount.
+- Index created successfully.
+- Transaction: price changed to 999 inside, then rolled back to 60.
+- The `1.2000000000000002` float bug from SALE-05 is visible in the sales data.
+
+### My own words (locked in)
+- JOIN connects tables by a shared key.
+- INNER JOIN = matches only.
+- LEFT JOIN = everyone from the left, matched or null.
+- Index makes reads faster but writes slower.
+- Transaction = all or nothing (ACID).
+- ROLLBACK undoes uncommitted changes.
+- COMMIT saves changes permanently.
+- Foreign keys are the links between tables.
+- The database is the source of truth. Always use transactions for critical operations (money transfers, stock updates).
+- The float bug in sales data is a real vulnerability (SALE-05).
+
+### Connection to other topics
+- 6.1 (Databases) — tables, keys.
+- 6.2 (SQL Basics) — SELECT, WHERE.
+- 8.10 (Secure API) — the JOIN is how the backend serves related data.
+- 12.15 (Web Hacking) — SQL injection can target JOINs.
+- pos-lab's `users` and `sales` tables are linked by `seller_id`.
