@@ -1934,3 +1934,60 @@ function canSeeUser(viewer, target) {
 2. Boss → allow (sees all).
 3. Manager → allow (same shop only).
 4. Everyone else → deny (403 Forbidden).
+
+## 12.28 Memory Forensics — Phase B DONE ✅
+
+Understood why RAM is critical for forensics.
+Saw the live state that a memory dump would capture.
+
+### Core concepts
+- **Memory forensics** = analyzing RAM of a live or crashed system.
+- **Why RAM matters:**
+  - Running processes (malware is executing).
+  - Network connections (reverse shell).
+  - Passwords/encryption keys.
+  - Fileless malware (never touches disk).
+  - Command history.
+- **Order of volatility:** CPU registers → RAM → Swap → Disk.
+- **Capture RAM first.** If you shut down, it's gone.
+
+### The tools
+- **Windows:** `winpmem`, `DumpIt`.
+- **Linux:** `LiME` (Linux Memory Extractor).
+- **Analysis:** `Volatility` (industry standard), `Rekall`.
+
+### What Volatility can extract
+- `pslist` — running processes.
+- `netscan` — open connections.
+- `cmdline` — command-line arguments.
+- `hashdump` — password hashes.
+- `malfind` — hidden malware processes.
+
+### Real commands I ran
+- `ps aux | head -10` → saw the live processes.
+- `netstat -tuln` (failed: Android sandbox).
+- `cat /proc/net/tcp` (permission denied).
+
+### Things I saw
+- `bash`, `sshd`, `ps`, `head` (normal processes).
+- No malicious processes (because we didn't run one).
+- If a reverse shell were running, it would show as `python3` with a connection to port 4444.
+
+### My own words (locked in)
+- RAM is volatile. Power off = evidence gone.
+- Memory forensics captures the live state (processes, connections, keys).
+- Fileless malware lives only in RAM.
+- Capture RAM first (order of volatility).
+- Volatility is the standard analysis tool.
+- The reverse shell from 12.14 would be visible in RAM.
+- WannaCry was stopped by memory forensics (kill-switch domain).
+- A memory dump is a snapshot of the entire RAM.
+- If you reboot, the malware might not come back (if it was fileless), but the evidence is gone too.
+
+### Connection to other topics
+- 12.26 (Forensics Basics) — order of volatility.
+- 12.27 (Disk Forensics) — disk vs RAM.
+- 12.14 (Exploitation) — the reverse shell lives in RAM.
+- 12.22 (Endpoint Security) — EDR monitors RAM.
+- 12.19 (Blue Team) — incident response captures RAM.
+- 7.5.3 (Memory Management) — how RAM works.
