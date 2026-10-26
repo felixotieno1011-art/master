@@ -1855,3 +1855,63 @@ Wrote a professional cloud security audit framework.
 - 12.31 (OWASP) — A05 (Security Misconfiguration).
 - 12.15 (Web Hacking) — SSRF led to Capital One breach.
 - 7.11 (Kubernetes) — Kubernetes secrets are similar to IAM.
+
+## 12.33 API Security — Phase B DONE ✅
+
+Exploited BOLA (Broken Object Level Authorization) on pos-lab.
+Tested rate limiting in vulnerable and secure mode.
+
+### The OWASP API Top 10 (2023)
+1. **BOLA** (Broken Object Level Authorization) — the #1 API threat. Changing IDs to access other users' data.
+2. **Broken Authentication** — weak secrets, no MFA, no rate limiting.
+3. **Broken Object Property Level Authorization** — mass assignment, excessive data exposure.
+4. **Unrestricted Resource Consumption** — no rate limits, no pagination caps.
+5. **Broken Function Level Authorization** — accessing admin endpoints as a normal user.
+6. **Unrestricted Access to Sensitive Business Flows** — no limits on checkout, password reset.
+7. **SSRF** — the API fetches user-supplied URLs.
+8. **Security Misconfiguration** — missing headers, CORS wildcard, verbose errors.
+9. **Improper Inventory Management** — old API versions still active.
+10. **Unsafe Consumption of APIs** — trusting third-party responses without validation.
+
+### The difference: IDOR, BOLA, Broken Access Control
+- **Broken Access Control** = the OWASP A01 category. The big umbrella.
+- **IDOR** = the web version (changing ID in a URL).
+- **BOLA** = the API version (changing ID in an API endpoint).
+- **They are the same flaw.** Just different contexts.
+
+### Real commands I ran
+- `curl -s -b ~/seller_cookies.txt http://127.0.0.1:3001/api/users/1` → exposed the boss's data (BOLA).
+- `for i in {1..10}; do curl ... /api/auth/login ... done` → 10x 401 (no rate limit).
+- In secure mode:
+  - `/api/v1/users/1` → `403 Forbidden` (BOLA blocked).
+  - `/api/v1/auth/login` → `429` after 5 attempts (rate limit enforced).
+
+### Things I saw
+- Vulnerable mode: seller accessed boss's data (IDOR/BOLA).
+- Vulnerable mode: 10 login attempts, no rate limit.
+- Secure mode: seller got `403 Forbidden` on boss's data.
+- Secure mode: `429 Too Many Requests` after 5 failed logins.
+- Secure mode requires `/api/v1/` (API versioning).
+
+### My own words (locked in)
+- BOLA = the API version of IDOR.
+- Broken Access Control = the category. IDOR and BOLA are two forms of it.
+- The fix for BOLA: check ownership on the server.
+- The fix for rate limiting: `429` after N attempts.
+- API versioning (`/api/v1/`) makes the fix clean.
+- The UI is not the API. Anyone can call the API with `curl`.
+- The #1 API threat is BOLA (changing IDs).
+- The #2 threat is broken authentication.
+- Rate limiting stops brute force.
+- Parler 2021: 70TB leaked via BOLA.
+- Capital One 2019: SSRF + IAM + S3.
+
+### Connection to other topics
+- 8.10 (Secure API Design) — the theory.
+- 12.15 (Web Hacking) — SQLi, XSS (the attack surface).
+- 12.34 (Cloud Security) — the cloud where the API runs.
+- 8.9 (Rate Limiting) — the defense.
+- 8.8 (Auth Attacks) — the brute force.
+- 5.1 (Backend) — the API backend.
+- 12.15 (Web Hacking) — the attacker's perspective.
+- 12.31 (OWASP) — A01 Broken Access Control.

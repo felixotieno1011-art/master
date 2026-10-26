@@ -219,7 +219,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 ### Module 6 — Web & Cloud Security
 - [x] 12.31 OWASP Top 10 (deep) 📱
 - [ ] 12.32 Web Application Firewall (WAF) 📱
-- [ ] 12.33 API Security 📱
+- [x] 12.33 API Security 📱
 - [x] 12.34 Cloud Security 📱💻
 - [ ] 12.35 Container & Kubernetes Security 📱💻
 - [ ] 12.36 Secure Architecture 📱
