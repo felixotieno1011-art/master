@@ -369,3 +369,55 @@ Saw the CORS error and fixed it.
 - 12.16 (MITM) — why Same-Origin Policy matters.
 - 8.10 (Secure API) — CORS is an API security control.
 - 12.15 (Web Hacking) — why CORS misconfigurations are dangerous (API-04).
+
+## 4.12 UI Libraries — Phase B DONE ✅
+
+Added Tailwind CSS to an HTML page via CDN.
+Built a styled card and button without writing custom CSS.
+
+### Core concepts
+- **UI Library** = pre-built CSS/JS components to speed up development.
+- **Tailwind CSS** = utility-first. Classes in HTML. No custom CSS.
+- **Bootstrap** = component-based. Pre-built buttons, cards, navbars.
+- **Material UI (MUI)** = React-based. Google's Material Design.
+
+### Tailwind (the one I used)
+- Load via CDN: `<script src="https://cdn.tailwindcss.com"></script>`
+- Classes: `bg-gray-100`, `text-3xl`, `font-bold`, `p-8`, `rounded-lg`, `shadow-md`.
+- `hover:bg-blue-600` = changes color on hover.
+- No `<style>` tag. No separate `.css` file.
+
+### When to use which
+| Library | Best for | Pros | Cons |
+|---------|----------|------|------|
+| Tailwind | Custom designs | Fast, flexible | HTML gets long |
+| Bootstrap | Quick prototypes | Easy, looks OK | Everyone looks the same |
+| Material UI | React apps | Professional | Heavy, requires React |
+
+### Real commands I ran
+- `nano index.html` (added Tailwind CDN and styled classes)
+- `termux-open index.html`
+
+### Things I saw
+- A gray background.
+- A white card with rounded corners and a shadow.
+- A blue button that darkens on hover.
+- No CSS file. Just HTML classes.
+
+### My own words (locked in)
+- UI libraries save time. You don't write CSS for every button.
+- Tailwind = utility classes (e.g., `p-4`, `bg-blue-500`).
+- Bootstrap = components (e.g., `btn btn-primary`).
+- Material UI = React components (e.g., `<Button>`).
+- Tailwind is the most popular for new projects.
+- pos-lab uses Tailwind.
+- No custom CSS needed for a professional look.
+- The classes are intuitive: `bg` = background, `text` = text, `p` = padding, `m` = margin.
+
+### Connection to other topics
+- 4.1 (HTML) — the structure.
+- 4.2 (CSS) — the styling (Tailwind replaces custom CSS).
+- 4.3 (Responsive) — Tailwind has responsive classes (`md:p-8`).
+- 4.9 (React) — Material UI works with React.
+- 4.6 (ES6+) — used in React components.
+- pos-lab's frontend uses Tailwind.

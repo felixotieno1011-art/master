@@ -61,7 +61,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 4.9 React — Components 📱💻
 - [ ] 4.10 React — Hooks & State 📱💻
 - [ ] 4.11 State Management 📱💻
-- [ ] 4.12 UI Libraries 📱
+- [x] 4.12 UI Libraries 📱
 - [ ] 4.13 Frontend Testing 📱
 - [ ] 4.14 Build Tools 💻
 
