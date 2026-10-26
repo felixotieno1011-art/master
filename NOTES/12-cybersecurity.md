@@ -1667,3 +1667,65 @@ Found brute force patterns using grep and sort.
 - 8.9 (Rate Limiting) — the defense against brute force.
 - 12.15 (Web Hacking) — the attacks leave logs.
 - pos-lab's `logs/audit.log` is the raw data.
+## 12.21 Intrusion Detection & Prevention (Deep) — Phase B DONE ✅
+
+Understood IDS vs IPS, signature vs anomaly.
+Analyzed real logs to see what an IPS would block.
+
+### Core concepts
+- **IDS** = Intrusion Detection System. Watches, alerts, does NOT block.
+- **IPS** = Intrusion Prevention System. Watches, alerts, BLOCKS.
+- **NIDS/NIPS** = Network-level (whole network).
+- **HIDS/HIPS** = Host-level (one server).
+
+### The 2 detection types
+1. **Signature-based** (blacklist):
+   - Matches known patterns (e.g., `' OR 1=1`).
+   - Accurate, low false positives.
+   - Misses zero-days.
+2. **Anomaly-based** (whitelist):
+   - Learns normal traffic, alerts on deviations.
+   - Catches new attacks.
+   - High false positives.
+
+### Inline vs Promiscuous
+- **IDS (promiscuous):** Copies traffic, cannot block.
+- **IPS (inline):** Traffic flows through it, can drop packets.
+
+### The tools
+- **Suricata** (industry standard, fast).
+- **Snort** (classic).
+- **Zeek** (deep analysis).
+- **Wazuh / OSSEC** (host-based).
+- **Splunk / Elastic** (SIEM for alerts).
+
+### A real Suricata rule
+*"Alert if any TCP traffic on port 80 contains `' OR 1=1`."*
+
+### Real commands I ran
+- `cat ~/pos-lab/logs/audit.log | grep "login_failed" | tail -5`
+
+### Things I saw
+- Two failed logins for `admin` in **22 milliseconds** (bot behavior).
+- Three scattered failed logins over 2 days (human behavior).
+- An IPS would block the first (signature: too fast).
+- An IPS would allow the second (normal).
+
+### My own words (locked in)
+- IDS = watch and alert. IPS = watch, alert, and block.
+- Signature-based = known attacks. Anomaly-based = new attacks.
+- Firewall blocks ports. IPS blocks payloads.
+- 2 logins in 22ms = bot. An IPS blocks it.
+- 1 login per day = human. An IPS allows it.
+- Alert fatigue is real. IPS reduces it by blocking automatically.
+- Suricata is the industry standard.
+- Inline IPS can drop packets before they reach the server.
+- A firewall is a bouncer. An IPS is a bodyguard who checks your pockets.
+
+### Connection to other topics
+- 12.16 (Network Attacks) — what IPS defends against.
+- 12.20 (SIEM) — the logs the IPS generates.
+- 8.5 (Network Security) — the firewall vs IPS difference.
+- 8.9 (Rate Limiting) — the defense against brute force.
+- 12.15 (Web Hacking) — the payloads the IPS detects.
+- 2.13 (IDS/IPS basics) — the foundation.
