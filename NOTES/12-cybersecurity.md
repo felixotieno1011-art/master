@@ -2047,3 +2047,65 @@ Understood PCAP, Wireshark, and what to look for in network evidence.
 - 12.21 (IDS/IPS) — IDS detects what the PCAP records.
 - 7.5 (Networking) — TCP/IP, ports, protocols.
 - 12.15 (Web Hacking) — the payloads in the PCAP.
+
+## 12.30 Mobile Forensics — Phase B DONE ✅
+
+Understood mobile forensics. Found the SQLite databases on my own phone.
+Completed Module 5 (Digital Forensics).
+
+### Core concepts
+- **Mobile Forensics** = extracting and analyzing data from a phone.
+- **Why it's hard:** Encryption, lock screen, anti-forensics apps, lockdown.
+- **3 types of extraction:**
+  1. **Logical:** Uses OS backup/ADB (fast, incomplete).
+  2. **File System:** Needs root/jailbreak (more complete).
+  3. **Physical:** Bit-for-bit copy (most complete, needs Cellebrite/Oxygen).
+
+### The tools
+- **Cellebrite UFED** (industry standard, police use).
+- **Oxygen Forensic Detective.**
+- **Magnet AXIOM.**
+- **ADB** (free, needs USB debugging).
+
+### What investigators find
+- **Messages:** WhatsApp, SMS, Telegram, Signal (SQLite `msgstore.db`).
+- **Call logs:** who, when, how long.
+- **Location history:** Google Maps timeline, GPS.
+- **Photos:** EXIF data (GPS, timestamp, device).
+- **Browser history:** search queries, visited sites.
+- **App data:** SQLite databases.
+- **Deleted data:** recoverable from SQLite.
+
+### Real commands I ran
+- `ls -la ~/`
+- `find ~/ -name "*.db" 2>/dev/null`
+
+### Things I saw
+- `pos-lab/data/pos_backup.db`
+- `pos-lab/db/pos.db`
+- `pos-lab/backups/pos-2026-10-11T16-50-17.db`
+- `pos-lab/practice.db`
+- `vulnshop/vulnshop.db`
+- `message.sig`, `message.txt`, `logs/`, `master/`
+- These are the files a forensic investigator would extract.
+
+### My own words (locked in)
+- Mobile forensics = reading the digital diary.
+- Logical extraction = OS backup (limited).
+- Physical extraction = bit-for-bit (complete).
+- SQLite databases are the goldmine (messages, app data).
+- Deleted rows in SQLite are recoverable.
+- Cellebrite is the industry standard.
+- FBI vs Apple 2016: $1M to unlock an iPhone.
+- Chain of custody applies to phones too.
+- The phone must be bagged (Faraday bag) to block network access.
+- Module 5 (Digital Forensics) is complete.
+
+### Connection to other topics
+- 12.26 (Forensics Basics) — order of volatility.
+- 12.27 (Disk Forensics) — deleted files recoverable.
+- 12.28 (Memory Forensics) — RAM evidence.
+- 12.29 (Network Forensics) — PCAP evidence.
+- 6.1 (Databases) — SQLite is the mobile database.
+- 12.40 (Reporting) — documenting the evidence.
+- 12.37 (Cyber Laws) — legal search and seizure.

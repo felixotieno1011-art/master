@@ -214,7 +214,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.27 Disk & File System Forensics 📱
 - [x] 12.28 Memory Forensics 📱
 - [x] 12.29 Network Forensics 📱
-- [ ] 12.30 Mobile Forensics 📱
+- [x] 12.30 Mobile Forensics 📱
 
 ### Module 6 — Web & Cloud Security
 - [x] 12.31 OWASP Top 10 (deep) 📱
