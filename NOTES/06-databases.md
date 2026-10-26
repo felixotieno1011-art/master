@@ -226,3 +226,72 @@ Created an index. Tested a transaction with rollback.
 - 8.10 (Secure API) — the JOIN is how the backend serves related data.
 - 12.15 (Web Hacking) — SQL injection can target JOINs.
 - pos-lab's `users` and `sales` tables are linked by `seller_id`.
+
+## 6.4 NoSQL (MongoDB, Redis) — Phase B DONE ✅
+
+Installed Redis on Termux. Stored and retrieved strings, lists, and hashes.
+Understood the difference between SQL and NoSQL.
+
+### Core concepts
+- **NoSQL** = databases that don't use rigid tables (rows/columns).
+- **4 types:**
+  1. **Document** (MongoDB) — JSON-like documents, flexible schema.
+  2. **Key-Value** (Redis, Memcached) — key → value, in-memory, ultra-fast.
+  3. **Wide-Column** (Cassandra) — dynamic columns, massive scale.
+  4. **Graph** (Neo4j) — nodes and relationships.
+
+### SQL vs NoSQL
+| Feature | SQL (PostgreSQL) | NoSQL (MongoDB/Redis) |
+|---------|------------------|------------------------|
+| Structure | Fixed tables | Flexible documents / key-value |
+| Schema | Strict | Dynamic |
+| Relationships | JOINs | Embedded documents |
+| Scale | Vertical (bigger server) | Horizontal (more servers) |
+| Consistency | Strong (ACID) | Eventual |
+| Use case | Banking, e-commerce | Chat, feeds, caches, IoT |
+
+### Redis (Key-Value)
+- Stores data in **RAM** (fast, but lost on restart unless configured).
+- **Types:**
+  - String: `SET key value`, `GET key`
+  - List: `RPUSH key value`, `LRANGE key start end`
+  - Hash: `HSET key field value`, `HGETALL key`
+  - Set: `SADD key value`, `SMEMBERS key`
+- **Use cases:** Caching, sessions, rate limiting, leaderboards, real-time data.
+
+### Real commands I ran
+- `redis-server &`
+- `redis-cli ping` → `PONG`
+- `redis-cli SET user:1:name "Felix"` → `OK`
+- `redis-cli GET user:1:name` → `"Felix"`
+- `redis-cli RPUSH mylist "first"` → `(integer) 1`
+- `redis-cli LRANGE mylist 0 -1` → `1) "first" 2) "second" 3) "third"`
+- `redis-cli HSET user:1 name "Felix" role "hacker" age 25`
+- `redis-cli HGETALL user:1` → name: Felix, role: hacker, age: 25
+
+### Things I saw
+- Redis 8.10.2 running on port 6379.
+- `PONG` confirmed the server was alive.
+- Strings, lists, and hashes all worked.
+- Redis is **much faster** than SQL (no table creation, no schema).
+
+### My own words (locked in)
+- SQL = tables, rows, columns. Strict. Good for money.
+- NoSQL = flexible. Good for chat, feeds, caches.
+- MongoDB = documents (JSON). Flexible schema.
+- Redis = key-value. In-memory. Ultra-fast.
+- Use SQL for ACID (banking, inventory).
+- Use NoSQL for speed and flexibility (chat, social, caching).
+- Redis has strings, lists, hashes, sets.
+- Redis is used for caching, sessions, rate limiting.
+- Big companies use BOTH. Instagram used PostgreSQL + Cassandra.
+- The `1.2000000000000002` float bug from SQL would not happen in Redis (it uses strings for numbers).
+
+### Connection to other topics
+- 6.1 (Databases) — the SQL foundation.
+- 6.2 (SQL Basics) — SELECT, WHERE.
+- 6.3 (Joins, Indexes, Transactions) — SQL power.
+- 5.13 (Caching with Redis) — the practical use case.
+- 7.6 (Docker) — Redis runs in a container.
+- 8.5 (Network Security) — Redis has no auth by default (we saw the warning!).
+- 12.15 (Web Hacking) — Redis misconfigurations can be exploited.
