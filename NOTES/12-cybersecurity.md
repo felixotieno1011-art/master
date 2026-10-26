@@ -1729,3 +1729,75 @@ Analyzed real logs to see what an IPS would block.
 - 8.9 (Rate Limiting) — the defense against brute force.
 - 12.15 (Web Hacking) — the payloads the IPS detects.
 - 2.13 (IDS/IPS basics) — the foundation.
+## 12.22 Endpoint Security (EDR, Antivirus) — Phase B DONE ✅
+
+Understood endpoint security and the evolution from antivirus to EDR.
+Saw what an EDR looks at (processes, network, behavior).
+
+### Core concepts
+- **Endpoint** = laptop, server, phone, or any device on the network.
+- **Antivirus** = signature-based, looks for known viruses (files).
+- **EDR** = Endpoint Detection & Response. Behavioral, records everything, responds.
+- **XDR** = Extended Detection & Response. EDR + network + cloud + email.
+
+### The evolution
+1. Antivirus (1990s) — signature-based, reactive.
+2. Next-Gen Antivirus (2010s) — AI + behavior.
+3. EDR (2020s) — detects + responds + threat hunting.
+4. XDR (now) — unified defense across all layers.
+
+### EDR vs Antivirus
+| Feature | Antivirus | EDR |
+|---------|-----------|-----|
+| Detection | Signatures | Behavior + AI |
+| Action | Quarantine | Kill process, isolate host |
+| Visibility | Files | Processes, network, memory |
+| Response | Alert | Automated response |
+
+### How EDR works (3 phases)
+1. **Collect:** Every process, file, network connection, login.
+2. **Detect:** Rules + AI to find suspicious behavior (e.g., PowerShell -enc).
+3. **Respond:** Kill, quarantine, isolate, rollback.
+
+### Threats EDR stops
+- Ransomware (mass encryption).
+- Fileless malware (runs in memory, no file).
+- Living-off-the-Land (PowerShell, wmic abused).
+- Privilege escalation.
+- Reverse shells (like the one I built in 12.14).
+
+### The tools
+- **CrowdStrike Falcon** (industry leader).
+- **SentinelOne** (AI-driven).
+- **Microsoft Defender for Endpoint** (built-in).
+- **Carbon Black**.
+- **Wazuh** (open-source HIDS).
+
+### Real commands I ran
+- `ps aux | head -10`
+
+### Things I saw
+- `bash`, `sshd`, `ps`, `head` (all normal).
+- No malicious processes.
+- An EDR would flag a reverse shell, crypto miner, or ransomware behavior.
+
+### My own words (locked in)
+- Endpoint = the device. The final battleground.
+- Antivirus = signatures (known malware).
+- EDR = behavior (new malware) + response.
+- EDR records everything (processes, network, files).
+- EDR kills the process, quarantines the file, isolates the machine.
+- Reverse shells (like my mini-msf) are caught by EDR.
+- Ransomware is caught by EDR (mass file encryption).
+- Fileless malware is caught by EDR (in-memory behavior).
+- Antivirus alone is a 1990s shield. EDR is 2026.
+- Colonial Pipeline 2021 = $4.4M ransom due to missing endpoint protection.
+
+### Connection to other topics
+- 12.19 (Blue Team) — the SOC uses EDR.
+- 12.21 (IDS/IPS) — network detection vs endpoint detection.
+- 8.5 (Network Security) — the perimeter vs the endpoint.
+- 12.14 (Exploitation) — the reverse shell EDR would catch.
+- 12.16 (Network Attacks) — the MITM the endpoint can detect.
+- 12.15 (Web Hacking) — the payload EDR would block.
+- 12.20 (SIEM) — EDR feeds logs to the SIEM.
