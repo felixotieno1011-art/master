@@ -1614,3 +1614,56 @@ Played a red team game. Attacked pos-lab from scratch using CLI.
 - 8.10 (Secure API) — the fix (HttpOnly cookies).
 - 12.14 (Exploitation) — the full attack chain.
 - 12.19 (Blue Team) — how to defend against this.
+
+## 12.20 SIEM & Log Analysis — Phase B DONE ✅
+
+Analyzed pos-lab's real audit log.
+Found brute force patterns using grep and sort.
+
+### Core concepts
+- **SIEM** = Security Information and Event Management.
+- **Collects** logs from servers, firewalls, apps, cloud.
+- **Normalizes** them (one format).
+- **Correlates** them (finds patterns).
+- **Alerts** on suspicious patterns.
+- **Syslog format:** timestamp, hostname, app, message.
+- **Log levels:** DEBUG, INFO, WARNING, ERROR, CRITICAL.
+
+### Correlation (The magic)
+- One log line is not an alert. A pattern is an alert.
+- **Brute force:** >5 failed logins from same IP in 1 minute.
+- **Credential stuffing:** many failed logins from different IPs on same user.
+- **Privilege escalation:** `sudo` after login from new IP.
+- **Data exfiltration:** 1GB outbound traffic at 3 AM.
+- **Port scan:** 1000 connection attempts to different ports.
+
+### Real commands I ran
+- `grep "login_failed" ~/pos-lab/logs/audit.log | wc -l` → 89 failures.
+- `grep "login_failed" ... | grep -oE "ip=[0-9.]+" | sort | uniq -c` → 89 from 127.0.0.1.
+- `grep "login_failed" ... | grep -oE "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}" | sort | uniq -c` → found spikes.
+
+### Things I saw
+- 89 total failed logins.
+- All from 127.0.0.1 (local testing).
+- Spikes: 12 in 2 minutes (Oct 12), 8 in 1 minute (Oct 22), 22 in 3 minutes (Oct 23).
+- These are brute force patterns.
+
+### My own words (locked in)
+- SIEM = collects, correlates, alerts.
+- One log line is noise. A pattern is a signal.
+- 5 failed logins in 1 minute = brute force alert.
+- 1000 connection attempts = port scan alert.
+- Logs are the source of truth for forensics (12.26).
+- Alert fatigue is real (66% of alerts ignored).
+- SIEM tuning is critical (too many false positives = ignored alerts).
+- Real SIEMs: Splunk, Elastic, Sentinel, Wazuh, Graylog.
+- I just did a mini-SIEM with `grep`, `sort`, and `uniq`.
+
+### Connection to other topics
+- 12.19 (Blue Team) — detection is the first step.
+- 7.12 (Monitoring) — metrics vs logs.
+- 12.26 (Forensics) — logs are evidence.
+- 8.8 (Auth Attacks) — brute force is the attack.
+- 8.9 (Rate Limiting) — the defense against brute force.
+- 12.15 (Web Hacking) — the attacks leave logs.
+- pos-lab's `logs/audit.log` is the raw data.
