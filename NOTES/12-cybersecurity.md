@@ -1991,3 +1991,59 @@ Saw the live state that a memory dump would capture.
 - 12.22 (Endpoint Security) — EDR monitors RAM.
 - 12.19 (Blue Team) — incident response captures RAM.
 - 7.5.3 (Memory Management) — how RAM works.
+
+## 12.29 Network Forensics — Phase B DONE ✅
+
+Captured live network traffic with nc.
+Understood PCAP, Wireshark, and what to look for in network evidence.
+
+### Core concepts
+- **Network Forensics** = capturing and analyzing network traffic.
+- **PCAP** = Packet Capture file. Every packet that crossed the network.
+- **Live capture** is critical. The network does not store packets. If you don't capture it live, it's gone.
+- **Encrypted traffic (HTTPS):** You see the connection but not the content.
+- **Tools:** tcpdump, Wireshark, tshark, Zeek, NetworkMiner.
+
+### What a PCAP shows
+- **5-tuple:** Source IP, source port, dest IP, dest port, protocol.
+- **Payload:** HTTP requests (if unencrypted).
+- **Timing:** When packets were sent.
+- **Volume:** How much data was transferred.
+
+### The attack signatures
+- **Port scan:** Many SYN packets to different ports.
+- **Brute force:** Many login attempts.
+- **SQL injection:** `' OR 1=1` in the request body (if HTTP).
+- **Data exfiltration:** Large outbound transfer.
+- **C2 beaconing:** Regular connections to the same suspicious domain.
+- **DNS tunneling:** Large/weird DNS queries.
+
+### Real commands I ran
+- `nc -lvnp 8888`
+- `curl -s http://127.0.0.1:8888/test`
+
+### Things I saw
+- `Ncat: Connection from 127.0.0.1:37846.`
+- `GET /test HTTP/1.1`
+- `Host: 127.0.0.1:8888`
+- `User-Agent: curl/8.22.0`
+
+### My own words (locked in)
+- Network forensics = the traffic camera.
+- PCAP = the recording of every packet.
+- If you don't capture live, it's gone.
+- HTTPS hides the payload but not the connection.
+- Wireshark is the GUI tool. tcpdump is the CLI tool.
+- Attack signatures: port scan, brute force, SQLi, data exfiltration, C2.
+- Sony Pictures 2014 was solved via network forensics.
+- The PCAP is admissible in court (chain of custody, 12.26).
+
+### Connection to other topics
+- 12.16 (Network Attacks) — what the PCAP records.
+- 12.26 (Forensics Basics) — chain of custody.
+- 12.27 (Disk Forensics) — disk vs network evidence.
+- 12.28 (Memory Forensics) — RAM vs network evidence.
+- 12.20 (SIEM) — SIEM uses network logs.
+- 12.21 (IDS/IPS) — IDS detects what the PCAP records.
+- 7.5 (Networking) — TCP/IP, ports, protocols.
+- 12.15 (Web Hacking) — the payloads in the PCAP.

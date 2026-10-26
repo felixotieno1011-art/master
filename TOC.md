@@ -213,7 +213,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.26 Forensics Fundamentals 📱
 - [x] 12.27 Disk & File System Forensics 📱
 - [x] 12.28 Memory Forensics 📱
-- [ ] 12.29 Network Forensics 📱
+- [x] 12.29 Network Forensics 📱
 - [ ] 12.30 Mobile Forensics 📱
 
 ### Module 6 — Web & Cloud Security
