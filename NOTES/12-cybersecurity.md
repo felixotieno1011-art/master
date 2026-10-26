@@ -1801,3 +1801,57 @@ Saw what an EDR looks at (processes, network, behavior).
 - 12.16 (Network Attacks) — the MITM the endpoint can detect.
 - 12.15 (Web Hacking) — the payload EDR would block.
 - 12.20 (SIEM) — EDR feeds logs to the SIEM.
+
+## 12.34 Cloud Security — Phase B DONE ✅
+
+Understood the Shared Responsibility Model.
+Learned IAM Least Privilege and the 3 most common cloud misconfigurations.
+Wrote a professional cloud security audit framework.
+
+### The Shared Responsibility Model
+- **Cloud Provider (AWS/Azure):** Secures the physical building (servers, power, cables).
+- **Customer (You):** Secures what's inside (passwords, code, settings, data).
+- **Rule:** If AWS's data center catches fire = AWS's fault. If a hacker steals data because you used "123456" = your fault.
+
+### IAM (Identity and Access Management)
+- **What it is:** System that decides who can do what in the cloud.
+- **Rule:** Least Privilege. Give the absolute minimum permissions needed.
+- **Components:** Users, Groups, Roles, Policies.
+
+### The 3 most common misconfigurations
+1. **Public Storage Buckets** (S3, Blob): Leaving storage open to the public internet.
+2. **Overly Permissive IAM**: Giving `AdministratorAccess` because it's easier.
+3. **Exposed Cloud Credentials**: Hardcoding keys in public GitHub repos.
+
+### How to fix them
+1. **Storage:** Block all public access by default. Use private networks.
+2. **IAM:** Least Privilege. Roles attached to groups, not individuals. Enable MFA.
+3. **Credentials:** Never hardcode. Use Environment Variables or Secrets Manager. Enable GitHub secret scanning. Rotate keys.
+
+### Real commands I ran
+- (conceptual, no commands)
+
+### Things I saw
+- The IAM policy format (`Effect`, `Action`, `Resource`).
+- An example of least privilege: only `s3:GetObject` on one bucket.
+
+### My own words (locked in)
+- Cloud security is 90% about not leaving the door open.
+- AWS secures the building. You secure the data.
+- IAM = who can do what. Least privilege = only what's needed.
+- Public S3 bucket = the #1 cloud breach cause.
+- Hardcoded keys on GitHub = the #2 cause.
+- Use Secrets Manager, not `.env` in production.
+- Enable MFA on all cloud accounts.
+- CloudTrail logs every API call.
+- Capital One 2019: SSRF + over-permissive IAM + S3 = 106M records leaked.
+- The cloud is not insecure. Misconfigurations are.
+
+### Connection to other topics
+- 7.10 (Cloud Platforms) — the providers.
+- 8.10 (Secure API) — IAM is API security.
+- 7.13 (Environment Management) — secrets, `.env`, `.gitignore`.
+- 12.26 (Forensics) — CloudTrail logs are evidence.
+- 12.31 (OWASP) — A05 (Security Misconfiguration).
+- 12.15 (Web Hacking) — SSRF led to Capital One breach.
+- 7.11 (Kubernetes) — Kubernetes secrets are similar to IAM.

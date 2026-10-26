@@ -220,7 +220,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.31 OWASP Top 10 (deep) 📱
 - [ ] 12.32 Web Application Firewall (WAF) 📱
 - [ ] 12.33 API Security 📱
-- [ ] 12.34 Cloud Security 📱💻
+- [x] 12.34 Cloud Security 📱💻
 - [ ] 12.35 Container & Kubernetes Security 📱💻
 - [ ] 12.36 Secure Architecture 📱
 
