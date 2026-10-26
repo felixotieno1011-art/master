@@ -1915,3 +1915,22 @@ Tested rate limiting in vulnerable and secure mode.
 - 5.1 (Backend) — the API backend.
 - 12.15 (Web Hacking) — the attacker's perspective.
 - 12.31 (OWASP) — A01 Broken Access Control.
+
+### The exact code that controls BOLA (in pos-lab)
+The authorization logic is in `canSeeUser(viewer, target)`:
+
+function canSeeUser(viewer, target) {
+  if (viewer.id === target.id) return true;                 // self
+  if (viewer.role === 'boss') return true;                  // boss sees all
+  if (viewer.role === 'manager' && viewer.shop_id === target.shop_id) return true; // same shop
+  return false;
+}
+
+- If `vuln('PROD-03')` is true (vulnerable mode), this function is never called.
+- If `vuln('PROD-03')` is false (secure mode), the function runs and blocks unauthorized access.
+
+### The 4 lines of the security policy
+1. Self → allow.
+2. Boss → allow (sees all).
+3. Manager → allow (same shop only).
+4. Everyone else → deny (403 Forbidden).
