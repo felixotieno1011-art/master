@@ -489,3 +489,64 @@ Created a reusable component and rendered it with props.
 - 4.7 (Fetch) — React components can fetch data.
 - 4.8 (TypeScript) — React can be written in TypeScript (`.tsx`).
 - 4.12 (UI Libraries) — Tailwind or Material UI can be used with React.
+
+## 4.10 React — Hooks & State — Phase B DONE ✅
+
+Added `useState` to a React component.
+Built two independent counters that update their own state.
+
+### Core concepts
+- **State** = data that can change over time (the component's memory).
+- **`useState`** = the hook to create state.
+- **`useEffect`** = the hook for side effects (fetching data, timers).
+- **Re-render** = React updates the UI when state changes.
+- **Never mutate state directly.** Use the setter function (`setCount`).
+
+### The useState syntax
+```jsx
+const [count, setCount] = useState(0);
+
+## 4.10 React — Hooks & State — Phase B DONE ✅
+
+Built a Counter component with `useState`.
+Built a Products component with `useEffect` and `fetch`.
+Saw the state update in real-time.
+
+### Core concepts
+- **useState** = gives a component memory. `const [count, setCount] = useState(0)`.
+- **useEffect** = runs code after render (fetching data, timers).
+- **Re-render** = when state changes, React updates the UI.
+- **Virtual DOM** = React compares the old and new UI, updates only what changed.
+- **HMR** = Hot Module Replacement (the browser updates on save).
+
+### Real commands I ran
+- `nano src/App.jsx`
+- `npm run dev -- --host 0.0.0.0`
+- `gh codespace ports forward 5173:5173`
+- Refreshed `http://127.0.0.1:5173`.
+
+### Things I saw
+- Two counters, each with independent state.
+- Clicking one did not affect the other.
+- The Products component tried to fetch from pos-lab.
+- The fetch failed because the Codespace cannot reach `127.0.0.1:3001` (different networks).
+- The API works on the phone (`curl` succeeded).
+
+### My own words (locked in)
+- `useState` = the component's memory.
+- `useEffect` = the component's side effects (fetch, timers).
+- Each component has its own state (not shared).
+- React re-renders when state changes.
+- `setCount` tells React to update the UI.
+- Never mutate state directly (`count = 5`). Use `setCount(5)`.
+- `useEffect` with `[]` runs once (on mount).
+- The Codespace cannot reach the phone's `127.0.0.1`. (Different networks).
+- Hooks are the modern way to write React (since 2019).
+- React components are functions that return JSX.
+
+### Connection to other topics
+- 4.5 (DOM) — React manages the DOM for you.
+- 4.7 (Fetch) — `useEffect` uses `fetch`.
+- 4.9 (Components) — components have state.
+- 12.15 (Web Hacking) — React apps can be vulnerable to XSS if `dangerouslySetInnerHTML` is used.
+- 8.4 (Secure Coding) — React auto-escapes text (safe by default).
