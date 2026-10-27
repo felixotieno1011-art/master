@@ -550,3 +550,131 @@ Saw the state update in real-time.
 - 4.9 (Components) — components have state.
 - 12.15 (Web Hacking) — React apps can be vulnerable to XSS if `dangerouslySetInnerHTML` is used.
 - 8.4 (Secure Coding) — React auto-escapes text (safe by default).
+
+## 4.9 React — Components — Phase B DONE ✅
+
+Built my first React app with Vite.
+Created a reusable component and rendered it with props.
+
+### Core concepts
+- React = a JavaScript library for building UIs (components).
+- Component = a reusable function that returns JSX.
+- JSX = JavaScript XML (looks like HTML, compiles to JS).
+- Props = data passed from parent to child.
+- HMR (Hot Module Replacement) = the browser updates when you save a file.
+- Vite = the modern build tool for React (fast).
+
+### Real commands I ran
+- npm create vite@latest react-lab -- --template react
+- npm install
+- npm run dev -- --host 0.0.0.0
+- gh codespace ports forward 5173:5173
+- Edited src/App.jsx (added a Greeting component).
+- Refreshed http://127.0.0.1:5173 in the browser.
+
+### Things I saw
+- The default Vite + React homepage (logo, counter).
+- My custom App component (Hello, Felix!).
+- Three Greeting components with different props (Felix/Boss, Brian/Manager, Amina/Seller).
+- The browser updated instantly on save (HMR).
+
+### My own words (locked in)
+- React is for building UIs with reusable components.
+- A component is a function that returns JSX.
+- Props pass data from parent to child.
+- JSX looks like HTML but is JavaScript.
+- Vite is the build tool. It compiles JSX to JS.
+- HMR = the page updates without a refresh.
+- You write the component once and use it everywhere.
+- React is the most popular frontend library.
+- React is NOT a UI library (like Tailwind). It's the logic layer.
+- React uses a Virtual DOM to update only what changed.
+
+### Connection to other topics
+- 4.1 (HTML) — the structure.
+- 4.2 (CSS) — Tailwind styles the components.
+- 4.4 (JS) — the language.
+- 4.5 (DOM) — React manages the DOM for you.
+- 4.6 (ES6+) — arrow functions, destructuring ({ name, role }).
+- 4.7 (Fetch) — React components can fetch data.
+- 4.8 (TypeScript) — React can be written in TypeScript (.tsx).
+- 4.12 (UI Libraries) — Tailwind or Material UI can be used with React.
+
+---
+
+## 4.10 React — Hooks & State — Phase B DONE ✅
+
+Built a Counter component with useState.
+Built a Products component with useEffect and fetch.
+Saw the state update in real-time.
+
+### Core concepts
+- useState = gives a component memory. const [count, setCount] = useState(0).
+- useEffect = runs code after render (fetching data, timers).
+- Re-render = when state changes, React updates the UI.
+- Virtual DOM = React compares the old and new UI, updates only what changed.
+- HMR = Hot Module Replacement (the browser updates on save).
+
+### Real commands I ran
+- nano src/App.jsx
+- npm run dev -- --host 0.0.0.0
+- gh codespace ports forward 5173:5173
+- Refreshed http://127.0.0.1:5173.
+
+### Things I saw
+- Two counters, each with independent state.
+- Clicking one did not affect the other.
+- The Products component tried to fetch from pos-lab.
+- The fetch failed because the Codespace cannot reach 127.0.0.1:3001 (different networks).
+- The API works on the phone (curl succeeded).
+
+### My own words (locked in)
+- useState = the component's memory.
+- useEffect = the component's side effects (fetch, timers).
+- Each component has its own state (not shared).
+- React re-renders when state changes.
+- setCount tells React to update the UI.
+- Never mutate state directly (count = 5). Use setCount(5).
+- useEffect with [] runs once (on mount).
+- The Codespace cannot reach the phone's 127.0.0.1. (Different networks).
+- Hooks are the modern way to write React (since 2019).
+- React components are functions that return JSX.
+
+### Connection to other topics
+- 4.5 (DOM) — React manages the DOM for you.
+- 4.7 (Fetch) — useEffect uses fetch.
+- 4.9 (Components) — components have state.
+- 12.15 (Web Hacking) — React apps can be vulnerable to XSS if dangerouslySetInnerHTML is used.
+- 8.4 (Secure Coding) — React auto-escapes text (safe by default).
+
+---
+
+## 4.11 State Management — Phase B DONE ✅
+
+Built a shopping cart with shared state.
+Lifted state up to the parent and passed it to two children.
+
+### Core concepts
+- State Management = managing data shared across components.
+- Lifting State Up = moving state to the closest common parent.
+- Props pass data down (parent → child).
+- Prop Drilling = passing props through many levels (ugly, slow).
+- Context API = React's built-in solution (no prop drilling).
+- Redux / Zustand = external libraries for large apps.
+
+### The problem
+- Cart button is in ProductList.
+- Cart count is in Header.
+- They are siblings. They cannot share state directly.
+
+### The solution (Lifting State Up)
+```jsx
+function App() {
+  const [cartCount, setCartCount] = useState(0);
+  return (
+    <div>
+      <Header cartCount={cartCount} />
+      <ProductList onAdd={() => setCartCount(cartCount + 1)} />
+    </div>
+  );
+}
