@@ -440,3 +440,52 @@ let name: string = "Felix";
 let age: number = 25;
 let isActive: boolean = true;
 let hobbies: string[] = ["coding", "hacking"];
+
+## 4.9 React — Components — Phase B DONE ✅
+
+Built my first React app with Vite.
+Created a reusable component and rendered it with props.
+
+### Core concepts
+- **React** = a JavaScript library for building UIs (components).
+- **Component** = a reusable function that returns JSX.
+- **JSX** = JavaScript XML (looks like HTML, compiles to JS).
+- **Props** = data passed from parent to child.
+- **HMR (Hot Module Replacement)** = the browser updates when you save a file.
+- **Vite** = the modern build tool for React (fast).
+
+### Real commands I ran
+- `npm create vite@latest react-lab -- --template react`
+- `npm install`
+- `npm run dev -- --host 0.0.0.0`
+- `gh codespace ports forward 5173:5173`
+- Edited `src/App.jsx` (added a `Greeting` component).
+- Refreshed `http://127.0.0.1:5173` in the browser.
+
+### Things I saw
+- The default Vite + React homepage (logo, counter).
+- My custom `App` component (`Hello, Felix!`).
+- Three `Greeting` components with different props (`Felix/Boss`, `Brian/Manager`, `Amina/Seller`).
+- The browser updated instantly on save (HMR).
+
+### My own words (locked in)
+- React is for building UIs with reusable components.
+- A component is a function that returns JSX.
+- Props pass data from parent to child.
+- JSX looks like HTML but is JavaScript.
+- Vite is the build tool. It compiles JSX to JS.
+- HMR = the page updates without a refresh.
+- You write the component once and use it everywhere.
+- React is the most popular frontend library.
+- React is NOT a UI library (like Tailwind). It's the logic layer.
+- React uses a Virtual DOM to update only what changed.
+
+### Connection to other topics
+- 4.1 (HTML) — the structure.
+- 4.2 (CSS) — Tailwind styles the components.
+- 4.4 (JS) — the language.
+- 4.5 (DOM) — React manages the DOM for you.
+- 4.6 (ES6+) — arrow functions, destructuring (`{ name, role }`).
+- 4.7 (Fetch) — React components can fetch data.
+- 4.8 (TypeScript) — React can be written in TypeScript (`.tsx`).
+- 4.12 (UI Libraries) — Tailwind or Material UI can be used with React.
