@@ -2109,3 +2109,66 @@ Completed Module 5 (Digital Forensics).
 - 6.1 (Databases) — SQLite is the mobile database.
 - 12.40 (Reporting) — documenting the evidence.
 - 12.37 (Cyber Laws) — legal search and seizure.
+
+## 12.32 Web Application Firewall (WAF) — Phase B DONE ✅
+
+Understood WAFs. Tested SQLi in vulnerable vs secure mode.
+
+### Core concepts
+- **WAF** = Web Application Firewall.
+- It inspects **HTTP content** (URL, body, headers), not just ports.
+- **Firewall** = checks the port (80 open = allow).
+- **WAF** = checks the payload (`' OR 1=1` = block).
+- It sits in front of the server (Cloudflare, ModSecurity, AWS WAF).
+
+### What a WAF blocks
+- SQL injection (`' OR 1=1`, `UNION SELECT`, `SLEEP(5)`).
+- XSS (`<script>`, `onerror=`).
+- Command injection (`; rm -rf /`, `| cat`).
+- Path traversal (`../../etc/passwd`).
+- Malicious bots (`sqlmap`, `nmap` User-Agents).
+- DDoS (rate limiting at the edge).
+
+### What a WAF does NOT block
+- Logic bugs (negative quantity, SALE-02).
+- BOLA/IDOR (changing `/users/1` to `/users/2`).
+- Business logic flaws.
+- Authenticated attacks.
+
+### How to bypass a WAF (Conceptual)
+- **Encoding:** `%27%20OR%201%3D1%20--`
+- **Case variation:** `SeLeCt`
+- **Comments:** `SEL/**/ECT`
+- **Alternative syntax:** `OR 'a'='a'`
+- **IP rotation:** proxy/VPN
+
+### Real commands I ran
+- `./mode.sh vuln` → started vulnerable mode.
+- `curl .../api/products?search=%27%20OR%201%3D1%20--` → returned 5 products.
+- `./mode.sh secure` → started secure mode.
+- `curl .../api/products?search=...` → `{"ok":false,"error":"Unversioned API is deprecated."}`
+
+### Things I saw
+- Vulnerable mode: SQLi payload worked (5 products).
+- Secure mode: the request was rejected before the SQLi was processed.
+- The API versioning (`/api/v1/`) acts like a WAF rule (rejects malformed requests).
+
+### My own words (locked in)
+- WAF = reads the HTTP content, not just the port.
+- Firewall = bouncer at the door. WAF = security scanner.
+- WAFs block known patterns (SQLi, XSS, command injection).
+- WAFs do NOT block logic bugs or BOLA.
+- A WAF is a mitigation, not a fix. The real fix is secure code.
+- WAFs must be tuned (false positives vs false negatives).
+- Capital One 2019: WAF was misconfigured (monitor mode, not block mode).
+- API versioning can act like a WAF (rejects unversioned requests).
+- Bypass techniques: encoding, case, comments, alternative syntax.
+
+### Connection to other topics
+- 8.5 (Network Security) — firewall vs WAF.
+- 12.15 (Web Hacking) — the payloads the WAF blocks.
+- 12.21 (IDS/IPS) — network-level vs application-level detection.
+- 12.33 (API Security) — the API versioning that acted as a WAF.
+- 12.34 (Cloud Security) — Cloudflare WAF, AWS WAF.
+- 12.31 (OWASP) — A03 Injection (what WAFs block).
+- 12.30 (Mobile Forensics) — Module 5 complete.
