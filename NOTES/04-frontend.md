@@ -421,3 +421,22 @@ Built a styled card and button without writing custom CSS.
 - 4.9 (React) — Material UI works with React.
 - 4.6 (ES6+) — used in React components.
 - pos-lab's frontend uses Tailwind.
+
+## 4.8 TypeScript Basics — Phase B DONE ✅
+
+Installed TypeScript. Wrote a .ts file, compiled it, and saw it catch a type error.
+
+### Core concepts
+- **TypeScript** = JavaScript + types. A superset of JS.
+- **Compiled:** `tsc` turns `.ts` into `.js` (browsers only run JS).
+- **Static typing:** Catches errors at compile time, before runtime.
+- **Type inference:** TS can guess types (e.g., `let x = 5` is a number).
+- **Interfaces:** Define the shape of an object.
+- **Enums:** Named constants.
+
+### The basic types
+```typescript
+let name: string = "Felix";
+let age: number = 25;
+let isActive: boolean = true;
+let hobbies: string[] = ["coding", "hacking"];

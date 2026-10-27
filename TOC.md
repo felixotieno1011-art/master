@@ -57,7 +57,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 4.5 DOM & Events 📱
 - [x] 4.6 ES6+ Features 📱
 - [x] 4.7 Fetch API & JSON 📱
-- [ ] 4.8 TypeScript Basics 📱
+- [x] 4.8 TypeScript Basics 📱
 - [ ] 4.9 React — Components 📱💻
 - [ ] 4.10 React — Hooks & State 📱💻
 - [ ] 4.11 State Management 📱💻
