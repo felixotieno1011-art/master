@@ -794,3 +794,54 @@ Saw the `dist/` folder with minified, bundled code.
 - 7.9 (Nginx) — serves the `dist/` folder.
 - 7.8 (CI/CD) — runs `npm run build` in the pipeline.
 - 7.6 (Docker) — the `dist/` folder is copied into the container.
+
+## Part 4 Final Project — Personal Portfolio — DONE ✅
+
+Built a full portfolio website with Tailwind CSS.
+Hero, Projects, Contact Form, Dark Mode Toggle.
+
+### What I built
+- **Hero:** Name, title, tagline, buttons.
+- **Projects:** 4 cards (SIEM, POS Pentest, Network Monitor, Repair Shop).
+- **Contact:** Form with fake submit (logs to console).
+- **Dark Mode:** Toggle between light and dark.
+- **Footer:** Copyright.
+
+### Tech used
+- HTML5
+- Tailwind CSS (CDN)
+- Vanilla JavaScript (`app.js`)
+- Python HTTP server (for local testing)
+
+### Real commands I ran
+- `nano index.html`
+- `nano app.js`
+- `python -m http.server 8081`
+- Opened `http://127.0.0.1:8081`.
+
+### Things I saw
+- Hero section with avatar and buttons.
+- 4 project cards with descriptions.
+- Contact form with Name, Email, Message.
+- Dark/Light toggle in the header.
+- "Message sent! (This is a demo)" on form submit.
+
+### My own words (locked in)
+- This is my real portfolio.
+- It uses Tailwind for all styling.
+- The form is fake for now (logs to console).
+- Dark mode works via a CSS class toggle.
+- It's responsive (Tailwind grid).
+- It's ready for GitHub Pages deployment.
+- This is proof of my fullstack skills.
+
+### Connection to other topics
+- 4.1 (HTML) — the structure.
+- 4.2 (CSS) — Tailwind.
+- 4.3 (Responsive) — grid classes.
+- 4.4 (JS) — the toggle and form.
+- 4.5 (DOM) — `classList.toggle`, `addEventListener`.
+- 4.12 (UI Libraries) — Tailwind.
+- 4.14 (Build Tools) — could be built with Vite (but this is static).
+- 10.x (Capstone) — this is a real project.
+- 9.x (Career) — this is the portfolio for job hunting.
