@@ -62,7 +62,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 4.10 React — Hooks & State 📱💻
 - [x] 4.11 State Management 📱💻
 - [x] 4.12 UI Libraries 📱
-- [ ] 4.13 Frontend Testing 📱
+- [x] 4.13 Frontend Testing 📱
 - [ ] 4.14 Build Tools 💻
 
 ## Part 5 — Backend

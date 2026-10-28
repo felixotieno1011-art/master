@@ -678,3 +678,64 @@ function App() {
     </div>
   );
 }
+
+## 4.13 Frontend Testing — Phase B DONE ✅
+
+Wrote and ran my first automated test with Vitest.
+Tested a React component (Counter) by simulating clicks.
+
+### Core concepts
+- **Frontend Testing** = writing code to test your code.
+- **Unit tests** = test one component.
+- **Integration tests** = test components together.
+- **E2E tests** = test the whole app in a browser.
+- **The pyramid:** many unit tests, some integration, few E2E.
+- **Vitest** = the modern test runner (fast).
+- **React Testing Library** = test from the user's perspective (click, type, see).
+- **jsdom** = simulates the browser in Node.js.
+
+### The test syntax (Vitest)
+```javascript
+test('description', () => {
+  render(<Component />);
+  fireEvent.click(screen.getByText('Button'));
+  expect(screen.getByText('Count: 2')).toBeInTheDocument();
+});
+
+Real commands I ran
+
+· npm install -D vitest @testing-library/react @testing-library/jest-dom jsdom
+· npm test
+
+Things I saw
+
+· The test ran in 44ms.
+· 1 test file passed, 1 test passed.
+· The test simulated two clicks and checked Count: 2.
+· The JSON error (missing comma) taught me that package.json is strict JSON.
+
+My own words (locked in)
+
+· Manual testing = clicking yourself.
+· Automated testing = code clicks for you.
+· Unit tests are fast and cheap.
+· E2E tests are slow and realistic.
+· Vitest is the modern tool. Jest is the old standard.
+· React Testing Library tests from the user's perspective.
+· render() renders the component.
+· screen.getByText() finds elements.
+· fireEvent.click() simulates a click.
+· expect().toBeInTheDocument() checks the result.
+· A missing comma in package.json breaks npm.
+· Testing catches bugs before they reach the user.
+· Knight Capital lost $440M in 45 minutes due to missing tests.
+
+Connection to other topics
+
+· 4.9 (Components) — the thing we test.
+· 4.10 (Hooks) — useState is tested by simulating clicks.
+· 4.11 (State) — state changes are verified.
+· 4.7 (Fetch) — API calls can be mocked in tests.
+· 8.4 (Secure Coding) — tests prevent regressions.
+· 7.8 (CI/CD) — tests run automatically in pipelines.
+· 12.40 (Reporting) — test results are documented.

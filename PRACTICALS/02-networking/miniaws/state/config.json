@@ -1,9 +1,17 @@
 {
   "account_id": "740762029392",
   "initialized": "2026-10-10T16:25:33",
-  "region": "af-south-1",
+  "region": "us-west-2",
   "tags": {
     "env": "production",
     "owner": "kelvin"
-  }
+  },
+  "recent_services": [
+    "vpc",
+    "ec2",
+    "s3",
+    "lambda",
+    "iam",
+    "cloudwatch"
+  ]
 }

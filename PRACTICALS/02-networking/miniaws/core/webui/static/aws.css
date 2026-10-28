@@ -1,0 +1,262 @@
+/* AWS Console look — palette from core/webui/aws_ref.py, mirror here. */
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  font-family: "Amazon Ember", "Helvetica Neue", Roboto, Arial, sans-serif;
+  font-size: 14px; color: #16191f; background: #ffffff;
+}
+a { color: #0073bb; text-decoration: none; }
+a:hover { text-decoration: underline; color: #005a94; }
+
+/* ---- Top bar ---- */
+.aws-header {
+  background: #232f3e; color: #ffffff;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 16px; height: 48px; position: sticky; top: 0; z-index: 50;
+}
+.aws-header-left { display: flex; align-items: center; gap: 20px; }
+.aws-logo {
+  color: #ff9900; font-weight: 700; font-size: 18px;
+  text-decoration: none; letter-spacing: 0.5px;
+}
+.aws-logo:hover { color: #ffb84d; text-decoration: none; }
+.aws-topnav { display: flex; gap: 16px; }
+.aws-topnav a {
+  color: #ffffff; text-decoration: none; font-size: 13px; padding: 6px 4px;
+}
+.aws-topnav a:hover { color: #ff9900; }
+.aws-header-right { display: flex; align-items: center; gap: 14px; }
+.aws-region { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.aws-region-prefix { color: #b0bac7; }
+.aws-region select {
+  background: #31465f; color: #ffffff; border: 1px solid #44586e;
+  padding: 4px 6px; border-radius: 3px; font-size: 12px;
+}
+.aws-header-icon {
+  color: #ffffff; text-decoration: none; font-size: 16px;
+  width: 24px; height: 24px; display: inline-flex; align-items: center;
+  justify-content: center; border-radius: 3px;
+}
+.aws-header-icon:hover { background: #31465f; }
+
+/* ---- Breadcrumb ---- */
+.aws-breadcrumb {
+  background: #fafafa; border-bottom: 1px solid #e9ebed;
+  padding: 8px 20px; font-size: 12px; color: #687078;
+}
+.aws-breadcrumb a { color: #0073bb; }
+.aws-breadcrumb span { color: #16191f; }
+
+/* ---- Body layout ---- */
+.aws-body { display: flex; min-height: calc(100vh - 48px - 33px); }
+.aws-sidebar {
+  width: 220px; background: #fafafa; border-right: 1px solid #e9ebed;
+  padding: 16px 0; flex-shrink: 0;
+}
+.aws-sidebar-title {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px;
+  color: #687078; padding: 0 20px 8px; margin: 0;
+}
+.aws-sidebar-list { list-style: none; margin: 0; padding: 0; }
+.aws-sidebar-list a {
+  display: block; padding: 8px 20px; color: #16191f; font-size: 13px;
+  border-left: 3px solid transparent;
+}
+.aws-sidebar-list a:hover {
+  background: #f1f3f3; text-decoration: none; border-left-color: #d5dbdb;
+}
+.aws-sidebar-list a.active {
+  border-left-color: #ff9900; background: #ffffff; font-weight: 600;
+}
+.aws-main { flex: 1; padding: 24px 28px; max-width: 1200px; }
+
+/* ---- Content primitives ---- */
+.aws-section { margin-bottom: 28px; }
+.aws-section h1 { font-size: 22px; margin: 0 0 12px; font-weight: 400; }
+.aws-section h2 { font-size: 16px; margin: 0 0 12px; font-weight: 600; }
+.aws-muted { color: #687078; font-size: 13px; }
+
+.service-grid {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+.service-tile {
+  display: flex; gap: 12px; padding: 14px;
+  background: #ffffff; border: 1px solid #e9ebed; border-radius: 4px;
+  color: #16191f;
+}
+.service-tile:hover {
+  border-color: #0073bb; text-decoration: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.service-tile-icon {
+  width: 40px; height: 40px; background: #ff9900; color: #232f3e;
+  border-radius: 4px; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px; flex-shrink: 0;
+}
+.service-tile-name { font-weight: 600; margin-bottom: 2px; }
+.service-tile-desc { color: #687078; font-size: 12px; }
+
+.aws-notice {
+  padding: 12px 14px; border-radius: 4px; border-left: 4px solid;
+  margin: 12px 0; font-size: 13px;
+}
+.aws-notice-info {
+  background: #f1f8ff; border-color: #0073bb; color: #16191f;
+}
+.aws-notice-success { background: #f2f8f0; border-color: #037f0c; }
+.aws-notice-warn    { background: #fff8e6; border-color: #b7791f; }
+.aws-notice-error   { background: #fdf3f1; border-color: #d13212; }
+
+/* ---- Responsive ---- */
+@media (max-width: 720px) {
+  .aws-sidebar { display: none; }
+  .aws-main { padding: 16px; }
+}
+# ... paste Step 7 block here ...
+
+/* ---- Phase 1 additions ---- */
+.aws-search { display: inline-block; margin-left: 8px; }
+.aws-search input {
+  background: #31465f; border: 1px solid #44586e; color: #ffffff;
+  padding: 6px 10px; border-radius: 3px; font-size: 12px; width: 220px;
+}
+.aws-search input::placeholder { color: #b0bac7; }
+.aws-region form { display: inline; }
+.home-hero {
+  display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;
+  border-bottom: 1px solid #e9ebed; padding-bottom: 24px;
+}
+.home-hero-left { flex: 2 1 360px; }
+.home-hero-right { flex: 1 1 280px; display: flex; gap: 16px; flex-wrap: wrap; }
+.home-cost, .home-account {
+  background: #ffffff; border: 1px solid #e9ebed; border-radius: 4px;
+  padding: 14px 16px; min-width: 160px;
+}
+.home-cost-label { font-size: 11px; text-transform: uppercase; color: #687078; letter-spacing: 0.5px; }
+.home-cost-value { font-size: 22px; font-weight: 600; color: #16191f; margin: 4px 0; }
+.home-account-row { display: flex; justify-content: space-between; gap: 12px; margin: 4px 0; font-size: 12px; }
+.home-account-label { color: #687078; }
+.home-account-value { color: #16191f; }
+
+/* ---- Phase 2: AWS tables + S3 page ---- */
+.aws-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: #ffffff;
+  border: 1px solid #e9ebed;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.aws-table thead th {
+  background: #fafafa;
+  color: #16191f;
+  font-weight: 700;
+  font-size: 12px;
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid #d5dbdb;
+  white-space: nowrap;
+}
+.aws-table tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e9ebed;
+  color: #16191f;
+  vertical-align: top;
+}
+.aws-table tbody tr:last-child td { border-bottom: none; }
+.aws-table tbody tr:hover { background: #fafafa; }
+.aws-table a { color: #0073bb; font-weight: 600; }
+.aws-table a:hover { text-decoration: underline; }
+
+.s3-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.s3-page-header h1 { margin: 0; }
+.s3-page-actions { display: flex; gap: 8px; }
+
+.aws-button-primary {
+  display: inline-block;
+  background: #ff9900;
+  color: #16191f;
+  padding: 6px 14px;
+  border-radius: 3px;
+  font-weight: 600;
+  font-size: 13px;
+  border: 1px solid #e88b00;
+  text-decoration: none;
+}
+.aws-button-primary:hover {
+  background: #e88b00;
+  text-decoration: none;
+  color: #16191f;
+}
+.aws-button-secondary {
+  display: inline-block;
+  background: #ffffff;
+  color: #16191f;
+  padding: 6px 12px;
+  border-radius: 3px;
+  font-size: 13px;
+  border: 1px solid #d5dbdb;
+  text-decoration: none;
+}
+.aws-button-secondary:hover {
+  background: #fafafa;
+  text-decoration: none;
+}
+
+.s3-filter-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.s3-filter-input {
+  width: 100%;
+  max-width: 340px;
+  padding: 6px 10px;
+  border: 1px solid #d5dbdb;
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+.s3-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #e9ebed;
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+.s3-tab {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #687078;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.s3-tab:hover { color: #16191f; text-decoration: none; }
+.s3-tab.active {
+  color: #16191f;
+  font-weight: 600;
+  border-bottom-color: #ff9900;
+}
+
+.s3-empty {
+  padding: 32px 16px;
+  text-align: center;
+  background: #fafafa;
+  border: 1px solid #e9ebed;
+  border-radius: 4px;
+}
+.s3-footer-hint { font-size: 12px; margin-top: 8px; }
+.s3-name-cell { word-break: break-all; }
+.s3-size-cell { text-align: right; font-variant-numeric: tabular-nums; }
+.s3-empty-col { color: #687078; }
