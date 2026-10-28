@@ -7,11 +7,11 @@
     "owner": "kelvin"
   },
   "recent_services": [
+    "s3",
+    "iam",
+    "cloudwatch",
     "vpc",
     "ec2",
-    "s3",
-    "lambda",
-    "iam",
-    "cloudwatch"
+    "lambda"
   ]
 }

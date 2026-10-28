@@ -1,10 +1,4 @@
-"""S3 service pages — buckets list + bucket detail (read-only).
-
-Real AWS S3 console layout:
-  /s3                -> Buckets table
-  /s3/<bucket>       -> Bucket detail with tabs (Objects is default)
-  /s3/<bucket>/objects/<key> -> Object detail (Phase 2b)
-"""
+"""S3 service pages — buckets list + bucket detail + wizard hooks (Phase 3)."""
 import html
 from datetime import datetime
 
@@ -17,7 +11,6 @@ def _esc(s):
 
 
 def _human_size(n):
-    """Format bytes the way the real S3 console does."""
     try:
         n = int(n)
     except Exception:
@@ -36,8 +29,8 @@ def _human_date(iso):
         return "—"
     try:
         dt = datetime.fromisoformat(str(iso).replace("Z", ""))
-        return dt.strftime("%B %d, %Y, %H:%M:%S (UTC%z)" if dt.tzinfo else
-                           "%B %d, %Y, %H:%M:%S")
+        return dt.strftime("%B %d, %Y, %H:%M:%S" if not dt.tzinfo else
+                           "%B %d, %Y, %H:%M:%S %z")
     except Exception:
         return str(iso)
 
@@ -47,6 +40,17 @@ def _flash_banner(msg, kind):
         return ""
     cls = {"ok": "aws-notice-success", "error": "aws-notice-error"}.get(kind, "aws-notice-info")
     return f'<div class="aws-notice {cls}">{_esc(msg)}</div>'
+
+
+def render_flash_from_query(qs):
+    """Read ?ok=... or ?error=... from a parse_qs dict (list of values per key)."""
+    ok_vals = qs.get("ok") or []
+    err_vals = qs.get("error") or []
+    if ok_vals:
+        return f'<div class="aws-notice aws-notice-success">{html.escape(str(ok_vals[0]))}</div>'
+    if err_vals:
+        return f'<div class="aws-notice aws-notice-error">{html.escape(str(err_vals[0]))}</div>'
+    return ""
 
 
 def _bucket_detail_tabs(active, bucket):
@@ -66,23 +70,24 @@ def _bucket_detail_tabs(active, bucket):
     return f'<nav class="s3-tabs">{"".join(parts)}</nav>'
 
 
-def render_buckets(region_code):
-    """Render the /s3 page — Buckets list, exact real-AWS layout."""
+def render_buckets(region_code, qs=None):
+    """Render /s3 — buckets list."""
+    flash = render_flash_from_query(qs or {})
     try:
         buckets = s3_mod.ls_buckets() or []
     except Exception as e:
         return _flash_banner(f"Error loading buckets: {e}", "error")
 
     if not buckets:
-        body = """
+        return f"""
 <section class="aws-section">
+  {flash}
   <div class="s3-empty">
     <h2>Buckets</h2>
     <p class="aws-muted">You don't have any buckets yet.</p>
     <a class="aws-button-primary" href="/s3/create">Create bucket</a>
   </div>
 </section>"""
-        return body
 
     rows = []
     for b in buckets:
@@ -99,6 +104,7 @@ def render_buckets(region_code):
 
     return f"""
 <section class="aws-section">
+  {flash}
   <div class="s3-page-header">
     <h1>Buckets <span class="aws-muted">({len(buckets)})</span></h1>
     <div class="s3-page-actions">
@@ -108,7 +114,7 @@ def render_buckets(region_code):
 
   <div class="s3-filter-bar">
     <input type="search" placeholder="Filter buckets by name" class="s3-filter-input" disabled>
-    <span class="aws-muted" style="font-size:12px;">(filters are Phase 3)</span>
+    <span class="aws-muted" style="font-size:12px;">(filter is Phase 4)</span>
   </div>
 
   <table class="aws-table">
@@ -125,33 +131,32 @@ def render_buckets(region_code):
 
   <p class="aws-muted s3-footer-hint">
     S3 stores data as objects within buckets. Buckets are region-scoped at
-    creation time; the top-bar region does not restrict this list (same as real AWS).
+    creation; the top-bar region does not restrict this list (same as real AWS).
   </p>
 </section>
 """
 
 
-def render_bucket(bucket_name, tab="objects", region_code="us-east-1"):
-    """Render /s3/<bucket> with the requested tab (Objects default)."""
+def render_bucket(bucket_name, tab="objects", region_code="us-east-1", qs=None):
+    """Render /s3/<bucket> with the requested tab."""
     meta = s3_mod.get_bucket(bucket_name)
     if not meta:
         return f'<div class="aws-notice aws-notice-error">Bucket not found: {_esc(bucket_name)}</div>'
 
+    flash = render_flash_from_query(qs or {})
     tabs_html = _bucket_detail_tabs(tab, bucket_name)
 
     if tab == "objects":
         try:
             objs = s3_mod.list_objects(bucket_name) or []
         except Exception as e:
-            objs = []
-            body = _flash_banner(f"Error listing objects: {e}", "error")
-            return body + tabs_html
+            return _flash_banner(f"Error listing objects: {e}", "error") + tabs_html
 
         if not objs:
             content = """
 <div class="s3-empty">
   <p class="aws-muted">This bucket is empty.</p>
-  <a class="aws-button-secondary" href="#" aria-disabled="true">Upload (Phase 3)</a>
+  <a class="aws-button-secondary" href="#">Upload (use the Upload button above)</a>
 </div>"""
         else:
             rows = []
@@ -168,6 +173,14 @@ def render_bucket(bucket_name, tab="objects", region_code="us-east-1"):
                   <td>{_esc(modified)}</td>
                   <td class="s3-size-cell">{_esc(size)}</td>
                   <td>{_esc(storage)}</td>
+                  <td>
+                    <form method="POST" action="/s3/delete-object" style="display:inline"
+                          onsubmit="return confirm('Delete object {_esc(key)}?')">
+                      <input type="hidden" name="bucket" value="{_esc(bucket_name)}">
+                      <input type="hidden" name="key" value="{_esc(key)}">
+                      <button type="submit" class="aws-link-danger">Delete</button>
+                    </form>
+                  </td>
                 </tr>""")
             content = f"""
 <table class="aws-table">
@@ -178,19 +191,16 @@ def render_bucket(bucket_name, tab="objects", region_code="us-east-1"):
       <th>Last modified</th>
       <th>Size</th>
       <th>Storage class</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>{"".join(rows)}</tbody>
 </table>
-<p class="aws-muted s3-footer-hint">
-  {len(objs)} object(s) in this bucket.
-</p>"""
+<p class="aws-muted s3-footer-hint">{len(objs)} object(s) in this bucket.</p>"""
     else:
         content = f"""
 <div class="aws-notice aws-notice-info">
-  The <strong>{_esc(tab.title())}</strong> tab is a Phase 3 target — it will show the
-  same shape as the real S3 tab (properties list, bucket policy JSON viewer,
-  metrics sparkline, lifecycle rules, access points).
+  The <strong>{_esc(tab.title())}</strong> tab is a Phase 4 target.
 </div>
 <table class="aws-table">
   <thead><tr><th>Property</th><th>Value</th></tr></thead>
@@ -204,11 +214,26 @@ def render_bucket(bucket_name, tab="objects", region_code="us-east-1"):
   </tbody>
 </table>"""
 
+    delete_form = f"""
+      <form method="POST" action="/s3/delete-bucket" style="display:inline"
+            onsubmit="return confirm('Delete bucket {_esc(bucket_name)}? It must be empty first.')">
+        <input type="hidden" name="bucket" value="{_esc(bucket_name)}">
+        <button type="submit" class="aws-button-danger">Delete bucket</button>
+      </form>"""
+
+    upload_btn = (
+        f'<a class="aws-button-primary" href="/s3/{_esc(bucket_name)}/upload">Upload</a>'
+        if tab == "objects" else ""
+    )
+
     return f"""
 <section class="aws-section">
+  {flash}
   <div class="s3-page-header">
     <h1>{_esc(bucket_name)}</h1>
     <div class="s3-page-actions">
+      {upload_btn}
+      {delete_form}
       <a class="aws-button-secondary" href="/s3">&#8592; Buckets</a>
     </div>
   </div>

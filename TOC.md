@@ -68,7 +68,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 ## Part 5 — Backend
 - [x] 5.1 How Backend Works 📱
 - [x] 5.2 Python Backend (Flask) 📱
-- [ ] 5.3 Python Backend (Django) 📱
+- [x] 5.3 Python Backend (Django) 📱
 - [x] 5.4 Node.js & Express 📱
 - [ ] 5.5 REST API Design 📱
 - [ ] 5.6 Auth (JWT, OAuth) 📱

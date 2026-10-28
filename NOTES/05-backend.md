@@ -191,3 +191,63 @@ Ran it on port 5000 and tested with the browser.
 - 8.4 (Secure coding) — input validation applies to both.
 - 8.10 (Secure API) — same API design principles.
 - 12.15 (Web hacking) — SQLi/XSS apply to both Flask and Express.
+
+## 5.3 Python Backend (Django) — Phase B DONE ✅
+
+Installed Django on Termux.
+Created a project, an app, a model, and used the admin panel.
+
+### Core concepts
+- **Django** = a full-stack Python framework ("batteries included").
+- **MVT** = Model, View, Template.
+- **ORM** = Object-Relational Mapper. Python classes → database tables.
+- **Admin Panel** = built-in dashboard to manage data.
+- **Migrations** = how Django creates/updates database tables.
+
+### The commands
+- `django-admin startproject myproject`
+- `python manage.py startapp shop`
+- `python manage.py makemigrations`
+- `python manage.py migrate`
+- `python manage.py createsuperuser`
+- `python manage.py runserver`
+
+### The structure
+
+
+### Real commands I ran
+- `pip install django tzdata`
+- `django-admin startproject myproject`
+- `python manage.py startapp shop`
+- `python manage.py makemigrations`
+- `python manage.py migrate`
+- `python manage.py createsuperuser`
+- `python manage.py runserver 0.0.0.0:8000`
+
+### Things I saw
+- The Django welcome page ("The install worked successfully!").
+- The admin login page.
+- The admin dashboard with Users, Groups, and Products.
+- Added a product ("Bread") via the web form.
+- The change history showed "felix Added" with a timestamp.
+
+### My own words (locked in)
+- Django is "batteries included." Flask is minimalist.
+- Django gives you the admin panel, the ORM, auth, and security.
+- A model is a Python class that becomes a database table.
+- Migrations are how Django applies model changes to the database.
+- The admin panel is free. You don't build it.
+- `createsuperuser` creates the admin account.
+- Termux needs `tzdata` (pip install tzdata) for Django to display dates.
+- Django is used by Instagram, Pinterest, NASA, Spotify.
+- Flask is better for small APIs. Django is better for big apps.
+- The ORM means you never write SQL directly.
+
+### Connection to other topics
+- 5.1 (Backend) — Django is a backend framework.
+- 5.2 (Flask) — the comparison.
+- 6.1 (Databases) — the ORM creates the tables.
+- 8.4 (Secure Coding) — Django has built-in CSRF, XSS protection.
+- 8.10 (Secure API) — Django REST Framework for APIs.
+- 7.9 (Nginx) — Django runs behind Nginx.
+- 7.6 (Docker) — Django in a container.
