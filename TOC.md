@@ -63,7 +63,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 4.11 State Management 📱💻
 - [x] 4.12 UI Libraries 📱
 - [x] 4.13 Frontend Testing 📱
-- [ ] 4.14 Build Tools 💻
+- [x] 4.14 Build Tools 💻
 
 ## Part 5 — Backend
 - [x] 5.1 How Backend Works 📱

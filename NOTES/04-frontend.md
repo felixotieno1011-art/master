@@ -739,3 +739,58 @@ Connection to other topics
 · 8.4 (Secure Coding) — tests prevent regressions.
 · 7.8 (CI/CD) — tests run automatically in pipelines.
 · 12.40 (Reporting) — test results are documented.
+
+## 4.14 Build Tools — Phase B DONE ✅
+
+Ran `npm run build` on the React app.
+Saw the `dist/` folder with minified, bundled code.
+
+### Core concepts
+- **Build tool** = software that prepares code for the browser.
+- **Compiles:** TS/JSX → JS.
+- **Bundles:** 100 files → 1-2 files.
+- **Minifies:** Removes spaces, comments, shortens names.
+- **Tree-shakes:** Removes unused code.
+- **Hashes filenames:** `index-XXXX.js` (cache busting).
+- **Gzip:** Compresses the files (220 kB → 68 kB).
+
+### The tools
+- **Vite** (modern, fast, standard for React).
+- **Webpack** (old standard, complex).
+- **Rollup** (for libraries).
+- **Parcel** (zero-config).
+
+### The commands
+- `npm run dev` — Development (HMR, no minification).
+- `npm run build` — Production (minified, bundled, in `dist/`).
+- `npm run preview` — Preview the production build.
+
+### Real commands I ran
+- `npm run build`
+
+### Things I saw
+- `✓ 16 modules transformed.`
+- `dist/index.html` 0.45 kB (gzip 0.29 kB).
+- `dist/assets/index-nqMpL4T3.css` 1.78 kB (gzip 0.81 kB).
+- `dist/assets/index-8QANq5wf.js` 220.13 kB (gzip 68.85 kB).
+- `dist/` folder with the bundled files.
+
+### My own words (locked in)
+- Build tools turn code into a product.
+- Vite is the modern standard.
+- The `dist/` folder is what you upload to the server.
+- The `src/` folder is the recipe (source code).
+- Minification removes spaces and shortens names.
+- Tree-shaking removes unused code.
+- Gzip cuts file size by ~70%.
+- Hashed filenames prevent cache issues.
+- The build takes <1 second (Vite is fast).
+- `npm run build` is what CI/CD (7.8) runs to deploy.
+
+### Connection to other topics
+- 4.8 (TypeScript) — compiled by the build tool.
+- 4.9 (React) — JSX compiled by the build tool.
+- 4.12 (Tailwind) — CSS compiled by the build tool.
+- 7.9 (Nginx) — serves the `dist/` folder.
+- 7.8 (CI/CD) — runs `npm run build` in the pipeline.
+- 7.6 (Docker) — the `dist/` folder is copied into the container.
