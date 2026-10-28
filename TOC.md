@@ -70,7 +70,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 5.2 Python Backend (Flask) 📱
 - [x] 5.3 Python Backend (Django) 📱
 - [x] 5.4 Node.js & Express 📱
-- [ ] 5.5 REST API Design 📱
+- [x] 5.5 REST API Design 📱
 - [ ] 5.6 Auth (JWT, OAuth) 📱
 - [ ] 5.7 Validation & Error Handling 📱
 - [ ] 5.8 Env Vars & Config 📱

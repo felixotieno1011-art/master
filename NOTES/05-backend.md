@@ -251,3 +251,59 @@ Created a project, an app, a model, and used the admin panel.
 - 8.10 (Secure API) — Django REST Framework for APIs.
 - 7.9 (Nginx) — Django runs behind Nginx.
 - 7.6 (Docker) — Django in a container.
+
+## 5.5 REST API Design — Phase B DONE ✅
+
+Understood the rules of REST.
+Graded pos-lab's API against the rules.
+
+### Core concepts
+- **REST** = Representational State Transfer. A set of rules for web APIs.
+- **Resources** = nouns (products, users, sales).
+- **Methods** = verbs (GET, POST, PUT, PATCH, DELETE).
+- **Golden rule:** nouns in URLs, verbs in methods.
+
+### The 5 methods
+| Method | Action | Example |
+|--------|--------|---------|
+| GET | Read | GET /products |
+| POST | Create | POST /products |
+| PUT | Update (full) | PUT /products/1 |
+| PATCH | Update (partial) | PATCH /products/1 |
+| DELETE | Delete | DELETE /products/1 |
+
+### The URL rules
+- Plural nouns: `/products`, not `/product`.
+- No verbs: `/products`, not `/getProducts`.
+- Nested: `/products/1/reviews`.
+- Versioned: `/api/v1/products`.
+
+### The status codes
+- 200 OK
+- 201 Created
+- 204 No Content
+- 400 Bad Request
+- 401 Unauthorized
+- 403 Forbidden
+- 404 Not Found
+- 429 Too Many Requests
+- 500 Server Error
+
+### The JSON format
+```json
+{
+  "ok": true,
+  "count": 5,
+  "products": [...]
+}
+Real commands I ran
+grep -n "GET /api|POST /api|PUT /api|DELETE /api" ~/pos-lab/server.js
+
+Things I saw
+pos-lab uses GET /api/products, POST /api/products, PUT /api/products/:id, DELETE /api/products/:id.
+
+It follows REST rules (nouns, methods, plural).
+
+One minor violation: POST /api/security/alerts/:id/ack (verb in URL).
+
+
