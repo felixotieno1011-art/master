@@ -356,3 +356,56 @@ Verified the secret is loaded but not exposed.
 - 7.8 (CI/CD) — GitHub Actions uses secrets.
 - 8.10 (Secure API) — secrets in APIs.
 - 12.34 (Cloud Security) — secrets managers in the cloud.
+
+## 5.7 Validation & Error Handling — Phase B DONE ✅
+
+Added validation and error handling to an Express API.
+Tested with invalid and valid input.
+
+### Core concepts
+- **Validation** = checking input before using it.
+- **Type:** Is it a number? A string?
+- **Format:** Is it a valid email?
+- **Length:** Is it too long?
+- **Required:** Is it missing?
+- **If invalid:** Return `400 Bad Request` with a clear message.
+- **Error Handling** = `try/catch` to catch errors before they crash.
+- **If server crashes:** Return `500` (generic) but log the real error.
+
+### The golden rules
+1. Never trust input.
+2. Never leak errors (no stack traces to the user).
+3. Always validate before using.
+4. Always `try/catch` around risky code.
+
+### Real commands I ran
+- `node validation.js`
+- `curl -X POST .../api/products -d '{"name":"Bread","price":"abc"}'` → `400` (invalid price).
+- `curl -X POST .../api/products -d '{"name":"Bread","price":60}'` → `201` (valid).
+
+### Things I saw
+- Invalid input: `{"ok":false,"error":"price must be a number greater than 0"}`
+- Valid input: `{"ok":true,"product":{"name":"Bread","price":60}}`
+- The server did NOT crash on invalid input.
+
+### My own words (locked in)
+- Validation = checking input before using it.
+- Never trust user input.
+- Return 400 for invalid input.
+- Return 500 for server crashes (but hide the stack trace).
+- `try/catch` catches errors and prevents crashes.
+- The error message should be clear (but not leak secrets).
+- If you don't validate, the server crashes or corrupts data.
+- A professional API validates everything.
+- `typeof` checks the type.
+- `!name` checks if it's missing.
+
+### Connection to other topics
+- 5.5 (REST API) — the endpoint we validated.
+- 5.2 (Flask) — Flask uses `request.get_json()` + `try/except`.
+- 5.3 (Django) — Django uses forms or serializers for validation.
+- 8.4 (Secure Coding) — validation prevents SQLi, XSS.
+- 8.10 (Secure API) — validation is API security.
+- 12.15 (Web Hacking) — SQLi is a validation failure.
+- 8.9 (Rate Limiting) — 429 for too many requests.
+- 5.1 (HTTP Status Codes) — 400, 500.
