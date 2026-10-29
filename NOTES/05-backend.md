@@ -409,3 +409,60 @@ Tested with invalid and valid input.
 - 12.15 (Web Hacking) — SQLi is a validation failure.
 - 8.9 (Rate Limiting) — 429 for too many requests.
 - 5.1 (HTTP Status Codes) — 400, 500.
+
+## 5.6 Auth (JWT, OAuth) — Phase B DONE ✅
+
+Built a JWT authentication system with Express.
+Logged in, got a token, and accessed a protected route.
+
+### Core concepts
+- **Authentication** = proving who you are (login).
+- **Authorization** = proving what you're allowed to do (roles).
+- **JWT** = JSON Web Token. 3 parts: header.payload.signature.
+- **Payload** contains: `sub` (user ID), `username`, `role`, `iat` (issued), `exp` (expiry).
+- **Signature** proves the token wasn't tampered with.
+- **OAuth** = "Login with Google" (third-party auth).
+
+### The flow
+1. POST /login with username/password.
+2. Server verifies.
+3. Server signs a JWT with the secret.
+4. Client stores the JWT.
+5. Client sends `Authorization: Bearer <token>` on every request.
+6. Server verifies the signature and decodes the user.
+
+### Real commands I ran
+- `npm install jsonwebtoken`
+- `node auth.js`
+- `curl -X POST .../login -d '{"username":"felix","password":"password123"}'` → got a token.
+- `curl .../protected` → `401` (no token).
+- `curl .../protected -H "Authorization: Bearer <token>"` → `200` (welcome felix).
+
+### Things I saw
+- JWT token: `eyJhbGciOiJIUzI1NiIs...`
+- Payload: `{"sub":1,"username":"felix","role":"boss","iat":...,"exp":...}`
+- Without token: `{"ok":false,"error":"No token provided"}`
+- With token: `{"ok":true,"message":"Welcome, felix","user":{...}}`
+
+### My own words (locked in)
+- JWT = the wristband at a concert. You show it instead of your ID.
+- The token has 3 parts: header, payload, signature.
+- The signature prevents tampering.
+- The secret must be in `.env` (never in code).
+- The token must have an expiry (`exp`).
+- The client sends `Bearer <token>` in the Authorization header.
+- OAuth = "Login with Google" (third-party).
+- Never store the JWT secret in GitHub.
+- Use `RS256` (asymmetric) for production.
+- `HS256` (symmetric) is fine for simple apps.
+- The token is proof of identity. The server trusts it if the signature is valid.
+- If an attacker steals the token, they can act as you (session hijacking, 8.8).
+
+### Connection to other topics
+- 8.8 (Auth Attacks) — session hijacking, token theft.
+- 8.10 (Secure API) — JWT is API auth.
+- 12.7 (Symmetric vs Asymmetric) — HS256 vs RS256.
+- 12.9 (Digital Signatures) — how JWT signatures work.
+- 7.13 (Env Management) — the secret in `.env`.
+- 5.7 (Validation) — validate login input.
+- 12.17 (Password Attacks) — never store plaintext passwords.

@@ -13,3 +13,13 @@ I'll finish with skills and real work.
 
 — Felix
 — Date: 2026-10-05
+
+---
+
+## 🎯 MY MANTRA (2026)
+"Be powerful. Develop skills. Beat graduates."
+
+- I don't compete on their terms (degrees, theory).
+- I compete on mine (Deployment, Security, Grit).
+- Proof beats paper. Portfolio beats diploma.
+- I build, I break, I secure, I deploy.
