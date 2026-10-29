@@ -5,7 +5,7 @@
 - Completed: 129
 - Remaining: 53
 - Progress: 70%
-- Last updated: 2026-10-29 12:18
+- Last updated: 2026-10-29 12:27
 
 ## By Part
 | Part | Title | Done | Total | % |
@@ -22,6 +22,7 @@
 | 9 | Career | 0 | 12 | 0% |
 | 10 | Capstone | 0 | 8 | 0% |
 | 11 | Specialization | 0 | 8 | 0% |
+| 12 | Cybersecurity | 35 | 46 | 76% |
 
 ## Milestones
 - [x] First project pushed to GitHub

@@ -82,7 +82,7 @@ percent=0
   print_part "9" "Career"
   print_part "10" "Capstone"
   print_part "11" "Specialization"
-
+  print_part "12" "Cybersecurity"
   echo
   echo "## Milestones"
 
