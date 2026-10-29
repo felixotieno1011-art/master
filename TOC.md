@@ -73,7 +73,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 5.5 REST API Design 📱
 - [ ] 5.6 Auth (JWT, OAuth) 📱
 - [ ] 5.7 Validation & Error Handling 📱
-- [ ] 5.8 Env Vars & Config 📱
+- [x] 5.8 Env Vars & Config 📱
 - [ ] 5.9 File Uploads & Storage 📱🔁
 - [ ] 5.10 WebSockets 📱
 - [ ] 5.11 GraphQL 📱💻

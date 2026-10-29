@@ -307,3 +307,52 @@ It follows REST rules (nouns, methods, plural).
 One minor violation: POST /api/security/alerts/:id/ack (verb in URL).
 
 
+## 5.8 Env Vars & Config — Phase B DONE ✅
+
+Built an Express app that reads from `.env`.
+Verified the secret is loaded but not exposed.
+
+### Core concepts
+- **`.env` file** = local config/secrets (never committed).
+- **`process.env`** = the object that holds environment variables.
+- **`dotenv`** = the package that loads `.env` into `process.env`.
+- **`.gitignore`** = tells git to ignore `.env` and `node_modules`.
+
+### The 3 files
+1. **`.env`** (real secrets, ignored by git).
+2. **`.gitignore`** (contains `.env` and `node_modules/`).
+3. **`.env.example`** (placeholders, committed to git).
+
+### Real commands I ran
+- `npm install express dotenv`
+- `nano .env` (PORT=3000, SECRET=my_super_secret_key)
+- `nano .gitignore` (node_modules/, .env)
+- `nano server.js` (require('dotenv').config())
+- `node server.js`
+
+### Things I saw
+- The server started on port 3000.
+- The secret loaded (`my_s...`).
+- The response showed `secretLoaded: "Yes (hidden)"`.
+
+### My own words (locked in)
+- Secrets go in `.env`, not in code.
+- `.env` goes in `.gitignore`.
+- `.env.example` shows what variables are needed (no secrets).
+- `dotenv` reads `.env` and puts the values in `process.env`.
+- Same code, different config (dev/staging/prod).
+- If a secret is in Git, it's leaked forever.
+- The average time for a leaked AWS key to be used is 3 minutes.
+- In production, use a secrets manager (AWS Secrets Manager, Vault).
+- Never commit `.env` to GitHub.
+- `.gitignore` is your first line of defense.
+
+### Connection to other topics
+- 5.2 (Flask) — Flask uses `python-dotenv`.
+- 5.3 (Django) — Django uses `django-environ`.
+- 5.4 (Express) — Express uses `dotenv`.
+- 7.5.5 (Env Vars & Shells) — the shell-level env vars.
+- 7.13 (Environment Management) — the broader concept.
+- 7.8 (CI/CD) — GitHub Actions uses secrets.
+- 8.10 (Secure API) — secrets in APIs.
+- 12.34 (Cloud Security) — secrets managers in the cloud.

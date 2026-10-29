@@ -7,11 +7,11 @@
     "owner": "kelvin"
   },
   "recent_services": [
-    "s3",
+    "vpc",
+    "dynamodb",
     "iam",
     "cloudwatch",
-    "vpc",
     "ec2",
-    "lambda"
+    "s3"
   ]
 }

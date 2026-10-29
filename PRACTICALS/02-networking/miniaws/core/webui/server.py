@@ -20,6 +20,8 @@ from core.webui.pages import cloudwatch_actions
 from core.webui.pages import iam as iam_pages
 from core.webui.pages import iam_actions
 from core.webui.pages import sts as sts_pages
+from core.webui.pages import dynamodb as ddb_pages
+from core.webui.pages import dynamodb_actions
 
 
 PORT_PREFERRED = 7001
@@ -399,6 +401,58 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     [("AWS Console", "/"), ("STS", "/sts"), ("Get caller identity", None)],
                     region_code, "Get caller identity"))
 
+            # ---- DynamoDB ----
+            if path == "/dynamodb":
+                session.record_visit("dynamodb")
+                return self._send_html(_page("/dynamodb",
+                    ddb_pages.render_dashboard(qs=qs), "dynamodb",
+                    [("AWS Console", "/"), ("DynamoDB", "/dynamodb"), ("Dashboard", None)],
+                    region_code, "DynamoDB Dashboard"))
+
+            if path == "/dynamodb/tables":
+                session.record_visit("dynamodb")
+                return self._send_html(_page("/dynamodb/tables",
+                    ddb_pages.render_tables(qs=qs), "dynamodb",
+                    [("AWS Console", "/"), ("DynamoDB", "/dynamodb"), ("Tables", None)],
+                    region_code, "Tables"))
+
+            if path == "/dynamodb/tables/create":
+                session.record_visit("dynamodb")
+                return self._send_html(_page("/dynamodb/tables/create",
+                    ddb_pages.render_create_table(qs=qs), "dynamodb",
+                    [("AWS Console", "/"), ("DynamoDB", "/dynamodb"),
+                     ("Tables", "/dynamodb/tables"), ("Create table", None)],
+                    region_code, "Create table"))
+
+            # items CREATE route must come before items list / table detail
+            if path.endswith("/items/create") and path.startswith("/dynamodb/tables/"):
+                tname = path[len("/dynamodb/tables/"):-len("/items/create")]
+                session.record_visit("dynamodb")
+                return self._send_html(_page(path,
+                    ddb_pages.render_create_item(tname, qs=qs), "dynamodb",
+                    [("AWS Console", "/"), ("DynamoDB", "/dynamodb"),
+                     ("Tables", "/dynamodb/tables"), (tname, None),
+                     ("Create item", None)], region_code, "Create item"))
+
+            if path.endswith("/items") and path.startswith("/dynamodb/tables/"):
+                tname = path[len("/dynamodb/tables/"):-len("/items")]
+                session.record_visit("dynamodb")
+                return self._send_html(_page(path,
+                    ddb_pages.render_table_detail(tname, tab="items", qs=qs), "dynamodb",
+                    [("AWS Console", "/"), ("DynamoDB", "/dynamodb"),
+                     ("Tables", "/dynamodb/tables"), (tname, None), ("Explore items", None)],
+                    region_code, tname))
+
+            if path.startswith("/dynamodb/tables/"):
+                tname = path[len("/dynamodb/tables/"):]
+                tab = (qs.get("tab") or ["overview"])[0]
+                session.record_visit("dynamodb")
+                return self._send_html(_page(path,
+                    ddb_pages.render_table_detail(tname, tab=tab, qs=qs), "dynamodb",
+                    [("AWS Console", "/"), ("DynamoDB", "/dynamodb"),
+                     ("Tables", "/dynamodb/tables"), (tname, None)],
+                    region_code, tname))
+
             # ---- Other services: placeholder ----
             for sid, name, _desc, href in aws_ref.SERVICES:
                 if path == href or path.startswith(href + "/"):
@@ -469,6 +523,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 result = cloudwatch_actions.handle(path, form, files)
             elif path.startswith("/iam"):
                 result = iam_actions.handle(path, form, files)
+            elif path.startswith("/dynamodb"):
+                result = dynamodb_actions.handle(path, form, files)
 
             if result is None:
                 return self._send_html(
