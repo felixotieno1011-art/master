@@ -5,6 +5,7 @@ from datetime import datetime
 import config
 from core import ec2 as ec2_mod
 from core.webui import aws_ref
+from core.webui import table_filter as tf
 
 
 def _esc(s):
@@ -46,6 +47,22 @@ def _state_pill(state):
 
 # ---------- List ----------
 
+
+def _quota_banner(service):
+    try:
+        from core.webui import security
+        q = security.quota_check(service)
+    except Exception:
+        return ""
+    if not q or not q.get("warn"):
+        return ""
+    pct = q["pct"]
+    return f"""<div class="aws-notice aws-notice-warn">
+  <strong>&#9888; Approaching service quota:</strong> You have <strong>{q["used"]} of {q["limit"]}</strong>
+  {q["metric"].lower()} ({pct:.0f}%).
+</div>"""
+
+
 def render_list(qs=None):
     flash = _flash(qs or {})
     try:
@@ -58,6 +75,11 @@ def render_list(qs=None):
     visible = instances if show_terminated else [
         i for i in instances if (i.get("state") or "").lower() != "terminated"
     ]
+    # Server-side structured filter: ?state=running / ?region=us-west-2
+    visible = tf.apply_filter(visible, qs or {}, {
+        "state":  tf.by_state,
+        "region": tf.by_region,
+    })
     terminated_count = len(instances) - len([i for i in instances
                                             if (i.get("state") or "").lower() != "terminated"])
 
@@ -109,6 +131,7 @@ def render_list(qs=None):
     return f"""
 <section class="aws-section">
   {flash}
+  {_quota_banner("ec2")}
   <div class="s3-page-header">
     <h1>Instances <span class="aws-muted">({len(visible)})</span></h1>
     <div class="s3-page-actions">

@@ -16,9 +16,18 @@ def _esc(s):
 
 
 def _tile(sid, name, desc, href, region_code):
+    color = aws_ref.service_color(sid)
+    # Use up to 2 initials (EC, S3, LA, DY, IA, CL, VP, ST) but prefer
+    # recognizable 2-3 char abbreviations
+    short = {"s3": "S3", "ec2": "EC", "lambda": "LA", "dynamodb": "DY",
+             "iam": "IA", "cloudwatch": "CW", "vpc": "VP", "sts": "ST"}.get(
+        sid, sid[:2].upper())
     return f"""
-    <a class="service-tile" href="{_esc(session.with_region(href, region_code))}">
-      <div class="service-tile-icon">{_esc(sid[:2].upper())}</div>
+    <a class="service-tile" href="{_esc(session.with_region(href, region_code))}"
+       style="border-left: 4px solid {color['primary']};">
+      <div class="service-tile-icon"
+           style="background: {color['bg']}; color: {color['primary']};
+                  border: 2px solid {color['primary']};">{_esc(short)}</div>
       <div class="service-tile-body">
         <div class="service-tile-name">{_esc(name)}</div>
         <div class="service-tile-desc">{_esc(desc)}</div>

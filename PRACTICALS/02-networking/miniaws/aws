@@ -67,7 +67,7 @@ shift 2 2>/dev/null
 
 # Extract --region and --output overrides from remaining args
 REGION_OVERRIDE=""
-OUTPUT_OVERRIDE=""
+OUTPUT_OVERRIDE="json"
 NEW_ARGS=()
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -84,10 +84,12 @@ while [ $# -gt 0 ]; do
       ;;
     --output)
       OUTPUT_OVERRIDE="$2"
+      NEW_ARGS+=("--output" "$2")
       shift 2
       ;;
     --output=*)
       OUTPUT_OVERRIDE="${1#--output=}"
+      NEW_ARGS+=("--output" "${1#--output=}")
       shift
       ;;
     --endpoint-url)
@@ -261,6 +263,12 @@ case "$SERVICE" in
     ;;
   ec2)
     case "$ACTION" in
+      describe-images|describe-instance-types|describe-key-pairs|describe-availability-zones|describe-volumes)
+        python ec2_describe.py "$ACTION" "$@"
+        exit $?
+        ;;
+    esac
+    case "$ACTION" in
       describe-vpcs)               python vpc_cli.py describe-vpcs "$@" ;;
       create-vpc)                  python vpc_cli.py create-vpc "$@" ;;
       delete-vpc)                  python vpc_cli.py delete-vpc "$@" ;;
@@ -339,18 +347,25 @@ case "$SERVICE" in
         ;;
       rm)   python cli.py s3 rm "$@" ;;
       rb)   python cli.py s3 rb "$@" ;;
+      sync)
+        # Convert relative local paths to absolute (using original dir)
+        ARGS=()
+        for arg in "$@"; do
+          case "$arg" in
+            s3://*) ARGS+=("$arg") ;;
+            --*)    ARGS+=("$arg") ;;
+            *)      ARGS+=("$(abs_path "$arg")") ;;
+          esac
+        done
+        python cli.py s3 sync "${ARGS[@]}"
+        ;;
       *) echo "❌ aws s3: unknown: $ACTION"; exit 1 ;;
     esac
     ;;
   iam)              python iam_cli.py "$ACTION" "$@" ;;
   cloudwatch)       python cw_cli.py "$ACTION" "$@" ;;
   cloudformation)   python cfn_cli.py "$ACTION" "$@" ;;
-  sts)
-    case "$ACTION" in
-      get-caller-identity)  python cli.py account show ;;
-      *) echo "❌ aws sts: unknown: $ACTION"; exit 1 ;;
-    esac
-    ;;
+  sts)              python sts_cli.py "$ACTION" "$@" ;;
   configure)
     case "$ACTION" in
       set)
@@ -429,6 +444,8 @@ else:
         ;;
     esac
     ;;
+  ce)               python ce_cli.py "$ACTION" "$@" ;;
+  logs)             python logs_cli.py "$ACTION" "$@" ;;
   *)
     echo "❌ aws: unknown service: $SERVICE"
     exit 1

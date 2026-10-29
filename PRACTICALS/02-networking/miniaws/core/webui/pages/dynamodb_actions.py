@@ -3,6 +3,7 @@ import json
 import urllib.parse
 
 from core import dynamodb as ddb
+from core.webui import permissions
 
 
 def _redirect(loc):
@@ -31,6 +32,9 @@ def handle(path, form, files=None):
 
 
 def _create_table(form):
+    allowed, err = permissions.require("dynamodb:CreateTable", back="/dynamodb/tables/create")
+    if not allowed:
+        return err
     name = (form.get("table_name") or "").strip()
     key_name = (form.get("key_name") or "").strip()
     key_type = (form.get("key_type") or "S").strip().upper()
@@ -52,6 +56,9 @@ def _delete_table(form):
 
 def _create_item(form):
     table = (form.get("table") or "").strip()
+    allowed, err = permissions.require("dynamodb:PutItem", back=f"/dynamodb/tables/{table}/items/create")
+    if not allowed:
+        return err
     raw = (form.get("item_json") or "").strip()
     if not table or not raw:
         return _err("/dynamodb/tables", "table and item_json required")

@@ -3,6 +3,7 @@ import json
 import urllib.parse
 
 from core import iam as iam_mod
+from core.webui import permissions
 
 
 def _redirect(loc):
@@ -36,6 +37,9 @@ def handle(path, form, files=None):
 
 
 def _create_user(form):
+    allowed, err = permissions.require("iam:CreateUser", back="/iam/users/create")
+    if not allowed:
+        return err
     name = (form.get("username") or "").strip()
     if not name:
         return _err("/iam/users/create", "username required")

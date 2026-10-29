@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 
 from core import dynamodb as ddb
+from core.webui import table_filter as tf
 
 
 def _esc(s):
@@ -132,6 +133,8 @@ def render_tables(qs=None):
         tables = ddb.list_tables()
     except Exception as e:
         return f'<div class="aws-notice aws-notice-error">Error: {_esc(e)}</div>'
+
+    tables = tf.apply_filter(tables, qs or {}, {"status": tf.by_status})
 
     if not tables:
         return f"""

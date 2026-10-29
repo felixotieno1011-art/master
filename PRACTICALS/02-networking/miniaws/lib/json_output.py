@@ -16,18 +16,30 @@ from core import account as account_mod
 
 def describe_vpcs():
     vpcs = vpc_mod.list_vpcs()
-    return {
-        "Vpcs": [
-            {
-                "VpcId": v["vpcId"],
-                "CidrBlock": v["cidrBlock"],
-                "State": v.get("state", "available"),
-                "Region": v.get("region"),
-                "IsDefault": v.get("isDefault", False),
-            }
-            for v in vpcs
-        ]
-    }
+    acct = account_mod.get_account_id() if hasattr(account_mod, "get_account_id") else "740762029392"
+    out = []
+    for v in vpcs:
+        vpc_id = v["vpcId"]
+        cidr = v["cidrBlock"]
+        tags = [{"Key": k, "Value": val} for k, val in (v.get("tags") or {}).items()]
+        out.append({
+            "CidrBlock": cidr,
+            "DhcpOptionsId": "dopt-" + (acct or "000000000000")[:8],
+            "State": v.get("state", "available"),
+            "VpcId": vpc_id,
+            "OwnerId": acct,
+            "InstanceTenancy": "default",
+            "CidrBlockAssociationSet": [
+                {
+                    "AssociationId": "vpc-cidr-assoc-" + vpc_id[-8:],
+                    "CidrBlock": cidr,
+                    "CidrBlockState": {"State": "associated"},
+                }
+            ],
+            "IsDefault": v.get("isDefault", False),
+            "Tags": tags,
+        })
+    return {"Vpcs": out}
 
 
 def describe_subnets():

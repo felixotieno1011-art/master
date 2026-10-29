@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """MiniAWS CLI — account, region, tag, ec2, s3."""
 import sys
+import os
 import re
 import json
 
@@ -89,7 +90,7 @@ VALID_FLAGS = {
     ("s3", "rb"): {"force"},
     ("s3", "ls"): set(),
     ("s3", "cp"): set(),
-    ("s3", "rm"): set(),
+    ("s3", "rm"): {"recursive", "dryrun"},
     ("s3", "sync"): set(),
     # EC2
     ("ec2", "run-instances"):       {"name", "type", "instance-type",
@@ -510,11 +511,162 @@ def cmd_s3(args):
 
         print(utils.err("at least one of src/dst must be s3://...")); return 1
 
+    if sub == "sync":
+        if len(rest) < 2:
+            print(utils.err(
+                "usage: s3 sync <local-dir> s3://<bucket>/[prefix]  OR  "
+                "s3 sync s3://<bucket>/[prefix] <local-dir> [--delete] [--dryrun] [--quiet]"
+            )); return 1
+        src, dst = rest[0], rest[1]
+        flags = rest[2:]
+        dryrun = "--dryrun" in flags
+        delete_flag = "--delete" in flags
+        quiet = "--quiet" in flags
+
+        # ----- local → s3 -----
+        if not src.startswith("s3://") and dst.startswith("s3://"):
+            if not os.path.isdir(src):
+                print(utils.err(f"source dir not found: {src}")); return 1
+            bucket, prefix = s3.parse_s3_uri(dst)
+            if not bucket:
+                print(utils.err("dest must be s3://<bucket>/[prefix]")); return 1
+            if prefix and not prefix.endswith("/"):
+                prefix += "/"
+
+            # Snapshot existing objects by key + size
+            existing = {o["key"]: o for o in (s3.list_objects(bucket, prefix=prefix) or [])}
+
+            uploaded = 0
+            skipped = 0
+            failed = 0
+
+            for root, _dirs, files in os.walk(src):
+                for f in files:
+                    local_path = os.path.join(root, f)
+                    rel = os.path.relpath(local_path, src).replace(os.sep, "/")
+                    key = prefix + rel
+
+                    try:
+                        local_size = os.path.getsize(local_path)
+                    except OSError as e:
+                        print(utils.err(f"stat failed: {local_path}: {e}"))
+                        failed += 1
+                        continue
+
+                    ex = existing.get(key)
+                    if ex and ex.get("size") == local_size:
+                        skipped += 1
+                        if not quiet:
+                            print(f"skip: {local_path} (unchanged)")
+                        continue
+
+                    if dryrun:
+                        print(f"(dryrun) upload: {local_path} to s3://{bucket}/{key}")
+                        uploaded += 1
+                        continue
+
+                    ok_, _msg = s3.put_object(bucket, key, local_path)
+                    if not ok_:
+                        print(utils.err(f"upload failed: {local_path}: {_msg}"))
+                        failed += 1
+                        continue
+                    if not quiet:
+                        print(f"upload: {local_path} to s3://{bucket}/{key}")
+                    uploaded += 1
+
+            print(utils.ok(
+                f"sync complete: {uploaded} uploaded, {skipped} skipped, {failed} failed"
+            ))
+            return 0
+
+        # ----- s3 → local -----
+        if src.startswith("s3://") and not dst.startswith("s3://"):
+            bucket, prefix = s3.parse_s3_uri(src)
+            if not bucket:
+                print(utils.err("source must be s3://<bucket>/[prefix]")); return 1
+
+            objs = s3.list_objects(bucket, prefix=prefix) or []
+            if not objs:
+                print(utils.warn(f"no objects under s3://{bucket}/{prefix}")); return 0
+
+            os.makedirs(dst, exist_ok=True)
+            downloaded = 0
+            skipped = 0
+            failed = 0
+
+            for o in objs:
+                key = o["key"]
+                rel = key[len(prefix):] if prefix else key
+                if not rel:
+                    continue
+                local_path = os.path.join(dst, rel.replace("/", os.sep))
+                os.makedirs(os.path.dirname(local_path) or ".", exist_ok=True)
+
+                # Skip if local exists and size matches
+                if os.path.isfile(local_path) and os.path.getsize(local_path) == o.get("size"):
+                    skipped += 1
+                    if not quiet:
+                        print(f"skip: {local_path} (unchanged)")
+                    continue
+
+                if dryrun:
+                    print(f"(dryrun) download: s3://{bucket}/{key} to {local_path}")
+                    downloaded += 1
+                    continue
+
+                src_path = s3.get_object_path(bucket, key) if hasattr(s3, "get_object_path") else None
+                if not src_path or not os.path.isfile(src_path):
+                    print(utils.err(f"download failed: s3://{bucket}/{key}: object file missing"))
+                    failed += 1
+                    continue
+
+                import shutil as _shutil
+                _shutil.copyfile(src_path, local_path)
+                if not quiet:
+                    print(f"download: s3://{bucket}/{key} to {local_path}")
+                downloaded += 1
+
+            print(utils.ok(
+                f"sync complete: {downloaded} downloaded, {skipped} skipped, {failed} failed"
+            ))
+            return 0
+
+        print(utils.err("sync requires exactly one s3:// path (either src or dst)"))
+        return 1
+
     if sub == "rm":
         if not rest:
-            print(utils.err("usage: s3 rm s3://<bucket>/<key>")); return 1
+            print(utils.err("usage: s3 rm s3://<bucket>/<key> [--recursive] [--dryrun]")); return 1
         check_dry_run("s3", "rm", rest[1:])
         strict_flags("s3", "rm", rest[1:])
+
+        # --recursive: delete every object under the prefix
+        if "--recursive" in rest:
+            dryrun = "--dryrun" in rest
+            bucket, prefix = s3.parse_s3_uri(rest[0])
+            if not bucket:
+                print(utils.err("expected s3://<bucket>/[prefix]")); return 1
+            # Empty prefix = whole bucket, which is valid
+            objs = s3.list_objects(bucket, prefix=prefix) or []
+            if not objs:
+                print(utils.warn(f"no objects under s3://{bucket}/{prefix}")); return 0
+            deleted = 0
+            for o in objs:
+                if dryrun:
+                    print(f"(dryrun) delete: s3://{bucket}/{o['key']}")
+                    deleted += 1
+                    continue
+                ok_, _msg = s3.rm_object(bucket, o["key"])
+                if ok_:
+                    print(f"delete: s3://{bucket}/{o['key']}")
+                    deleted += 1
+            if dryrun:
+                print(utils.ok(f"would delete {deleted} object(s)"))
+            else:
+                print(utils.ok(f"deleted {deleted} object(s)"))
+            return 0
+
+        # Single-object delete
         bucket, key = s3.parse_s3_uri(rest[0])
         if not bucket or not key:
             print(utils.err("expected s3://<bucket>/<key>")); return 1

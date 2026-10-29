@@ -2,6 +2,7 @@
 import urllib.parse
 
 from core import ec2 as ec2_mod
+from core.webui import permissions
 
 
 def _redirect(location):
@@ -27,6 +28,9 @@ def handle(path, form, files=None):
 
 
 def _launch(form):
+    allowed, err = permissions.require("ec2:RunInstances", back="/ec2/launch")
+    if not allowed:
+        return err
     name = (form.get("name") or "").strip()
     itype = (form.get("instance_type") or "t3.micro").strip()
     if not name:
@@ -37,8 +41,22 @@ def _launch(form):
     return _ok(f"/ec2/instances/{urllib.parse.quote(iid)}", msg)
 
 
+IAM_ACTION_MAP = {
+    "start":     "ec2:StartInstances",
+    "stop":      "ec2:StopInstances",
+    "reboot":    "ec2:RebootInstances",
+    "terminate": "ec2:TerminateInstances",
+}
+
+
 def _state_action(form):
     iid = (form.get("id") or "").strip()
+    action = (form.get("action") or "").strip()
+    iam_action = IAM_ACTION_MAP.get(action)
+    if iam_action:
+        allowed, err = permissions.require(iam_action, back=f"/ec2/instances/{iid}")
+        if not allowed:
+            return err
     action = (form.get("action") or "").strip()
     if not iid or not action:
         return _err("/ec2/instances", "instance id and action required")

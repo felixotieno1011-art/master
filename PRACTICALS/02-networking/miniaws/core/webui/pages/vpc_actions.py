@@ -4,6 +4,7 @@ import urllib.parse
 from core import vpc as vpc_mod
 from core import sg as sg_mod
 from core import nat as nat_mod
+from core.webui import permissions
 
 
 def _redirect(loc):
@@ -42,6 +43,9 @@ def handle(path, form, files=None):
 # ---------- VPC ----------
 
 def _create_vpc(form):
+    allowed, err = permissions.require("ec2:CreateVpc", back="/vpc/create")
+    if not allowed:
+        return err
     cidr = (form.get("cidr") or "").strip()
     if not cidr:
         return _err("/vpc/create", "CIDR required")

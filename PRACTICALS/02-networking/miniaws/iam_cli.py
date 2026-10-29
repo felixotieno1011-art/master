@@ -175,6 +175,8 @@ VALID_IAM_FLAGS = {
     "attach-group-policy":    {"group-name", "group", "policy-arn", "policy"},
     "detach-group-policy":    {"group-name", "group", "policy-arn", "policy"},
     "can":                    {"resource"},
+    "get-role":               {"role-name", "role"},
+    "get-policy":             {"policy-name", "policy", "policy-arn"},
     "audit":                  {"limit"},
 }
 
@@ -388,6 +390,71 @@ def cmd(args):
         print(_json.dumps(out, indent=2))
         return 0
 
+    # --- get-role ---
+    if sub == "get-role":
+        rname = flags.get("role-name") or flags.get("role")
+        if not rname:
+            print(utils.err("--role-name required")); return 1
+        # Roles live in state/iam/roles/*.json (created by the webui layer)
+        import json as _json
+        import os as _os
+        import config as _config
+        role_path = _os.path.join(_config.STATE_DIR, "iam", "roles", f"{rname}.json")
+        if not _os.path.isfile(role_path):
+            raise wrap_legacy(False, f"role '{rname}' not found",
+                              operation="GetRole",
+                              resource=f"arn:aws:iam::*:role/{rname}",
+                              code="NoSuchEntity")
+        with open(role_path) as _fp:
+            r = _json.load(_fp)
+        # Real AWS GetRole shape
+        out = {
+            "Role": {
+                "Path": r.get("path", "/"),
+                "RoleName": r.get("roleName"),
+                "RoleId": r.get("roleId", ""),
+                "Arn": r.get("arn"),
+                "CreateDate": r.get("created"),
+                "AssumeRolePolicyDocument": r.get("assumeRolePolicyDocument", {}),
+                "Description": r.get("description", ""),
+                "MaxSessionDuration": 3600,
+                "Tags": [{"Key": k, "Value": v}
+                         for k, v in (r.get("tags") or {}).items()],
+            }
+        }
+        print(_json.dumps(out, indent=2, default=str))
+        return 0
+
+    # --- get-policy ---
+    if sub == "get-policy":
+        pname = flags.get("policy-name") or flags.get("policy") or flags.get("policy-arn")
+        if not pname:
+            print(utils.err("--policy-name or --policy-arn required")); return 1
+        # If it looks like an ARN, strip the prefix to get policy name
+        if pname.startswith("arn:aws:iam::"):
+            pname = pname.rsplit("/", 1)[-1]
+        p = iam.get_policy(pname)
+        if not p:
+            raise wrap_legacy(False, f"policy '{pname}' not found",
+                              operation="GetPolicy",
+                              resource=f"arn:aws:iam::*:policy/{pname}",
+                              code="NoSuchEntity")
+        import json as _json
+        # Real AWS GetPolicy shape
+        out = {
+            "Policy": {
+                "PolicyName": p.get("policyName"),
+                "Arn": p.get("arn"),
+                "Path": "/",
+                "DefaultVersionId": "v1",
+                "AttachmentCount": 0,  # simplified
+                "CreateDate": p.get("created"),
+                "UpdateDate": p.get("created"),
+            }
+        }
+        print(_json.dumps(out, indent=2))
+        return 0
+
     # --- access keys ---
     if sub == "create-access-key":
         uname = _resolve_user(flags, rest)
@@ -500,21 +567,14 @@ def cmd(args):
 
 
 def _need(action):
-    allowed, reason = iam.can(action)
-    if not allowed:
-        print(utils.err(reason))
-        iam.audit(action, "", success=False)
-        return False
-    return True
-
-
-_JSON_HANDLERS_IAM = {
-    ("list-users",):        "list-users",
-    ("list-access-keys",):  "list-access-keys",
-    ("get-user",):          "get-user",
-    ("list-groups",):       "list-groups",
-}
-
+    current = iam.get_current_user()
+    # Root bypasses all permission checks (matches real AWS)
+    if not current or current == "root":
+        return True
+    ok, _ = iam.can(action)
+    if not ok:
+        print(utils.err(f"AccessDenied: user '{current}' is not authorized to perform '{action}'"))
+    return ok
 
 def _try_iam_json(args):
     """If args contain --output json or --query AND a JSON handler exists,

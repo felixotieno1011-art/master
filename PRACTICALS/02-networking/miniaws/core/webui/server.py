@@ -19,9 +19,17 @@ from core.webui.pages import cloudwatch as cw_pages
 from core.webui.pages import cloudwatch_actions
 from core.webui.pages import iam as iam_pages
 from core.webui.pages import iam_actions
+from core.webui.pages import iam_roles as iam_roles_pages
+from core.webui.pages import iam_roles_actions
 from core.webui.pages import sts as sts_pages
 from core.webui.pages import dynamodb as ddb_pages
 from core.webui.pages import dynamodb_actions
+from core.webui.pages import lambda_svc as lam_pages
+from core.webui.pages import lambda_actions
+from core.webui.pages import stubs
+from core.webui.pages import security_page
+from core.webui.pages import billing as billing_pages
+from core.webui.pages import billing_actions
 
 
 PORT_PREFERRED = 7001
@@ -53,6 +61,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
             if path == "/static/aws.css":
                 return self._serve_static("aws.css", "text/css")
+            if path == "/static/aws.js":
+                return self._serve_static("aws.js", "application/javascript")
 
             if path == "/":
                 return self._send_html(_page(
@@ -453,6 +463,113 @@ class Handler(http.server.BaseHTTPRequestHandler):
                      ("Tables", "/dynamodb/tables"), (tname, None)],
                     region_code, tname))
 
+            # ---- Lambda ----
+            if path == "/lambda":
+                session.record_visit("lambda")
+                return self._send_html(_page("/lambda",
+                    lam_pages.render_dashboard(qs=qs), "lambda",
+                    [("AWS Console", "/"), ("Lambda", "/lambda"), ("Dashboard", None)],
+                    region_code, "Lambda Dashboard"))
+
+            if path == "/lambda/functions":
+                session.record_visit("lambda")
+                return self._send_html(_page("/lambda/functions",
+                    lam_pages.render_functions(qs=qs), "lambda",
+                    [("AWS Console", "/"), ("Lambda", "/lambda"), ("Functions", None)],
+                    region_code, "Functions"))
+
+            if path == "/lambda/functions/create":
+                session.record_visit("lambda")
+                return self._send_html(_page("/lambda/functions/create",
+                    lam_pages.render_create_function(qs=qs), "lambda",
+                    [("AWS Console", "/"), ("Lambda", "/lambda"),
+                     ("Functions", "/lambda/functions"), ("Create function", None)],
+                    region_code, "Create function"))
+
+            if path.startswith("/lambda/functions/"):
+                name = path[len("/lambda/functions/"):]
+                tab = (qs.get("tab") or ["code"])[0]
+                session.record_visit("lambda")
+                return self._send_html(_page(path,
+                    lam_pages.render_function_detail(name, tab=tab, qs=qs), "lambda",
+                    [("AWS Console", "/"), ("Lambda", "/lambda"),
+                     ("Functions", "/lambda/functions"), (name, None)],
+                    region_code, name))
+
+            # ---- Header stub pages ----
+            if path == "/cloudshell":
+                return self._send_html(_page("/cloudshell",
+                    stubs.render_cloudshell(qs=qs), "",
+                    [("AWS Console", "/"), ("CloudShell", None)], region_code, "CloudShell"))
+            if path == "/notifications":
+                return self._send_html(_page("/notifications",
+                    stubs.render_notifications(qs=qs), "",
+                    [("AWS Console", "/"), ("Notifications", None)], region_code, "Notifications"))
+            if path == "/billing":
+                return self._send_html(_page("/billing",
+                    billing_pages.render_billing(qs=qs), "",
+                    [("AWS Console", "/"), ("Billing", None)], region_code, "Billing"))
+            if path == "/billing/budgets/create":
+                return self._send_html(_page("/billing/budgets/create",
+                    billing_pages.render_create_budget(qs=qs), "",
+                    [("AWS Console", "/"), ("Billing", "/billing"),
+                     ("Budgets", "/billing"), ("Create budget", None)],
+                    region_code, "Create budget"))
+            if path == "/billing/free-tier":
+                return self._send_html(_page("/billing/free-tier",
+                    billing_pages.render_free_tier(qs=qs), "",
+                    [("AWS Console", "/"), ("Billing", "/billing"),
+                     ("Free tier", None)], region_code, "Free tier"))
+            if path == "/billing/costs":
+                return self._send_html(_page("/billing/costs",
+                    billing_pages.render_costs(qs=qs), "",
+                    [("AWS Console", "/"), ("Billing", "/billing"),
+                     ("Cost Explorer", None)], region_code, "Cost Explorer"))
+            if path == "/support":
+                return self._send_html(_page("/support",
+                    stubs.render_support(qs=qs), "",
+                    [("AWS Console", "/"), ("Support", None)], region_code, "Support"))
+
+            # ---- IAM Roles (must be before generic /iam/users etc.) ----
+            if path == "/iam/roles":
+                session.record_visit("iam")
+                return self._send_html(_page("/iam/roles",
+                    iam_roles_pages.render_roles(qs=qs), "iam",
+                    [("AWS Console", "/"), ("IAM", "/iam"), ("Roles", None)],
+                    region_code, "Roles"))
+
+            if path == "/iam/roles/create":
+                session.record_visit("iam")
+                return self._send_html(_page("/iam/roles/create",
+                    iam_roles_pages.render_create_role(qs=qs), "iam",
+                    [("AWS Console", "/"), ("IAM", "/iam"), ("Roles", "/iam/roles"),
+                     ("Create role", None)], region_code, "Create role"))
+
+            if path.endswith("/assume") and path.startswith("/iam/roles/"):
+                rname = path[len("/iam/roles/"):-len("/assume")]
+                session.record_visit("iam")
+                return self._send_html(_page(path,
+                    iam_roles_pages.render_assume_role(rname, qs=qs), "iam",
+                    [("AWS Console", "/"), ("IAM", "/iam"), ("Roles", "/iam/roles"),
+                     (rname, None), ("Assume role", None)], region_code,
+                    f"Assume {rname}"))
+
+            if path.startswith("/iam/roles/"):
+                rname = path[len("/iam/roles/"):]
+                tab = (qs.get("tab") or ["permissions"])[0]
+                session.record_visit("iam")
+                return self._send_html(_page(path,
+                    iam_roles_pages.render_role_detail(rname, tab=tab, qs=qs), "iam",
+                    [("AWS Console", "/"), ("IAM", "/iam"), ("Roles", "/iam/roles"),
+                     (rname, None)], region_code, rname))
+
+            # ---- Security recommendations ----
+            if path == "/security":
+                return self._send_html(_page("/security",
+                    security_page.render_security_page(qs=qs), "",
+                    [("AWS Console", "/"), ("Security", None)],
+                    region_code, "Security recommendations"))
+
             # ---- Other services: placeholder ----
             for sid, name, _desc, href in aws_ref.SERVICES:
                 if path == href or path.startswith(href + "/"):
@@ -474,25 +591,66 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 f"<h1>Error</h1><pre>{traceback.format_exc()}</pre>", status=500)
 
     def _render_search(self, q, region_code):
-        matches, _exact = search.find(q)
-        if matches:
+        services, _exact = search.find_services(q)
+        resources = search.find_resources(q)
+
+        body_parts = []
+
+        # Resources — grouped by type, real-AWS style
+        if resources:
+            groups = {}
+            for rtype, label, href, sub in resources:
+                groups.setdefault(rtype, []).append((label, href, sub))
+
+            for rtype in sorted(groups):
+                items = groups[rtype]
+                rows = "".join(
+                    f'<tr>'
+                    f'<td><a href="{session.with_region(href, region_code)}"><code>{label}</code></a></td>'
+                    f'<td class="aws-muted">{sub}</td>'
+                    f'</tr>'
+                    for label, href, sub in items[:20]
+                )
+                body_parts.append(f"""
+<h2 class="ec2-section-title">{rtype} ({len(items)})</h2>
+<table class="aws-table">
+  <thead><tr><th>Resource</th><th>Details</th></tr></thead>
+  <tbody>{rows}</tbody>
+</table>""")
+
+        # Services
+        if services:
             tiles = "".join(
                 f'<a class="service-tile" href="{session.with_region(href, region_code)}">'
                 f'<div class="service-tile-icon">{sid[:2].upper()}</div>'
                 f'<div class="service-tile-body"><div class="service-tile-name">{name}</div>'
                 f'<div class="service-tile-desc">{desc}</div></div></a>'
-                for sid, name, desc, href in matches
+                for sid, name, desc, href in services
             )
-            body = (f'<section class="aws-section"><h1>Search results for '
-                    f'&ldquo;{q}&rdquo;</h1><p class="aws-muted">{len(matches)} match(es)</p>'
-                    f'<div class="service-grid">{tiles}</div></section>')
-        else:
-            body = (f'<section class="aws-section"><h1>No results for '
-                    f'&ldquo;{q}&rdquo;</h1><p class="aws-muted">Try S3, EC2, VPC, '
-                    f'DynamoDB, Lambda, IAM, CloudWatch, STS.</p></section>')
-        return layout.page(f"Search: {q}", body,
+            body_parts.append(f"""
+<h2 class="ec2-section-title">Services ({len(services)})</h2>
+<div class="service-grid">{tiles}</div>""")
+
+        if not body_parts:
+            body_parts.append(f"""
+<section class="aws-section">
+  <h1>No results for &ldquo;{q}&rdquo;</h1>
+  <p class="aws-muted">
+    Search covers services and your resources:
+    S3 buckets, EC2 instances, VPCs, IAM users, DynamoDB tables,
+    Lambda functions, CloudWatch alarms, log groups.
+  </p>
+</section>""")
+
+        body = "".join(body_parts)
+        return layout.page(
+            f"Search: {q}",
+            f'<section class="aws-section"><h1>Results for &ldquo;{q}&rdquo;</h1></section>{body}',
             breadcrumb=[("AWS Console", "/"), ("Search", None), (q or "(empty)", None)],
-            region=session.region_tuple(region_code), path="/search")
+            region=session.region_tuple(region_code),
+            path="/search",
+        )
+
 
     def do_POST(self):
         split = urlsplit(self.path)
@@ -513,7 +671,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 form = {k: v[0] for k, v in parsed.items()}
 
             result = None
-            if path.startswith("/s3"):
+            if path.startswith("/security"):
+                result = security_page.handle(path, form, files)
+            elif path.startswith("/s3"):
                 result = s3_actions.handle(path, form, files)
             elif path.startswith("/ec2"):
                 result = ec2_actions.handle(path, form, files)
@@ -521,10 +681,18 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 result = vpc_actions.handle(path, form, files)
             elif path.startswith("/cloudwatch"):
                 result = cloudwatch_actions.handle(path, form, files)
+            elif path.startswith("/iam/roles"):
+                result = iam_roles_actions.handle(path, form, files)
+            elif path.startswith("/iam/roles"):
+                result = iam_roles_actions.handle(path, form, files)
             elif path.startswith("/iam"):
                 result = iam_actions.handle(path, form, files)
+            elif path.startswith("/billing"):
+                result = billing_actions.handle(path, form, files)
             elif path.startswith("/dynamodb"):
                 result = dynamodb_actions.handle(path, form, files)
+            elif path.startswith("/lambda"):
+                result = lambda_actions.handle(path, form, files)
 
             if result is None:
                 return self._send_html(

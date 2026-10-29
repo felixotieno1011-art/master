@@ -5,6 +5,7 @@ from datetime import datetime
 from core import vpc as vpc_mod
 from core import sg as sg_mod
 from core import nat as nat_mod
+from core.webui import table_filter as tf
 
 
 def _esc(s):
@@ -94,12 +95,32 @@ def _vpc_resource_map(vpc_id, subnets, rts, igws, sgs):
 
 # ---------- VPCs list ----------
 
+
+def _quota_banner(service):
+    """Render a small warning if a service is close to its default quota."""
+    try:
+        from core.webui import security
+        q = security.quota_check(service)
+    except Exception:
+        return ""
+    if not q or not q.get("warn"):
+        return ""
+    pct = q["pct"]
+    return f"""<div class="aws-notice aws-notice-warn">
+  <strong>&#9888; Approaching service quota:</strong> You have <strong>{q["used"]} of {q["limit"]}</strong>
+  {q["metric"].lower()} ({pct:.0f}%). Real AWS blocks new resources at the limit until you
+  request a limit increase via Support.
+</div>"""
+
+
 def render_vpcs(qs=None):
     flash = _flash(qs)
     try:
         vpcs = vpc_mod.list_vpcs()
     except Exception as e:
         return f'<div class="aws-notice aws-notice-error">Error: {_esc(e)}</div>'
+
+    vpcs = tf.apply_filter(vpcs, qs or {}, {"state": tf.by_state, "region": tf.by_region})
 
     if not vpcs:
         rows_html = '<tr><td colspan="6" class="aws-muted" style="text-align:center; padding:24px;">No VPCs. Click Create VPC.</td></tr>'
@@ -117,6 +138,7 @@ def render_vpcs(qs=None):
     return f"""
 <section class="aws-section">
   {flash}
+  {_quota_banner("vpc")}
   <div class="s3-page-header">
     <h1>Your VPCs <span class="aws-muted">({len(vpcs)})</span></h1>
     <div class="s3-page-actions">

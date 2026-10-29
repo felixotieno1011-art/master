@@ -5,6 +5,8 @@
   "path": "/",
   "created": "2026-10-07T12:29:16",
   "tags": {},
-  "attachedPolicies": [],
+  "attachedPolicies": [
+    "AmazonS3FullAccess"
+  ],
   "groups": []
 }

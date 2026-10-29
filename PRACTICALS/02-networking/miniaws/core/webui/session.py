@@ -31,8 +31,28 @@ def region_tuple(code=None):
 
 
 def set_region(code):
-    """Persist a new region via account.set_region (writes ~/.aws/config + state)."""
-    return account.set_region(code)
+    """Persist a new region. Uses account.set_region for legacy regions; falls
+    back to writing state/config.json directly for the full modern region set
+    (aws_ref.REGIONS) since the CLI-side config.REGIONS is smaller."""
+    from core.webui import aws_ref
+    valid_webui = {r[0] for r in aws_ref.REGIONS}
+
+    if code not in valid_webui:
+        return False, f"invalid region '{code}'"
+
+    # Try the standard path first (it validates against config.REGIONS)
+    ok_, msg = account.set_region(code)
+    if ok_:
+        return ok_, msg
+
+    # Fallback: write directly for regions config.REGIONS doesn't know about
+    try:
+        data = account._load()
+        data["region"] = code
+        account._save(data)
+        return True, f"region set to '{code}' (webui-only region)"
+    except Exception as e:
+        return False, f"failed to set region: {e}"
 
 
 def region_from_query(qs):

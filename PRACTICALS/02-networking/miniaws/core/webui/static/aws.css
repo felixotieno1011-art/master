@@ -579,3 +579,510 @@ a:hover { text-decoration: underline; color: #005a94; }
   border-radius: 0;
   max-height: 320px;
 }
+
+/* ---- Phase 7a: Header fidelity ---- */
+.aws-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px;
+  height: 48px;
+  background: #232f3e;
+  color: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.aws-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.aws-hamburger {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 3px;
+  display: none;
+}
+.aws-hamburger:hover {
+  background: #31465f;
+}
+@media (max-width: 820px) {
+  .aws-hamburger { display: inline-block; }
+}
+
+.aws-logo {
+  color: #ff9900;
+  font-weight: 700;
+  font-size: 18px;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  padding: 4px 6px;
+  border-radius: 3px;
+}
+.aws-logo:hover {
+  background: #31465f;
+  text-decoration: none;
+}
+
+.aws-topnav {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.aws-topnav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+.aws-topnav a:hover {
+  background: #31465f;
+  text-decoration: none;
+}
+
+.aws-search {
+  margin-left: 4px;
+  flex: 0 1 360px;
+  min-width: 120px;
+}
+.aws-search input {
+  width: 100%;
+  background: #31465f;
+  border: 1px solid #44586e;
+  color: #ffffff;
+  padding: 6px 10px;
+  border-radius: 3px;
+  font-size: 13px;
+}
+.aws-search input::placeholder {
+  color: #b0bac7;
+}
+.aws-search input:focus {
+  outline: none;
+  border-color: #ff9900;
+}
+
+.aws-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aws-header-icon {
+  background: none;
+  border: none;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 15px;
+  padding: 6px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+}
+.aws-header-icon:hover {
+  background: #31465f;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.aws-icon-badge {
+  position: relative;
+}
+.aws-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #dd344c;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 8px;
+  min-width: 14px;
+  text-align: center;
+  line-height: 1;
+}
+
+.aws-account-menu {
+  position: relative;
+}
+.aws-account-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 14px;
+  padding: 6px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.aws-account-btn:hover {
+  background: #31465f;
+}
+.aws-caret {
+  font-size: 10px;
+  opacity: 0.7;
+}
+.aws-account-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 6px;
+  background: #ffffff;
+  color: #16191f;
+  border: 1px solid #d5dbdb;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  min-width: 220px;
+  z-index: 200;
+  padding: 4px 0;
+}
+.aws-account-header {
+  padding: 8px 14px;
+  font-size: 11px;
+  color: #687078;
+  border-bottom: 1px solid #e9ebed;
+}
+.aws-account-dropdown a {
+  display: block;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: #16191f;
+  text-decoration: none;
+}
+.aws-account-dropdown a:hover {
+  background: #f1f3f3;
+  text-decoration: none;
+}
+.aws-badge-inline {
+  display: inline-block;
+  background: #dd344c;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-left: 6px;
+}
+
+.aws-region select {
+  background: #31465f;
+  color: #ffffff;
+  border: 1px solid #44586e;
+  padding: 5px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+@media (max-width: 820px) {
+  .aws-topnav { display: none; }
+  .aws-search { flex: 1; min-width: 80px; }
+  .aws-search input { font-size: 12px; }
+}
+
+/* Mobile sidebar drawer */
+@media (max-width: 820px) {
+  .aws-body {
+    display: block;
+  }
+  .aws-sidebar {
+    position: fixed;
+    top: 48px;
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    z-index: 90;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    overflow-y: auto;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+  }
+  body.aws-sidebar-open .aws-sidebar {
+    transform: translateX(0);
+  }
+  .aws-main {
+    padding: 16px;
+  }
+}
+
+/* ---- Mobile header compaction (real AWS style) ---- */
+@media (max-width: 820px) {
+  /* Hide icons that live in the hamburger menu on real AWS mobile */
+  .aws-header-icon[title="CloudShell"],
+  .aws-header-icon[title="Documentation"],
+  .aws-header-icon[title="Support"] {
+    display: none;
+  }
+
+  /* Hide the search box entirely on mobile (real AWS collapses it to an icon) */
+  .aws-search {
+    display: none;
+  }
+
+  /* Tighten gaps */
+  .aws-header {
+    gap: 6px;
+    padding: 0 8px;
+  }
+  .aws-header-left {
+    gap: 6px;
+  }
+  .aws-header-right {
+    gap: 4px;
+  }
+
+  /* Region picker takes the space the search box gave up */
+  .aws-region select {
+    max-width: 140px;
+    font-size: 11px;
+    padding: 4px 6px;
+  }
+}
+
+/* ---- Phase 7c: Table enhancements ---- */
+.aws-table-filter {
+  margin: 8px 0;
+}
+.aws-table-filter-input {
+  width: 100%;
+  max-width: 420px;
+  padding: 6px 10px;
+  border: 1px solid #d5dbdb;
+  border-radius: 3px;
+  font-size: 13px;
+}
+.aws-table-count {
+  font-size: 12px;
+  color: #687078;
+  margin-top: 6px;
+  text-align: right;
+}
+.aws-th-sortable {
+  user-select: none;
+}
+.aws-th-sortable:hover {
+  background: #f1f3f3;
+}
+.aws-sorted-asc::after {
+  content: " \25B2";
+  color: #0073bb;
+  font-size: 10px;
+}
+.aws-sorted-desc::after {
+  content: " \25BC";
+  color: #0073bb;
+  font-size: 10px;
+}
+
+.aws-th-checkbox,
+.aws-td-checkbox {
+  width: 32px;
+  text-align: center;
+  padding: 6px !important;
+}
+.aws-th-checkbox input,
+.aws-td-checkbox input {
+  margin: 0;
+  cursor: pointer;
+}
+
+.aws-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  margin-bottom: 8px;
+}
+.aws-bulk-count {
+  font-size: 12px;
+  color: #687078;
+}
+.aws-bulk-dropdown {
+  position: relative;
+}
+.aws-bulk-btn {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+.aws-bulk-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: #ffffff;
+  border: 1px solid #d5dbdb;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  min-width: 160px;
+  z-index: 50;
+}
+.aws-bulk-menu a {
+  display: block;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: #16191f;
+  text-decoration: none;
+}
+.aws-bulk-menu a:hover {
+  background: #f1f3f3;
+  text-decoration: none;
+}
+.aws-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+  font-size: 12px;
+  color: #687078;
+}
+.aws-filter-chip {
+  background: #f1f3f3;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+.aws-filter-chip strong {
+  color: #16191f;
+}
+
+/* ---- IAM Roles ---- */
+.iam-entity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+.iam-entity-card {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px;
+  border: 1px solid #d5dbdb;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #ffffff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.iam-entity-card:hover {
+  border-color: #0073bb;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.iam-entity-card input[type=radio] {
+  margin: 4px 0 0 0;
+  cursor: pointer;
+}
+.iam-entity-card:has(input:checked) {
+  border-color: #ff9900;
+  background: #fff8e6;
+}
+.iam-entity-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: #16191f;
+}
+.iam-entity-desc {
+  font-size: 12px;
+  color: #687078;
+  margin-top: 2px;
+}
+.iam-trust-summary {
+  background: #f1f8ff;
+  border: 1px solid #0073bb;
+  border-left-width: 4px;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin: 12px 0;
+}
+.iam-trust-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: #0073bb;
+  margin-bottom: 8px;
+}
+.iam-trust-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+}
+.iam-trust-list li {
+  margin-bottom: 4px;
+}
+
+/* ---- Billing ---- */
+.billing-chart {
+  display: block;
+  background: #ffffff;
+  border: 1px solid #e9ebed;
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+.billing-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: #16191f;
+}
+.billing-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.billing-legend-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+.billing-bar-track {
+  width: 100%;
+  height: 8px;
+  background: #f1f3f3;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.billing-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  min-width: 1px;
+}
+.billing-budget-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.billing-ok {
+  color: #037f0c;
+  background: #e6f4e7;
+  border: 1px solid #7ad17e;
+}
+.billing-warning {
+  color: #b7791f;
+  background: #fff4e0;
+  border: 1px solid #f2cd5c;
+}
+.billing-over_budget {
+  color: #ffffff;
+  background: #d13212;
+  border: 1px solid #b32810;
+}

@@ -6,6 +6,7 @@ Mirrors console_actions.py shape: handle() returns
 import urllib.parse
 
 from core import s3 as s3_mod
+from core.webui import permissions
 
 
 def _redirect(location):
@@ -40,6 +41,9 @@ def handle(path, form, files=None):
 # ---------- Actions ----------
 
 def _create_bucket(form):
+    allowed, err = permissions.require("s3:CreateBucket", back="/s3/create")
+    if not allowed:
+        return err
     name = (form.get("bucket") or "").strip()
     if not name:
         return _err("/s3/create", "Bucket name required")
@@ -51,6 +55,9 @@ def _create_bucket(form):
 
 def _upload_object(form, files):
     bucket = (form.get("bucket") or "").strip()
+    allowed, err = permissions.require("s3:PutObject", back=f"/s3/{bucket}/upload")
+    if not allowed:
+        return err
     if not bucket:
         return _err("/s3", "bucket required")
 
@@ -78,6 +85,9 @@ def _upload_object(form, files):
 
 def _delete_object(form):
     bucket = (form.get("bucket") or "").strip()
+    allowed, err = permissions.require("s3:DeleteObject", back=f"/s3/{bucket}")
+    if not allowed:
+        return err
     key = (form.get("key") or "").strip()
     back = f"/s3/{urllib.parse.quote(bucket)}"
     if not bucket or not key:
@@ -88,6 +98,9 @@ def _delete_object(form):
 
 def _delete_bucket(form):
     bucket = (form.get("bucket") or "").strip()
+    allowed, err = permissions.require("s3:DeleteBucket", back=f"/s3/{bucket}")
+    if not allowed:
+        return err
     if not bucket:
         return _err("/s3", "bucket required")
     ok_, msg = s3_mod.rb_bucket(bucket, force=False)

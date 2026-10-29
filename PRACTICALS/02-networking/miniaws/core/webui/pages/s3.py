@@ -4,6 +4,7 @@ from datetime import datetime
 
 from core import s3 as s3_mod
 from core.webui import aws_ref
+from core.webui import table_filter as tf
 
 
 def _esc(s):
@@ -70,6 +71,22 @@ def _bucket_detail_tabs(active, bucket):
     return f'<nav class="s3-tabs">{"".join(parts)}</nav>'
 
 
+
+def _quota_banner(service):
+    try:
+        from core.webui import security
+        q = security.quota_check(service)
+    except Exception:
+        return ""
+    if not q or not q.get("warn"):
+        return ""
+    pct = q["pct"]
+    return f"""<div class="aws-notice aws-notice-warn">
+  <strong>&#9888; Approaching service quota:</strong> You have <strong>{q["used"]} of {q["limit"]}</strong>
+  {q["metric"].lower()} ({pct:.0f}%).
+</div>"""
+
+
 def render_buckets(region_code, qs=None):
     """Render /s3 — buckets list."""
     flash = render_flash_from_query(qs or {})
@@ -77,6 +94,8 @@ def render_buckets(region_code, qs=None):
         buckets = s3_mod.ls_buckets() or []
     except Exception as e:
         return _flash_banner(f"Error loading buckets: {e}", "error")
+
+    buckets = tf.apply_filter(buckets, qs or {}, {"region": tf.by_region})
 
     if not buckets:
         return f"""
@@ -105,6 +124,7 @@ def render_buckets(region_code, qs=None):
     return f"""
 <section class="aws-section">
   {flash}
+  {_quota_banner("s3")}
   <div class="s3-page-header">
     <h1>Buckets <span class="aws-muted">({len(buckets)})</span></h1>
     <div class="s3-page-actions">
