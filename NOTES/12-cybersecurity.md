@@ -2172,3 +2172,62 @@ Understood WAFs. Tested SQLi in vulnerable vs secure mode.
 - 12.34 (Cloud Security) — Cloudflare WAF, AWS WAF.
 - 12.31 (OWASP) — A03 Injection (what WAFs block).
 - 12.30 (Mobile Forensics) — Module 5 complete.
+
+## 12.23 Firewall Rules & Network Defense — Phase B DONE ✅
+
+Wrote and tested firewall rules with iptables in the Codespace.
+Blocked an IP, verified the rule, then removed it.
+
+### Core concepts
+- **Firewall rules** = allow/deny conditions for network traffic.
+- **Default Deny:** block everything, allow only what's needed.
+- **Least Privilege:** open only the ports that are necessary.
+- **DOCKER-USER chain** = the custom chain for Docker iptables rules.
+
+### The 4 types of rules
+1. **IP-based:** block/allow specific IPs.
+2. **Port-based:** allow port 80/443, block port 22 from the internet.
+3. **Protocol-based:** allow TCP/UDP, block ICMP.
+4. **Rate-based:** limit connections per second.
+
+### The tools
+- **iptables** (classic Linux).
+- **nftables** (modern replacement).
+- **ufw** (Uncomplicated Firewall).
+- **firewalld** (Red Hat/CentOS).
+- **Cloud Security Groups** (AWS/Azure/GCP).
+
+### Real commands I ran
+- `sudo iptables -L -n` → saw the chains (INPUT, OUTPUT, FORWARD, DOCKER-USER).
+- `sudo iptables -I DOCKER-USER -s 45.33.12.99 -j DROP` → added the block rule.
+- `sudo iptables -L DOCKER-USER -n` → confirmed the rule was there.
+- `sudo iptables -D DOCKER-USER -s 45.33.12.99 -j DROP` → removed the rule.
+- `sudo iptables -L DOCKER-USER -n` → confirmed the chain was empty.
+
+### Things I saw
+- The `INPUT` chain had `policy ACCEPT` (everything allowed).
+- The `DOCKER-USER` chain is where custom rules go.
+- The block rule showed `DROP -- 45.33.12.99 0.0.0.0/0`.
+- After deleting, the chain was empty.
+
+### My own words (locked in)
+- Block the attacker's IP, not the port.
+- If you close the port, you lock yourself out.
+- Default Deny = block everything, allow only what's needed.
+- `iptables -A` appends. `-I` inserts at the top. `-D` deletes.
+- `-j DROP` silently drops the packet. `-j ACCEPT` allows it.
+- Docker creates the `DOCKER-USER` chain for custom rules.
+- Mirai botnet (2016): 100,000 IPs, one rule wasn't enough.
+- The 4 layers: network firewall → WAF → IDS/IPS → Zero Trust.
+- Always remove temporary rules after the attack stops.
+- Never close SSH from everywhere. Allow only your IP.
+
+### Connection to other topics
+- 8.5 (Network Security) — the concept.
+- 12.21 (IDS/IPS) — the detection layer.
+- 12.32 (WAF) — the HTTP layer.
+- 8.11 (Zero Trust) — the modern model.
+- 12.16 (Network Attacks) — what the firewall blocks.
+- 7.5.4 (File Permissions) — same "least privilege" concept for files.
+- 7.9 (Nginx) — Nginx sits behind the firewall.
+- 12.19 (Blue Team) — the SOC watches the firewall logs.
