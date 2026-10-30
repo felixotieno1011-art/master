@@ -210,6 +210,7 @@ if [ "$MINIAWS_OUTPUT_OVERRIDE" = "json" ]; then
     ec2/describe-route-tables)         JSON_KEY="describe-route-tables" ;;
     ec2/describe-instances)            JSON_KEY="describe-instances" ;;
     ec2/describe-availability-zones)   JSON_KEY="describe-availability-zones" ;;
+    ec2/describe-addresses)            JSON_KEY="describe-addresses" ;;
     s3/ls)                             JSON_KEY="list-buckets" ;;
     iam/list-users)                    JSON_KEY="list-users" ;;
     cloudwatch/list-alarms)            JSON_KEY="list-alarms" ;;
@@ -307,8 +308,7 @@ case "$SERVICE" in
       authorize-security-group-ingress) python sg_cli.py authorize-ingress "$@" ;;
       revoke-security-group-ingress)    python sg_cli.py revoke-ingress "$@" ;;
       *)
-        echo "❌ aws ec2: unknown command: $ACTION"
-        exit 1
+        python cli.py ec2 "$ACTION" "$@"
         ;;
     esac
     ;;

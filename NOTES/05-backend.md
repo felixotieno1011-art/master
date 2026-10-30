@@ -466,3 +466,57 @@ Logged in, got a token, and accessed a protected route.
 - 7.13 (Env Management) — the secret in `.env`.
 - 5.7 (Validation) — validate login input.
 - 12.17 (Password Attacks) — never store plaintext passwords.
+
+## 5.10 WebSockets — Phase B DONE ✅
+
+Built a real-time chat app with Socket.io.
+Tested broadcasting messages between two browser tabs.
+
+### Core concepts
+- **WebSockets** = full-duplex (two-way) communication over a single TCP connection.
+- **HTTP** = request-response (client asks, server answers, connection closes).
+- **WebSocket** = the connection stays open. Server can push data.
+- **Socket.io** = the most popular Node.js library for WebSockets.
+- **Broadcast** = sending a message to everyone connected (`io.emit`).
+- **Rooms** = sending a message to a specific group (optional, not covered today).
+
+### The flow
+1. Client connects to `ws://` (or `http://` with upgrade).
+2. Handshake: HTTP request with `Upgrade: websocket`.
+3. Connection stays open.
+4. Client sends messages (`socket.emit`).
+5. Server broadcasts (`io.emit`).
+6. Client receives (`socket.on`).
+
+### Real commands I ran
+- `npm install express socket.io`
+- `node server.js`
+- Opened `http://127.0.0.1:3000` in two tabs.
+- Typed "Hi" and "Yes" in one tab, saw them in the other.
+
+### Things I saw
+- Messages appeared instantly in both tabs.
+- No page reload.
+- The server logged "A user connected: <socket.id>".
+
+### My own words (locked in)
+- WebSockets = phone call. HTTP = letter.
+- The connection stays open.
+- The server can push data to the client.
+- `socket.emit` = send a message.
+- `io.emit` = broadcast to everyone.
+- `socket.on` = listen for a message.
+- Socket.io handles reconnection and fallbacks.
+- WebSockets are used for chat, live dashboards, games, notifications.
+- HTTP is for APIs (request-response).
+- WebSockets are for real-time (two-way).
+
+### Connection to other topics
+- 5.1 (Backend loop) — the loop is different for WebSockets (no closing).
+- 5.5 (REST API) — REST is request-response. WebSockets are real-time.
+- 5.9 (File Uploads) — not covered today, but possible over WebSockets.
+- 12.14 (Exploitation) — reverse shells use raw sockets (like WebSockets).
+- 7.5.2 (Threads) — Socket.io uses Node's event loop.
+- 7.6 (Docker) — Socket.io can run in a container.
+- 8.10 (Secure API) — WebSockets need auth too (handshake token).
+- 12.33 (API Security) — WebSockets have unique security risks.

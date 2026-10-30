@@ -208,3 +208,122 @@ def read_proc_stats(pid):
     except Exception:
         return None
     return info
+
+# ---------- Elastic IPs (EIP) ----------
+
+ELASTIC_IPS_DIR = os.path.join(config.STATE_DIR, "ec2", "elastic_ips")
+
+
+def _eip_path(allocation_id):
+    return os.path.join(ELASTIC_IPS_DIR, f"{allocation_id}.json")
+
+
+def _ensure_eip_dir():
+    ensure_dir(ELASTIC_IPS_DIR)
+
+
+def _fake_public_ip():
+    """Generate a deterministic-looking public IP that won't collide."""
+    import random
+    # AWS uses pools like 54.x, 52.x, 18.x, 3.x
+    prefixes = ["54.184", "52.12", "18.234", "3.17", "13.57"]
+    p = random.choice(prefixes)
+    return f"{p}.{random.randint(1, 254)}.{random.randint(1, 254)}"
+
+
+def allocate_address(tags=None):
+    """Allocate an Elastic IP. Returns (ok, msg, allocation_id)."""
+    if not account.is_initialized():
+        return False, "account not initialized", None
+    _ensure_eip_dir()
+
+    allocation_id = new_id("eipalloc")
+    region = account.get_region()
+    account_id = account.get_account_id()
+
+    data = {
+        "AllocationId": allocation_id,
+        "Domain": "vpc",
+        "PublicIp": _fake_public_ip(),
+        "Region": region,
+        "AccountId": account_id,
+        "InstanceId": None,
+        "AssociationId": None,
+        "AssociateTime": None,
+        "Tags": tags or {},
+        "AllocatedAt": now_iso(),
+    }
+    write_json(_eip_path(allocation_id), data)
+    return True, f"allocated EIP {data['PublicIp']} (id: {allocation_id})", allocation_id
+
+
+def list_addresses():
+    """Return all EIPs."""
+    _ensure_eip_dir()
+    out = []
+    if not os.path.isdir(ELASTIC_IPS_DIR):
+        return out
+    for f in sorted(os.listdir(ELASTIC_IPS_DIR)):
+        if f.endswith(".json"):
+            d = read_json(os.path.join(ELASTIC_IPS_DIR, f))
+            if d:
+                out.append(d)
+    return out
+
+
+def get_address(allocation_id):
+    return read_json(_eip_path(allocation_id))
+
+
+def find_address_by_ip(public_ip):
+    for eip in list_addresses():
+        if eip.get("PublicIp") == public_ip:
+            return eip
+    return None
+
+
+def associate_address(allocation_id, instance_id):
+    """Attach an EIP to an instance."""
+    eip = get_address(allocation_id)
+    if not eip:
+        return False, f"EIP {allocation_id} not found"
+    if eip.get("InstanceId"):
+        return False, f"EIP {allocation_id} is already associated with {eip['InstanceId']}"
+    inst = get(instance_id)
+    if not inst:
+        return False, f"instance {instance_id} not found"
+    if (inst.get("state") or "").lower() not in ("running", "pending"):
+        return False, f"cannot associate EIP with instance in state '{inst.get('state')}'"
+    # Real AWS: each instance can have one EIP
+    for other in list_addresses():
+        if other.get("InstanceId") == instance_id:
+            return False, f"instance {instance_id} already has EIP {other.get('PublicIp')}"
+
+    eip["InstanceId"] = instance_id
+    eip["AssociationId"] = new_id("eipassoc")
+    eip["AssociateTime"] = now_iso()
+    write_json(_eip_path(allocation_id), eip)
+    return True, f"associated {eip['PublicIp']} with {instance_id}"
+
+
+def disassociate_address(allocation_id):
+    eip = get_address(allocation_id)
+    if not eip:
+        return False, f"EIP {allocation_id} not found"
+    if not eip.get("InstanceId"):
+        return False, f"EIP {allocation_id} is not associated"
+    eip["InstanceId"] = None
+    eip["AssociationId"] = None
+    eip["AssociateTime"] = None
+    write_json(_eip_path(allocation_id), eip)
+    return True, f"disassociated EIP {allocation_id}"
+
+
+def release_address(allocation_id):
+    eip = get_address(allocation_id)
+    if not eip:
+        return False, f"EIP {allocation_id} not found"
+    if eip.get("InstanceId"):
+        return False, f"cannot release EIP {allocation_id} — still associated with {eip['InstanceId']}. Disassociate first."
+    delete_file(_eip_path(allocation_id))
+    return True, f"released EIP {allocation_id} ({eip.get('PublicIp')})"

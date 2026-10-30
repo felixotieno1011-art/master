@@ -358,6 +358,53 @@ def cmd_ec2(args):
         for k, v in (inst.get("tags") or {}).items():
             print(f"   {k} = {v}")
         return 0
+    if sub == "allocate-address":
+        ok_, msg, _aid = ec2.allocate_address()
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
+    if sub == "describe-addresses":
+        addrs = ec2.list_addresses()
+        if not addrs:
+            print(utils.warn("no Elastic IPs")); return 0
+        print_row(["PUBLIC IP", "ALLOCATION ID", "INSTANCE", "STATE"],
+                  [18, 24, 24, 14])
+        print("-" * 84)
+        for a in addrs:
+            inst = a.get("InstanceId") or "-"
+            state = "associated" if a.get("InstanceId") else "UNASSOCIATED"
+            print_row([a.get("PublicIp", "?"), a.get("AllocationId", "?"),
+                       inst, state], [18, 24, 24, 14])
+        return 0
+
+    if sub == "associate-address":
+        flags = parse_flags(rest)
+        aid = flags.get("allocation-id")
+        iid = flags.get("instance-id")
+        if not aid or not iid:
+            print(utils.err("usage: associate-address --allocation-id <id> --instance-id <id>")); return 1
+        ok_, msg = ec2.associate_address(aid, iid)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
+    if sub == "disassociate-address":
+        flags = parse_flags(rest)
+        aid = flags.get("allocation-id") or flags.get("association-id")
+        if not aid:
+            print(utils.err("usage: disassociate-address --allocation-id <id>")); return 1
+        ok_, msg = ec2.disassociate_address(aid)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
+    if sub == "release-address":
+        flags = parse_flags(rest)
+        aid = flags.get("allocation-id")
+        if not aid:
+            print(utils.err("usage: release-address --allocation-id <id>")); return 1
+        ok_, msg = ec2.release_address(aid)
+        print(utils.ok(msg) if ok_ else utils.err(msg))
+        return 0 if ok_ else 1
+
     if sub in ("start-instances", "stop-instances", "reboot-instances", "terminate-instances"):
         if not rest:
             print(utils.err(f"usage: ec2 {sub} <id-or-name> OR --instance-ids <id>")); return 1
@@ -743,6 +790,7 @@ JSON_HANDLERS = {
     ("ec2", "describe-route-tables"):        "describe-route-tables",
     ("ec2", "describe-instances"):           "describe-instances",
     ("ec2", "describe-availability-zones"):  "describe-availability-zones",
+    ("ec2", "describe-addresses"):           "describe-addresses",
     ("s3",  "ls"):                           "list-buckets",
     ("iam", "list-users"):                   "list-users",
     ("iam", "list-access-keys"):             "list-access-keys",

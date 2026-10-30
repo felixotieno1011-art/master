@@ -89,6 +89,7 @@ SERVICE_NAV = {
         ("Instances",            "/ec2/instances"),
         ("Instance Types",       "/ec2/instance-types"),
         ("Launch Templates",     "/ec2/launch-templates"),
+        ("Elastic IPs",          "/ec2/elastic-ips"),
         ("Security Groups",      "/ec2/security-groups"),
         ("Key Pairs",            "/ec2/key-pairs"),
     ],

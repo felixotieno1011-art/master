@@ -13,6 +13,8 @@ from core.webui.pages import s3 as s3_pages
 from core.webui.pages import s3_actions, s3_wizard
 from core.webui.pages import ec2 as ec2_pages
 from core.webui.pages import ec2_actions
+from core.webui.pages import ec2_eips as ec2_eips_pages
+from core.webui.pages import ec2_eips_actions
 from core.webui.pages import vpc as vpc_pages
 from core.webui.pages import vpc_actions
 from core.webui.pages import cloudwatch as cw_pages
@@ -122,6 +124,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     ec2_pages.render_launch(qs=qs), "ec2",
                     [("AWS Console", "/"), ("EC2", "/ec2"), ("Instances", "/ec2/instances"),
                      ("Launch an instance", None)], region_code, "Launch an instance"))
+
+            if path == "/ec2/elastic-ips":
+                return self._send_html(_page("/ec2/elastic-ips",
+                    ec2_eips_pages.render_elastic_ips(qs=qs), "ec2",
+                    [("AWS Console", "/"), ("EC2", "/ec2"),
+                     ("Elastic IPs", None)], region_code, "Elastic IPs"))
 
             if path.startswith("/ec2/instances/"):
                 iid = path[len("/ec2/instances/"):]
@@ -675,6 +683,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 result = security_page.handle(path, form, files)
             elif path.startswith("/s3"):
                 result = s3_actions.handle(path, form, files)
+            elif path.startswith("/ec2/eips"):
+                result = ec2_eips_actions.handle(path, form, files)
             elif path.startswith("/ec2"):
                 result = ec2_actions.handle(path, form, files)
             elif path.startswith("/vpc"):

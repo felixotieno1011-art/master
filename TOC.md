@@ -75,7 +75,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 5.7 Validation & Error Handling 📱
 - [x] 5.8 Env Vars & Config 📱
 - [ ] 5.9 File Uploads & Storage 📱🔁
-- [ ] 5.10 WebSockets 📱
+- [x] 5.10 WebSockets 📱
 - [ ] 5.11 GraphQL 📱💻
 - [ ] 5.12 Background Jobs & Queues 📱🔁
 - [ ] 5.13 Caching (Redis) 📱💻

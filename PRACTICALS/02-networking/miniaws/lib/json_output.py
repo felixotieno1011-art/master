@@ -277,3 +277,24 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+def describe_addresses():
+    """Elastic IPs — real AWS shape."""
+    from core import ec2 as ec2_mod
+    eips = ec2_mod.list_addresses()
+    addresses = []
+    for eip in eips:
+        entry = {
+            "Domain": eip.get("Domain", "vpc"),
+            "PublicIp": eip.get("PublicIp"),
+            "AllocationId": eip.get("AllocationId"),
+            "NetworkBorderGroup": eip.get("Region"),
+        }
+        if eip.get("InstanceId"):
+            entry["InstanceId"] = eip["InstanceId"]
+            entry["AssociationId"] = eip.get("AssociationId")
+            entry["PrivateIpAddress"] = "10.0.0.10"
+        if eip.get("Tags"):
+            entry["Tags"] = [{"Key": k, "Value": v} for k, v in eip["Tags"].items()]
+        addresses.append(entry)
+    return {"Addresses": addresses}
