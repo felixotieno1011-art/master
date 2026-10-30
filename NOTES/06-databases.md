@@ -295,3 +295,60 @@ Understood the difference between SQL and NoSQL.
 - 7.6 (Docker) — Redis runs in a container.
 - 8.5 (Network Security) — Redis has no auth by default (we saw the warning!).
 - 12.15 (Web Hacking) — Redis misconfigurations can be exploited.
+
+## 6.8 Caching Layer (Redis) — Phase B DONE ✅
+
+Added Redis caching to a fake product endpoint.
+Saw the difference between a cache miss (536ms) and a cache hit (8ms).
+
+### Core concepts
+- **Caching** = storing expensive results in a fast place.
+- **Cache hit** = data found in cache (fast).
+- **Cache miss** = data not in cache (query the DB).
+- **TTL** = Time To Live. The cache expires after a time.
+- **Cache invalidation** = the hardest problem (keeping cache in sync with the DB).
+
+### The 3 caching patterns
+1. **Cache-Aside (Lazy Loading):** Check cache, if miss query DB, store in cache.
+2. **Write-Through:** Write to cache and DB at the same time.
+3. **Write-Behind:** Write to cache only, flush to DB later.
+
+### What to cache
+- ✅ Product lists, user profiles, search results (rarely change).
+- ❌ Live prices, bank balances, OTPs (must be accurate).
+
+### Real commands I ran
+- `redis-cli ping` → `PONG`
+- `npm install redis`
+- `node cache-test.js`
+
+### Things I saw
+- Request 1 (miss): 536ms.
+- Request 2 (hit): 7.93ms.
+- Request 3 (hit): 10.53ms.
+- The cache hit was ~50× faster than the miss.
+- The error `Socket already opened` taught me to connect once.
+
+### My own words (locked in)
+- Caching = the pre-made coffee on the counter.
+- Cache hit = fast. Cache miss = slow.
+- TTL = expiry time.
+- Cache invalidation is the hard problem.
+- Redis is the standard cache (in-memory, fast).
+- The database load drops by 99.9%.
+- Never cache live prices or bank balances.
+- Connect to Redis once, not on every request.
+- `setEx` = set with expiry.
+- `get` = read from cache.
+- `client.connect()` must happen once, before the requests.
+
+### Connection to other topics
+- 6.4 (NoSQL/Redis) — the basics of Redis.
+- 6.2 (SQL) — what we're caching.
+- 5.13 (Caching — future) — the backend version.
+- 7.6 (Docker) — Redis runs in a container.
+- 7.7 (Docker Compose) — Redis + app + Nginx.
+- 8.9 (Rate Limiting) — Redis is used for rate limit counters.
+- 12.20 (SIEM) — Redis can store SIEM state.
+- 7.12 (Monitoring) — cache hit/miss ratio is a key metric.
+
