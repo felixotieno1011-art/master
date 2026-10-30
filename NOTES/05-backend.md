@@ -520,3 +520,59 @@ Tested broadcasting messages between two browser tabs.
 - 7.6 (Docker) — Socket.io can run in a container.
 - 8.10 (Secure API) — WebSockets need auth too (handshake token).
 - 12.33 (API Security) — WebSockets have unique security risks.
+
+## 5.9 File Uploads & Storage — Phase B DONE ✅
+
+Built a secure file upload endpoint with Express + Multer.
+Tested with a .txt (rejected) and a .png (accepted, renamed).
+
+### Core concepts
+- **File uploads** are the most dangerous feature (OWASP FILE-01 to FILE-04).
+- **Multipart/form-data** = the encoding used for file uploads.
+- **Multer** = the Express middleware for handling file uploads.
+- **The 4 vulnerabilities:**
+  - FILE-01: Unrestricted file extension (upload a .php shell).
+  - FILE-02: Path traversal (../../etc/passwd).
+  - FILE-03: Files served from web root (uploaded .html runs).
+  - FILE-04: No size limit (upload 100GB, crash server).
+
+### The 5 validation rules
+1. Check the extension (allowlist: .jpg, .png, .pdf).
+2. Check the MIME type (Content-Type header).
+3. Rename the file (UUID).
+4. Limit the size (max 2MB).
+5. Store outside the web root.
+
+### Real commands I ran
+- `npm install express multer`
+- `node server.js`
+- `curl -X POST .../upload -F "file=@test.txt"` → `400` (rejected).
+- `curl -X POST .../upload -F "file=@test.png"` → `200` (accepted, renamed).
+- `ls -la uploads/` → saw the UUID filename.
+
+### Things I saw
+- `.txt` file: `{"ok":false,"error":"Only .jpg, .jpeg, .png allowed"}` (clean JSON, no stack trace).
+- `.png` file: `{"ok":true,"filename":"65128157-...png"}`.
+- The file was saved as a UUID, not the original name.
+- The original `.txt` was rejected before saving.
+
+### My own words (locked in)
+- Never trust the filename. Rename it.
+- Never trust the extension. Check the MIME type.
+- Never trust the content. Check the magic bytes (FF D8 FF for JPEG).
+- Never store files in the web root. Use a separate folder.
+- Never allow unlimited size. Set a max.
+- Multer is the standard for Express uploads.
+- The error must be clean JSON (no stack traces).
+- UUID is the safe way to rename files.
+- Path traversal is destroyed by renaming.
+- File uploads are a classic path to RCE.
+
+### Connection to other topics
+- 5.7 (Validation) — the same rules apply to files.
+- 8.2 (OWASP) — A05 (misconfiguration) and FILE-01 to FILE-04.
+- 12.15 (Web Hacking) — file upload exploits.
+- 8.4 (Secure Coding) — never trust input (including files).
+- 7.6 (Docker) — uploads should be in a volume, not the container.
+- 7.10 (Cloud) — store uploads in S3, not on the server.
+- 5.8 (Env Vars) — upload paths in config.
