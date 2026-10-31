@@ -221,7 +221,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.32 Web Application Firewall (WAF) 📱
 - [x] 12.33 API Security 📱
 - [x] 12.34 Cloud Security 📱💻
-- [ ] 12.35 Container & Kubernetes Security 📱💻
+- [x] 12.35 Container & Kubernetes Security 📱💻
 - [ ] 12.36 Secure Architecture 📱
 
 ### Module 7 — Legal & Compliance

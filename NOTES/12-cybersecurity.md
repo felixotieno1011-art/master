@@ -2231,3 +2231,38 @@ Blocked an IP, verified the rule, then removed it.
 - 7.5.4 (File Permissions) — same "least privilege" concept for files.
 - 7.9 (Nginx) — Nginx sits behind the firewall.
 - 12.19 (Blue Team) — the SOC watches the firewall logs.
+
+
+## 12.35 Container & Kubernetes Security — Phase B DONE ✅
+
+Understood container and Kubernetes security.
+Audited a Dockerfile and fixed the vulnerabilities.
+
+### The 4 container risks
+1. **Container escape:** break out of the container to the host.
+2. **Vulnerable images:** old libraries with CVEs.
+3. **Secrets in images:** hardcoded API keys.
+4. **Privileged containers:** `--privileged` = root on host.
+
+### The 5 container defenses
+1. Use minimal images (`alpine`, `distroless`).
+2. Run as non-root (`USER node`).
+3. Scan images (`trivy`, `docker scan`).
+4. Never use `--privileged`.
+5. Never hardcode secrets.
+
+### The 5 Kubernetes defenses
+1. RBAC (least privilege).
+2. Pod Security Standards.
+3. Network Policies.
+4. Secrets Management (Kubernetes Secrets or Vault).
+5. Audit Logs (every API call).
+
+### The vulnerable Dockerfile
+```dockerfile
+FROM node:20
+WORKDIR /app
+COPY . .
+RUN npm install
+EXPOSE 3000
+CMD ["node", "server.js"]
