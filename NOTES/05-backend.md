@@ -633,3 +633,85 @@ Tested cache miss, cache hit, invalidation, and refresh.
 - 7.7 (Docker Compose) — Redis + app.
 - 7.12 (Monitoring) — cache hit ratio is a key metric.
 - 12.34 (Cloud Security) — Redis must be secured (no public access).
+
+## 5.11 GraphQL — Phase B DONE ✅
+
+Built a GraphQL API with Express and GraphiQL.
+Queried products (selecting only name and price), added a product, and queried again.
+
+### Core concepts
+- **GraphQL** = a query language for APIs.
+- The client asks for **exactly** the fields it needs.
+- **Schema** = the contract (defines types and operations).
+- **Query** = read data (like GET).
+- **Mutation** = write data (like POST/PUT/DELETE).
+- **Resolver** = the function that fetches the data.
+- **GraphiQL** = the in-browser IDE for testing.
+
+### REST vs. GraphQL
+| Feature | REST | GraphQL |
+|---------|------|---------|
+| Endpoints | Many (/products, /users) | One (/graphql) |
+| Data | Fixed (all fields) | Client chooses fields |
+| Over-fetching | Yes | No |
+| Under-fetching | Yes | No (one query can fetch related data) |
+
+### The schema
+```graphql
+type Product {
+  id: Int!
+  name: String!
+  price: Float!
+  description: String
+}
+
+type Query {
+  products: [Product]
+  product(id: Int!): Product
+}
+
+type Mutation {
+  addProduct(name: String!, price: Float!): Product
+}
+
+Real commands I ran
+
+· npm install express express-graphql graphql
+· node server.js
+· Opened http://127.0.0.1:4000/graphql.
+· Queried { products { id name price description } }.
+· Queried { products { name price } } (only two fields).
+· Mutated mutation { addProduct(name: "Soap", price: 120) { id name price } }.
+· Queried again to see Soap.
+
+Things I saw
+
+· The GraphiQL interface with a query editor and result panel.
+· Query 1: all fields returned.
+· Query 2: only name and price returned.
+· Mutation: returned the new product with id: 3.
+· Query 3: the list included Soap.
+
+My own words (locked in)
+
+· GraphQL = one endpoint, client chooses fields.
+· REST = many endpoints, fixed fields.
+· GraphQL fixes over-fetching and under-fetching.
+· Schema = the contract.
+· Query = read. Mutation = write.
+· Resolver = the function that gets the data.
+· GraphiQL = the testing tool.
+· GraphQL was created by Facebook in 2012.
+· Used by GitHub, Shopify, Twitter, Airbnb.
+· The client can ask for exactly what it needs.
+· No versioning needed (add fields, don't remove).
+
+Connection to other topics
+
+· 5.5 (REST API) — the comparison.
+· 5.4 (Express) — the framework.
+· 5.7 (Validation) — GraphQL validates types.
+· 6.1 (Databases) — the resolvers query the DB.
+· 5.10 (WebSockets) — subscriptions are real-time.
+· 12.33 (API Security) — GraphQL has unique security risks (introspection, deep queries).
+· 8.10 (Secure API) — auth for GraphQL.
