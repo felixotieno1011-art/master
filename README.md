@@ -11,7 +11,7 @@ My journey: Networking + Fullstack Developer.
 - [Practicals](./PRACTICALS/) — code per part
 - [Journal](./JOURNAL.md) — daily log
 - [Resources](./RESOURCES.md) — links & docs
-
+- [Specialization](SPECIALIZATION.md) — active build backlog (Backend · DevOps · Security)
 ## Rules
 1. Learn → build → push to GitHub.
 2. Tick TOC when a project runs.
