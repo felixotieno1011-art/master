@@ -21,4 +21,12 @@ My journey: Networking + Fullstack Developer.
 ## Current Focus
 Part 1 — Foundations 🚀
 
-_Last updated: YYYY-MM-DD_
+## 🎯 Current Focus — Specialization
+
+**Tracks:** Backend · DevOps/AWS · Cybersecurity
+**Mode:** Build → Drill → Review → Defend. Theory only on demand.
+**Active Backlog:** [SPECIALIZATION.md](SPECIALIZATION.md)
+
+**Next up:** B1 — Secure API skeleton
+
+Last updated: 2026-10-31
