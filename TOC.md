@@ -78,7 +78,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 5.10 WebSockets 📱
 - [ ] 5.11 GraphQL 📱💻
 - [ ] 5.12 Background Jobs & Queues 📱🔁
-- [ ] 5.13 Caching (Redis) 📱💻
+- [x] 5.13 Caching (Redis) 📱💻
 - [ ] 5.14 Cron Jobs 📱
 - [ ] 5.15 Payment Integration 📱💻
 - [ ] 5.16 API Testing 📱💻

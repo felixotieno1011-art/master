@@ -576,3 +576,60 @@ Tested with a .txt (rejected) and a .png (accepted, renamed).
 - 7.6 (Docker) — uploads should be in a volume, not the container.
 - 7.10 (Cloud) — store uploads in S3, not on the server.
 - 5.8 (Env Vars) — upload paths in config.
+
+## 5.13 Caching (Redis) — Phase B DONE ✅
+
+Added Redis caching to an Express API.
+Tested cache miss, cache hit, invalidation, and refresh.
+
+### Core concepts
+- **Cache-aside pattern:** check cache → if miss, query DB → save to cache.
+- **Cache hit:** data found in Redis (fast).
+- **Cache miss:** data not in Redis (query DB).
+- **TTL:** Time To Live (60 seconds).
+- **Invalidation:** delete the cache when the data changes.
+
+### The flow I tested
+1. GET → miss → query DB → save to cache.
+2. GET → hit → return from cache.
+3. POST → add to DB → delete cache.
+4. GET → miss → query DB (includes new data) → save to cache.
+
+### Real commands I ran
+- `redis-server &`
+- `npm install express redis`
+- `node server.js`
+- `curl /api/products` (miss)
+- `curl /api/products` (hit)
+- `curl -X POST /api/products` (invalidate)
+- `curl /api/products` (miss again, fresh data)
+
+### Things I saw
+- Test 1: `source: "database"` (miss).
+- Test 2: `source: "cache"` (hit).
+- Test 3: `{"ok":true,"product":{...}}`.
+- Test 4: `source: "database"` (miss, includes Soap).
+- The new product appeared immediately because the cache was invalidated.
+
+### My own words (locked in)
+- Cache hit = fast. Cache miss = slow.
+- TTL = how long the cache lives.
+- Invalidation = delete the cache when data changes.
+- Without invalidation, the cache lies.
+- Redis is the standard cache.
+- `client.get()` = read.
+- `client.setEx()` = write with expiry.
+- `client.del()` = delete.
+- POST/PUT/DELETE must invalidate the cache.
+- The database load drops by 99%.
+- The pattern is called "cache-aside" (lazy loading).
+
+### Connection to other topics
+- 6.8 (Caching Layer) — the database view of caching.
+- 6.4 (Redis) — the basics.
+- 5.4 (Express) — the backend framework.
+- 8.9 (Rate Limiting) — Redis is used for rate limit counters.
+- 7.6 (Docker) — Redis in a container.
+- 7.7 (Docker Compose) — Redis + app.
+- 7.12 (Monitoring) — cache hit ratio is a key metric.
+- 12.34 (Cloud Security) — Redis must be secured (no public access).
