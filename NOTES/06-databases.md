@@ -413,3 +413,62 @@ Compared `LIKE '%milk%'` (4ms) vs FTS `MATCH 'milk'` (2ms) on 5 rows.
 - 8.10 (Secure API) — search endpoints need validation.
 - 12.15 (Web Hacking) — SQL injection in search (`' OR 1=1`).
 - 6.8 (Caching) — search results can be cached.
+
+## 6.5 ORMs — Phase B DONE ✅
+
+Learned why ORMs exist by breaking raw SQL first.
+Then proved it with a real SQLAlchemy drill: renamed a column
+in one place and nothing else broke.
+
+### Core concepts
+- **ORM** = Object-Relational Mapping. A translator between Python and SQL.
+- Python **class** ↔ DB **table**
+- Python **object** ↔ DB **row**
+- Python **attribute** ↔ DB **column**
+- You write Python. The ORM generates the SQL and returns objects.
+- Main Python ORMs: **SQLAlchemy** (Flask/FastAPI), **Django ORM** (Django).
+- Other stacks: Prisma/Sequelize (Node), Hibernate (Java), EF (.NET).
+
+### The problem it solves
+- Raw SQL strings are scattered across the codebase.
+- Rename a column → every `SELECT`, `INSERT`, `WHERE` using the old name breaks.
+- The error is runtime, not compile-time: `sqlite3.OperationalError: no such column: fullname`.
+- ORM keeps the column name in ONE place (the class). Rename = edit one line.
+
+### The drill (what I actually ran)
+- `pip install sqlalchemy` → 2.1.2
+- Defined `class User(Base)` with `__tablename__ = "users"` and `fullname: Mapped[str]`
+- `engine = create_engine("sqlite:///drill.db")`
+- `Base.metadata.create_all(engine)` → created the table
+- `session.add(User(id=1, fullname="Felix"))` + `session.commit()` → INSERT
+- `session.get(User, 1)` → SELECT by primary key → printed `found: Felix`
+- Renamed `fullname` → `name` in the class + its two references
+- `rm drill.db && python3 orm_drill.py` → `table created` / `found: Felix` again
+- No SQL written. The ORM generated all of it.
+
+### Things I saw
+- The raw-SQL version (6.2-style) crashed instantly on the renamed column.
+- The ORM version survived the rename after editing **2 lines**.
+- `no such column` is the raw-SQL pain — a runtime error, only found when the code runs.
+- In Python, a wrong attribute name would be an `AttributeError` at my desk, not 2am in prod.
+- The SQLAlchemy class IS the schema — one source of truth.
+
+### My own words (locked in)
+- ORM = conductor between me (Python) and the driver (database).
+- I speak Python. The ORM speaks SQL for me.
+- Tables become classes. Rows become objects. Columns become attributes.
+- The column name lives in one place, not scattered in strings.
+- Saves time, but the bigger win is **one source of truth**.
+- Raw SQL still matters — ORMs generate SQL, so I need to read it.
+- ORMs are not magic. They can produce slow queries if misused (N+1, no index).
+- The column rename "crushes" everywhere the old name appears — that's the pain the ORM removes.
+
+### Connection to other topics
+- 6.1 (Databases) — tables and columns the ORM maps.
+- 6.2 (SQL Basics) — the SQL the ORM generates (you still need to read it).
+- 6.3 (Joins) — ORM relationships hide the JOIN (`User.sales`).
+- 5.2 (Flask) — SQLAlchemy is the natural ORM there.
+- 5.3 (Django) — Django ORM is built-in.
+- 6.6 (DB Design) — the schema the ORM maps to.
+- 6.7 (Migrations) — ORMs pair with migration tools (Alembic, Django migrations).
+- 6.10 (DB Performance) — ORMs can hide N+1 queries if you don't watch them.

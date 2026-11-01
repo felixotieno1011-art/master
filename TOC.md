@@ -88,7 +88,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 6.2 SQL Basics 📱
 - [x] 6.3 SQL Joins, Indexes, Transactions 📱
 - [x] 6.4 NoSQL (MongoDB, Redis) 📱💻
-- [ ] 6.5 ORMs 📱
+- [x] 6.5 ORMs 📱
 - [ ] 6.6 Database Design & Normalization 📱
 - [ ] 6.7 Backups & Migrations 📱
 - [x] 6.8 Caching Layer (Redis) 📱💻

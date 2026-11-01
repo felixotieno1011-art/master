@@ -211,3 +211,11 @@ _— Felix · Established 2026-10-05 · Merged 2026-10-12_
 - The note (NOTES/) is what gets ticked. The explore is the raw data.
 - Tick only when the NOTE exists, not just the explore.
 - Same rule for all future topics.
+
+---
+
+## PART 16 — NOTES DRAFTING (amended 2026-11-01)
+- AI may draft notes for me.
+- I still type the code and practicals myself.
+- I read, edit, and approve every note before it's ticked.
+- Explore.md = raw commands I ran. Notes = cleaned-up version (AI draft OK).
