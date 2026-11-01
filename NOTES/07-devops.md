@@ -1661,3 +1661,61 @@ Node.js app + Docker + Nginx reverse proxy + health check.
 - 7.14 (Terraform) — could provision the server.
 - 7.8 (CI/CD) — could deploy this on every push.
 - 7.12 (Monitoring) — `/health` is the monitoring endpoint.
+
+## miniaws: Full Cloud Teardown — DONE ✅
+
+Deleted every resource in the simulated AWS account.
+Learned the order of deletion and the CLI syntax.
+
+### The deletion order (inside-out)
+1. **Instances** — terminate first.
+2. **Security Groups** — remove firewalls.
+3. **Subnets** — remove rooms.
+4. **Route Tables** — remove maps (skip main tables).
+5. **Internet Gateways** — detach, then delete.
+6. **NAT Gateways** — delete.
+7. **Elastic IPs** — release by allocation ID.
+8. **VPCs** — delete last.
+
+### The simulator's CLI quirks
+- `delete-security-group` → takes ID directly (no flag).
+- `detach-internet-gateway` → requires `--internet-gateway-id` and `--vpc-id`.
+- `release-address` → requires `--allocation-id`, not `--public-ip`.
+- Main route tables cannot be deleted (deleted with the VPC).
+
+### Real commands I ran
+- `aws ec2 terminate-instances --instance-ids i-b1a6ed...`
+- `aws ec2 delete-security-group sg-...`
+- `aws ec2 delete-subnet subnet-...`
+- `aws ec2 delete-route-table rtb-...`
+- `aws ec2 detach-internet-gateway --internet-gateway-id igw-... --vpc-id vpc-...`
+- `aws ec2 delete-internet-gateway igw-...`
+- `aws ec2 release-address --allocation-id eipalloc-...`
+- `aws ec2 delete-vpc vpc-...`
+
+### Things I saw
+- The 3-tier VPC setup (web, app, db subnets + NAT + Internet Gateway).
+- `cannot delete the main route table` (it's deleted with the VPC).
+- `security group --group-id not found` (the simulator doesn't use flags for this command).
+- `usage: release-address --allocation-id <id>` (the simulator needs the allocation ID).
+- All resources were deleted successfully.
+- Final check: `{"Addresses": []}`, `{"Vpcs": []}`.
+
+### My own words (locked in)
+- Delete inside-out: instances → security groups → subnets → route tables → gateways → VPC.
+- You cannot delete a VPC with resources inside it.
+- You cannot delete the main route table (it goes with the VPC).
+- NAT Gateways are the #1 hidden cost.
+- Unattached Elastic IPs cost money.
+- Idle EBS volumes cost money.
+- The simulator has slightly different CLI syntax than real AWS.
+- Always read the error message to adapt.
+- A clean cloud is a cheap cloud.
+
+### Connection to other topics
+- 7.10 (Cloud Platforms) — the AWS services.
+- 12.34 (Cloud Security) — least privilege, misconfigurations.
+- 12.35 (Container Security) — the containers we deleted.
+- 7.12 (Monitoring) — billing alerts.
+- 12.23 (Firewall Rules) — security groups are firewalls.
+- 7.5.7 (System Design) — the 3-tier architecture.
