@@ -1,1 +1,1 @@
-STOPPED: 61% (112/182). Next: 4.8 TypeScript. Tired but strong.
+STOPPED at 70% (128/182). Next: 5.11 GraphQL. VPC created in miniaws.

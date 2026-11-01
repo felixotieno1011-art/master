@@ -175,7 +175,15 @@
       "rate": 0.045,
       "amount": 0.045,
       "note": ""
+    },
+    {
+      "time": "2026-11-01T13:07:32",
+      "key": "vpc.create-igw",
+      "quantity": 1.0,
+      "rate": 0.045,
+      "amount": 0.045,
+      "note": ""
     }
   ],
-  "total": 0.619913
+  "total": 0.664913
 }

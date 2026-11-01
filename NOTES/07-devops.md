@@ -1719,3 +1719,54 @@ Learned the order of deletion and the CLI syntax.
 - 7.12 (Monitoring) — billing alerts.
 - 12.23 (Firewall Rules) — security groups are firewalls.
 - 7.5.7 (System Design) — the 3-tier architecture.
+
+## miniaws: Building a VPC from Scratch — DONE ✅
+
+Created a VPC, Internet Gateway, Subnets, and Route Table.
+Learned the AWS CLI for networking.
+
+### The architecture I built
+- **VPC:** `vpc-1e640438be7d4d199` (10.0.0.0/16)
+- **Internet Gateway:** `igw-6740cc17c1914e7eb` (attached to VPC)
+- **Public Subnet:** `subnet-fc4c73e2ee254f4ba` (10.0.1.0/24)
+- **Private Subnet:** `subnet-4cc730760f144452b` (10.0.2.0/24)
+- **Route Table:** `rtb-440367a42a8b41829` (0.0.0.0/0 → IGW)
+- **Association:** Public subnet → Route Table
+
+### Real commands I ran
+- `aws ec2 create-vpc --cidr-block 10.0.0.0/16`
+- `aws ec2 create-internet-gateway`
+- `aws ec2 attach-internet-gateway --internet-gateway-id ... --vpc-id ...`
+- `aws ec2 create-subnet --vpc-id ... --cidr-block 10.0.1.0/24`
+- `aws ec2 create-subnet --vpc-id ... --cidr-block 10.0.2.0/24`
+- `aws ec2 create-route-table --vpc-id ...`
+- `aws ec2 create-route --route-table-id ... --destination-cidr-block 0.0.0.0/0 --gateway-id ...`
+- `aws ec2 associate-route-table --route-table-id ... --subnet-id ...`
+
+### Things I saw
+- The VPC was created empty.
+- The Internet Gateway was attached to the VPC.
+- Two subnets were created in different CIDR blocks.
+- The route table had two routes: `local` and `0.0.0.0/0` → IGW.
+- The association succeeded (the simulator said "already associated").
+- The simulator's `describe-subnets` doesn't show the `Associations` field.
+
+### My own words (locked in)
+- VPC = your private network in the cloud.
+- Internet Gateway = the door to the internet.
+- Subnet = a room inside the VPC.
+- Public subnet = has a route to the internet.
+- Private subnet = no route to the internet.
+- Route table = the map that tells traffic where to go.
+- Association = linking a route table to a subnet.
+- You cannot delete a VPC with resources inside it.
+- The main route table is created automatically by AWS.
+- The simulator has quirks (doesn't show associations).
+- Building a VPC is like building a house: walls (VPC), doors (IGW), rooms (subnets), and maps (route tables).
+
+### Connection to other topics
+- 7.10 (Cloud Platforms) — the VPC and AWS services.
+- 12.34 (Cloud Security) — public vs private subnets, least privilege.
+- 12.35 (Container Security) — the containers we'll run inside.
+- 12.23 (Firewall Rules) — security groups (next step).
+- 7.5.7 (System Design) — 3-tier architecture.
