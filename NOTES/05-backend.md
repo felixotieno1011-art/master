@@ -715,3 +715,73 @@ Connection to other topics
 · 5.10 (WebSockets) — subscriptions are real-time.
 · 12.33 (API Security) — GraphQL has unique security risks (introspection, deep queries).
 · 8.10 (Secure API) — auth for GraphQL.
+
+## Cron drill — first scheduled job
+
+### Setup
+- pkg install cronie → 1.7.2-4
+- crond → PID 18204
+- crontab -e → added:
+  * * * * * echo "$(date) cron fired" >> ~/master/PRACTICALS/07-devops/05.14-cron-jobs/cron.log 2>&1
+
+### crontab -l
+* * * * * echo "$(date) cron fired" >> .../cron.log 2>&1
+
+### cron.log (after 70s)
+Sun Nov  1 19:47:00 EAT 2026 cron fired
+Sun Nov  1 19:48:00 EAT 2026 cron fired
+
+→ Fired exactly on the minute. Cron works.
+
+### Lesson
+- 5 fields: minute hour day-of-month month day-of-week
+- All `*` = every minute of every day
+- `>>` = append, `2>&1` = errors to same log
+- Script does the work, cron decides the when
+
+## 5.14 Cron Jobs — Phase B DONE ✅
+
+Installed cronie on Termux, started crond, wrote a real crontab entry,
+and watched it fire every minute into a log file.
+
+### Core concepts
+- **Cron** = a scheduler daemon. Runs commands on a time schedule.
+- **crontab** = the table of scheduled jobs for a user.
+- **crond** = the daemon process that reads the crontab and fires jobs.
+- **5-field syntax:** minute hour day-of-month month day-of-week
+  - `*` = every value
+  - `*/5` = every 5th value
+  - `0 2 * * *` = 2:00 AM daily
+  - `30 4 * * 1` = Monday 4:30 AM
+- **@reboot** = run once at boot.
+- **`>>`** = append output. **`2>&1`** = send errors to the same file.
+- **Script vs cron:** script does the work, cron decides the *when*.
+
+### The drill (what I actually ran)
+- `pkg install cronie` → 1.7.2-4
+- `crond` → started, PID 18204
+- `crontab -e` → added `* * * * * echo "$(date) cron fired" >> .../cron.log 2>&1`
+- `crontab -l` → confirmed the entry
+- waited 70s → `cron.log` had two timestamps, one minute apart
+
+### Things I saw
+- Cron fired exactly on the minute (19:47:00, 19:48:00).
+- Before the first run, the log file didn't exist — the `mkdir -p` was needed first.
+- crond must be running; installing cronie does not start it automatically.
+- Android may kill background processes — needs `termux-wake-lock` for persistence.
+
+### My own words (locked in)
+- Script = does the work. Cron = the alarm that decides when.
+- `*/5 * * * *` = every 5 minutes, every day.
+- `30 4 * * 1` = Monday at 4:30 AM.
+- `>>` = append. `2>&1` = errors go to the same log.
+- The 5 stars are: minute, hour, day-of-month, month, day-of-week.
+- Cron doesn't do the work — it just tells the script when to wake up.
+
+### Connection to other topics
+- 7.1 (Linux Server Basics) — cron is a Linux service.
+- 7.3 (Process Management) — crond is a daemon process.
+- 7.5.2 (Processes vs Threads) — crond is a background process.
+- 5.12 (Background Jobs) — cron is the classic time-based version; queues are the event-based version.
+- 6.7 (Backups & Migrations) — cron is how scheduled backups run.
+- 7.12 (Monitoring & Logging) — cron output goes into logs.
