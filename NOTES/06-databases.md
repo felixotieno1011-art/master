@@ -472,3 +472,80 @@ in one place and nothing else broke.
 - 6.6 (DB Design) — the schema the ORM maps to.
 - 6.7 (Migrations) — ORMs pair with migration tools (Alembic, Django migrations).
 - 6.10 (DB Performance) — ORMs can hide N+1 queries if you don't watch them.
+
+## EXPLAIN QUERY PLAN — index experiment
+
+### Before index
+SELECT * FROM products WHERE base_price < 100;
+QUERY PLAN
+`--SCAN products
+
+→ DB reads every row to find matches. Work grows with table size.
+
+### After index
+CREATE INDEX idx_products_base_price ON products(base_price);
+SELECT * FROM products WHERE base_price < 100;
+QUERY PLAN
+`--SEARCH products USING INDEX idx_products_base_price (base_price<?)
+
+→ DB uses the index (catalogue), jumps to matching rows.
+
+### Different query, different plan
+UPDATE products SET base_price = 99 WHERE id = 1;
+QUERY PLAN
+`--SEARCH products USING INTEGER PRIMARY KEY (rowid=?)
+
+→ base_price index NOT used. Query filtered by id → primary key index used.
+→ An index helps only queries that match its column.
+
+### Lesson
+- SCAN = full table read (slow on big tables).
+- SEARCH USING INDEX = index lookup (fast).
+- Index costs: slower writes, more disk.
+- EXPLAIN QUERY PLAN = the tool that shows the plan.
+## 6.10 DB Performance — Phase B DONE ✅
+
+Used EXPLAIN QUERY PLAN to see how SQLite finds rows.
+Proved an index changes SCAN → SEARCH, and that it only helps matching queries.
+
+### Core concepts
+- **Performance = the plan, not the size.** Big table + good index = fast.
+- **`SCAN`** = full table read. Reads every row. Slow on large tables.
+- **`SEARCH ... USING INDEX`** = index lookup. Jumps to matches. Fast.
+- **`EXPLAIN QUERY PLAN`** = the DB's own report of how it will run a query.
+- **Index trade-off:** faster reads, slower writes, more disk.
+- **Index selectivity:** an index helps only when the query filters/sorts/joins on that column.
+- **N+1 queries:** an ORM trap — one query per row in a loop. Fix with JOINs or eager loading.
+- **Pagination:** `LIMIT`/`OFFSET` keeps large result sets manageable.
+- **Slow query log:** DB feature that records slow queries for review.
+- **Connection pooling:** reuse DB connections instead of opening one per request.
+
+### The drill (what I actually ran)
+- `EXPLAIN QUERY PLAN SELECT * FROM products WHERE base_price < 100;` → `SCAN products`
+- `CREATE INDEX idx_products_base_price ON products(base_price);`
+- Re-ran same query → `SEARCH products USING INDEX idx_products_base_price (base_price<?)`
+- `EXPLAIN QUERY PLAN UPDATE products SET base_price = 99 WHERE id = 1;` → `SEARCH products USING INTEGER PRIMARY KEY (rowid=?)` — base_price index NOT used
+
+### Things I saw
+- Same query, same data — different plan after the index.
+- The plan changed because the query matched the indexed column.
+- The UPDATE by `id` ignored the new index and used the primary key.
+- SCAN on 5 rows feels fine; on 500k rows it's the whole problem.
+
+### My own words (locked in)
+- SCAN = DB reads every row. SEARCH = DB uses the index (catalogue) to jump to matches.
+- An index helps only queries that match its column.
+- An index speeds up reads but slows down writes and takes disk space.
+- EXPLAIN QUERY PLAN is the tool that shows the plan — SCAN bad, SEARCH good.
+- Size doesn't matter as much as the plan.
+- Index what you filter/join/sort by — not everything.
+
+### Connection to other topics
+- 6.1 (Databases) — tables, rows, columns.
+- 6.2 (SQL Basics) — the queries being optimized.
+- 6.3 (Indexes) — same concept, deeper here.
+- 6.5 (ORMs) — ORMs hide queries; N+1 is an ORM performance trap.
+- 6.8 (Caching) — cache hits reduce DB load.
+- 6.9 (FTS) — FTS uses a special index (inverted index).
+- 7.12 (Monitoring) — slow query logs feed into monitoring.
+- 12.15 (Web Hacking) — SQL injection can exploit missing input validation, separate from performance.
