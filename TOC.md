@@ -92,7 +92,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 6.6 Database Design & Normalization 📱
 - [ ] 6.7 Backups & Migrations 📱
 - [x] 6.8 Caching Layer (Redis) 📱💻
-- [ ] 6.9 Search (Full-text) 📱
+- [x] 6.9 Search (Full-text) 📱
 - [ ] 6.10 DB Performance 📱
 
 ## Part 7 — DevOps & Deployment

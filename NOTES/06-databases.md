@@ -352,3 +352,64 @@ Saw the difference between a cache miss (536ms) and a cache hit (8ms).
 - 12.20 (SIEM) — Redis can store SIEM state.
 - 7.12 (Monitoring) — cache hit/miss ratio is a key metric.
 
+## 6.9 Search (Full-text) — Phase B DONE ✅
+
+Used SQLite FTS5 to search pos-lab's products.
+Compared `LIKE '%milk%'` (4ms) vs FTS `MATCH 'milk'` (2ms) on 5 rows.
+
+### Core concepts
+- **Full-text search (FTS)** = searching for words inside large text efficiently.
+- **LIKE '%...%'** = full table scan. Slow on large tables. No index.
+- **FTS** = uses an inverted index. Fast. Supports relevance ranking.
+- **Inverted index** = map of every word → the rows that contain it.
+- **FTS5** = SQLite's built-in full-text search engine.
+- **Tokenization** = splitting text into words.
+- **BM25** = relevance ranking algorithm (how relevant is each result?).
+
+### What FTS gives you
+- Fast search on large text.
+- Relevance ranking (BM25).
+- Phrase search (`"fresh milk"`).
+- Prefix search (`milk*`).
+- Boolean search (`milk AND bread`).
+
+### The tools
+- SQLite FTS5 (built-in).
+- PostgreSQL `tsvector` (built-in).
+- Elasticsearch (industry standard).
+- Meilisearch (simpler, fast).
+- Algolia (cloud search).
+
+### Real commands I ran
+- `SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%fts%'` → found `products_fts`.
+- `SELECT name, description FROM products_fts WHERE products_fts MATCH 'milk'` → returned Milk 1L.
+- Timed both approaches: LIKE 4ms, FTS 2ms (on 5 rows).
+
+### Things I saw
+- pos-lab has `products_fts` (and 4 internal FTS tables).
+- FTS query returned the same result as LIKE.
+- With 5 rows, both are fast.
+- With 1 million rows, FTS would be ~2,500× faster.
+- The LIKE query failed at first because I used `price` instead of `base_price` (schema mistake).
+
+### My own words (locked in)
+- FTS = the index at the back of the book.
+- LIKE = reading every page.
+- FTS uses an inverted index (word → rows).
+- FTS is fast on large tables.
+- LIKE is slow on large tables.
+- FTS supports relevance ranking (BM25).
+- FTS supports phrase, prefix, and boolean search.
+- SQLite FTS5 is built-in.
+- Elasticsearch is the industry standard.
+- Google uses a custom FTS system.
+- FTS is why search engines are fast.
+
+### Connection to other topics
+- 6.2 (SQL) — the LIKE clause.
+- 6.3 (Indexes) — FTS uses a special index.
+- 6.4 (NoSQL) — Elasticsearch is a NoSQL search engine.
+- 6.10 (DB Performance) — FTS is a performance optimization.
+- 8.10 (Secure API) — search endpoints need validation.
+- 12.15 (Web Hacking) — SQL injection in search (`' OR 1=1`).
+- 6.8 (Caching) — search results can be cached.
