@@ -106,6 +106,14 @@ def cmd_delete_route(args):
 
 
 if __name__ == "__main__":
+    try:
+        from cli import _try_json_output
+        _args = ['ec2'] + sys.argv[1:]
+        if _try_json_output(_args):
+            sys.exit(0)
+    except Exception:
+        pass
+    # --- original main block below ---
     if len(sys.argv) < 2:
         print("usage: rtb_cli.py <create|add-route|associate|delete> [options]")
         sys.exit(1)

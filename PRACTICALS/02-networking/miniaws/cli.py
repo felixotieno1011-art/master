@@ -104,6 +104,10 @@ VALID_FLAGS = {
     ("ec2", "reboot-instances"):    {"instance-ids"},
     ("ec2", "terminate-instances"): {"instance-ids"},
     ("ec2", "logs"):                set(),
+    ("ec2", "allocate-address"):      {"domain", "tag-specifications"},
+    ("ec2", "associate-address"):     {"allocation-id", "instance-id", "public-ip", "allow-reassociation"},
+    ("ec2", "disassociate-address"):  {"allocation-id", "association-id", "public-ip"},
+    ("ec2", "release-address"):       {"allocation-id", "public-ip"},
 }
 
 # Subcommands that perform a write and should honor --dry-run.
@@ -359,7 +363,75 @@ def cmd_ec2(args):
             print(f"   {k} = {v}")
         return 0
     if sub == "allocate-address":
-        ok_, msg, _aid = ec2.allocate_address()
+        print(f'[DEBUG-ENTRY] rest={rest}', file=__import__("sys").stderr)
+        flags = parse_flags(rest)
+        print(f'[DEBUG-ENTRY] flags={flags}', file=__import__("sys").stderr)
+
+        # --domain (real AWS: "vpc" or "standard"; we always use "vpc")
+        domain = flags.get("domain", "vpc")
+
+        # --tag-specifications 'ResourceType=elastic-ip,Tags=[{Key=Name,Value=X}]'
+        tags = {}
+        ts = flags.get("tag-specifications")
+        if isinstance(ts, str):
+            import re as _re
+            # Parse Tags=[{Key=...,Value=...}]
+            for km in _re.finditer(r'Key=([^,}\]]+),Value=([^}\]]*)', ts):
+                tags[km.group(1).strip()] = km.group(2).strip()
+
+        ok_, msg, aid = ec2.allocate_address(tags=tags)
+
+        # Response shape for --query / --output
+        response = None
+        if ok_ and aid:
+            eip = ec2.get_address(aid)
+            if eip:
+                response = {
+                    "AllocationId": eip.get("AllocationId"),
+                    "Domain": eip.get("Domain", "vpc"),
+                    "PublicIp": eip.get("PublicIp"),
+                    "NetworkBorderGroup": eip.get("Region"),
+                }
+                if tags:
+                    response["Tags"] = [{"Key": k, "Value": v} for k, v in tags.items()]
+
+        # If --query or --output given, emit the response in that format
+        has_query = any(a == "--query" or a.startswith("--query=") for a in rest)
+        has_output = any(a == "--output" or a.startswith("--output=") for a in rest)
+        output_fmt = flags.get("output")
+        query_expr = flags.get("query")
+
+        print(f"[DEBUG] response={response}, has_query={has_query}, has_output={has_output}, output_fmt={output_fmt}")
+        if response and (has_query or (has_output and output_fmt in ("json", "table"))):
+            # Apply --query if given
+            if query_expr:
+                try:
+                    import jmespath
+                    result = jmespath.search(query_expr, response)
+                except Exception as e:
+                    print(utils.err(f"--query failed: {e}"))
+                    return 1
+            else:
+                result = response
+
+            if output_fmt == "table":
+                # Simple table: one row per key/value
+                print("-" * 60)
+                print(f"| {query_expr or 'Response'}")
+                print("+" + "-" * 58 + "+")
+                if isinstance(result, dict):
+                    for k, v in result.items():
+                        print(f"|  {k}: {v}")
+                elif isinstance(result, list):
+                    for item in result:
+                        print(f"|  {item}")
+                print("+" + "-" * 58 + "+")
+            else:
+                import json as _json
+                print(_json.dumps(result, indent=4))
+            return 0
+
+        # No --query/--output: default human message
         print(utils.ok(msg) if ok_ else utils.err(msg))
         return 0 if ok_ else 1
 
@@ -904,7 +976,8 @@ def safe_main(argv=None):
     # Try JSON output path first (opt-in via --output json or --query)
     from lib.errors import AWSError as _AWSError, format_aws_error as _fmt_err
     try:
-        if _try_json_output(args):
+        _result = _try_json_output(args)
+        if _result:
             return 0
     except _AWSError as e:
         _sys.stderr.write(_fmt_err(e) + "\n")
@@ -913,10 +986,12 @@ def safe_main(argv=None):
         _sys.stderr.write(f"❌ JSON output failed: {type(e).__name__}: {e}\n")
         return 1
 
-    # Strip global flags that the pretty path doesn't understand, so
-    # --output text / --region / --profile don't get parsed as positional args.
+    # Note: we used to strip --output/--query/--region here, but that broke
+    # write commands like `allocate-address` that support --query. parse_flags
+    # in cmd_* functions already ignores unknown flags, so we keep them.
+
     # Values are still available via env vars set by the wrapper.
-    _STRIP_OPTS_WITH_VALUE = {"--output", "--query", "--region", "--profile", "--endpoint-url"}
+    _STRIP_OPTS_WITH_VALUE = {"--region", "--profile", "--endpoint-url"}  # --output/--query now pass through
     _STRIP_OPTS_BARE = {"--debug", "--no-verify-ssl", "--no-paginate", "--no-sign-request"}
 
     clean = []

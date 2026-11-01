@@ -34,6 +34,19 @@ def print_row(cells, widths):
 
 
 if __name__ == "__main__":
+    try:
+        from cli import _try_json_output
+        _raw = sys.argv[1:]
+        # az_cli.py is called as `list` from the wrapper, but the JSON
+        # handler expects `describe-availability-zones`
+        if _raw and _raw[0] == 'list':
+            _raw = ['describe-availability-zones'] + _raw[1:]
+        _args = ['ec2'] + _raw
+        if _try_json_output(_args):
+            sys.exit(0)
+    except Exception:
+        pass
+    # --- original main block below ---
     if len(sys.argv) < 2:
         sys.exit(cmd_list([]))
     sub = sys.argv[1]

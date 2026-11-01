@@ -70,6 +70,14 @@ def cmd_delete(args):
     return 0 if ok_ else 1
 
 if __name__ == "__main__":
+    try:
+        from cli import _try_json_output
+        _args = ['ec2'] + sys.argv[1:]
+        if _try_json_output(_args):
+            sys.exit(0)
+    except Exception:
+        pass
+    # --- original main block below ---
     if len(sys.argv) < 2:
         print("usage: nat_cli.py <create|list|delete> [options]")
         sys.exit(1)

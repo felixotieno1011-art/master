@@ -238,7 +238,20 @@ def _parse(args):
     return flags
 
 
+
 def main():
+    """Delegate --query/--output to cli.py's _try_json_output, else run original."""
+    try:
+        from cli import _try_json_output
+        _args = ['ec2'] + sys.argv[1:]
+        if _try_json_output(_args):
+            return 0
+    except Exception as _e:
+        print(f"[--query support error: {type(_e).__name__}: {_e}]", file=sys.stderr)
+    return _orig_main()
+
+
+def _orig_main():
     args = sys.argv[1:]
     if not args or args[0] in ("-h", "--help", "help"):
         return cmd_vpc([])

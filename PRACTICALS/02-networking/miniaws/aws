@@ -199,26 +199,36 @@ case "$SERVICE/$ACTION" in
     ;;
 esac
 
-# JSON output mode? Route to json_output.py for supported commands
+# JSON output mode? Route to json_output.py for supported commands.
+# IMPORTANT: if --query is present, fall through to cli.py (which uses jmespath).
 if [ "$MINIAWS_OUTPUT_OVERRIDE" = "json" ]; then
-  # Map service + action to a JSON handler key
-  JSON_KEY=""
-  case "$SERVICE/$ACTION" in
-    ec2/describe-vpcs)                 JSON_KEY="describe-vpcs" ;;
-    ec2/describe-subnets)              JSON_KEY="describe-subnets" ;;
-    ec2/describe-internet-gateways)    JSON_KEY="describe-internet-gateways" ;;
-    ec2/describe-route-tables)         JSON_KEY="describe-route-tables" ;;
-    ec2/describe-instances)            JSON_KEY="describe-instances" ;;
-    ec2/describe-availability-zones)   JSON_KEY="describe-availability-zones" ;;
-    ec2/describe-addresses)            JSON_KEY="describe-addresses" ;;
-    s3/ls)                             JSON_KEY="list-buckets" ;;
-    iam/list-users)                    JSON_KEY="list-users" ;;
-    cloudwatch/list-alarms)            JSON_KEY="list-alarms" ;;
-  esac
-  if [ -n "$JSON_KEY" ]; then
-    python "$PWD/lib/json_output.py" "$JSON_KEY"
-    exit $?
+  HAS_QUERY=""
+  for arg in "$@"; do
+    case "$arg" in
+      --query|--query=*) HAS_QUERY="yes"; break ;;
+    esac
+  done
+
+  if [ -z "$HAS_QUERY" ]; then
+    JSON_KEY=""
+    case "$SERVICE/$ACTION" in
+      ec2/describe-vpcs)                 JSON_KEY="describe-vpcs" ;;
+      ec2/describe-subnets)              JSON_KEY="describe-subnets" ;;
+      ec2/describe-internet-gateways)    JSON_KEY="describe-internet-gateways" ;;
+      ec2/describe-route-tables)         JSON_KEY="describe-route-tables" ;;
+      ec2/describe-instances)            JSON_KEY="describe-instances" ;;
+      ec2/describe-availability-zones)   JSON_KEY="describe-availability-zones" ;;
+      ec2/describe-addresses)            JSON_KEY="describe-addresses" ;;
+      s3/ls)                             JSON_KEY="list-buckets" ;;
+      iam/list-users)                    JSON_KEY="list-users" ;;
+      cloudwatch/list-alarms)            JSON_KEY="list-alarms" ;;
+    esac
+    if [ -n "$JSON_KEY" ]; then
+      python "$PWD/lib/json_output.py" "$JSON_KEY"
+      exit $?
+    fi
   fi
+  # --query present → fall through to cli.py
 fi
 
 case "$SERVICE" in
@@ -264,7 +274,7 @@ case "$SERVICE" in
     ;;
   ec2)
     case "$ACTION" in
-      describe-images|describe-instance-types|describe-key-pairs|describe-availability-zones|describe-volumes)
+      describe-images|describe-instance-types|describe-key-pairs|describe-volumes)
         python ec2_describe.py "$ACTION" "$@"
         exit $?
         ;;

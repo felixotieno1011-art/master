@@ -14,6 +14,29 @@ from core import cloudwatch as cw_mod
 from core import account as account_mod
 
 
+
+def describe_addresses():
+    """Elastic IPs — real AWS shape."""
+    from core import ec2 as ec2_mod
+    eips = ec2_mod.list_addresses()
+    addresses = []
+    for eip in eips:
+        entry = {
+            "Domain": eip.get("Domain", "vpc"),
+            "PublicIp": eip.get("PublicIp"),
+            "AllocationId": eip.get("AllocationId"),
+            "NetworkBorderGroup": eip.get("Region"),
+        }
+        if eip.get("InstanceId"):
+            entry["InstanceId"] = eip["InstanceId"]
+            entry["AssociationId"] = eip.get("AssociationId")
+            entry["PrivateIpAddress"] = "10.0.0.10"
+        if eip.get("Tags"):
+            entry["Tags"] = [{"Key": k, "Value": v} for k, v in eip["Tags"].items()]
+        addresses.append(entry)
+    return {"Addresses": addresses}
+
+
 def describe_vpcs():
     vpcs = vpc_mod.list_vpcs()
     acct = account_mod.get_account_id() if hasattr(account_mod, "get_account_id") else "740762029392"
@@ -249,6 +272,7 @@ def list_alarms():
 HANDLERS = {
     "describe-vpcs": describe_vpcs,
     "describe-availability-zones": describe_availability_zones,
+    "describe-addresses": describe_addresses,
     "describe-subnets": describe_subnets,
     "describe-internet-gateways": describe_internet_gateways,
     "describe-route-tables": describe_route_tables,
@@ -277,24 +301,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-def describe_addresses():
-    """Elastic IPs — real AWS shape."""
-    from core import ec2 as ec2_mod
-    eips = ec2_mod.list_addresses()
-    addresses = []
-    for eip in eips:
-        entry = {
-            "Domain": eip.get("Domain", "vpc"),
-            "PublicIp": eip.get("PublicIp"),
-            "AllocationId": eip.get("AllocationId"),
-            "NetworkBorderGroup": eip.get("Region"),
-        }
-        if eip.get("InstanceId"):
-            entry["InstanceId"] = eip["InstanceId"]
-            entry["AssociationId"] = eip.get("AssociationId")
-            entry["PrivateIpAddress"] = "10.0.0.10"
-        if eip.get("Tags"):
-            entry["Tags"] = [{"Key": k, "Value": v} for k, v in eip["Tags"].items()]
-        addresses.append(entry)
-    return {"Addresses": addresses}
