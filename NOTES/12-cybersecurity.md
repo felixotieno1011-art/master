@@ -2353,3 +2353,100 @@ Walked the 6-stage IR lifecycle. Contained within 6 minutes. Wrote an incident r
 - 12.23 (Firewall Rules) — where IP blocks live.
 - 12.25 (Threat Hunting) — next topic, proactive IR.
 - 12.40 (Reporting) — the incident report.
+## Threat hunt — hidden admin login
+
+### Setup
+- auth.log with 30 lines:
+  - Normal: wanjiku/otieno/amina/admin from 192.168.1.x, 08:00–18:00
+  - One late: admin @ 22:45 from 192.168.1.2
+  - Anomaly: admin @ 02:47 from 203.0.113.99
+  - Outlier: backup user from 45.33.12.7 (once)
+
+### Baseline (before hunting)
+grep -o "ip=[0-9.]*" auth.log | sort | uniq -c | sort -rn
+→ 192.168.1.5 (8), .8 (7), .12 (7), .2 (6)
+→ outliers: 45.33.12.7 (1), 203.0.113.99 (1)
+
+grep -o "user=[a-z]*" auth.log | sort | uniq -c | sort -rn
+→ wanjiku (8), otieno (7), amina (7), admin (7)
+→ outlier: backup (1)
+
+### The anomaly
+nl -ba auth.log | grep "02:47"
+29  2026-11-03 02:47:33 LOGIN_SUCCESS user=admin ip=203.0.113.99
+
+Three things wrong together:
+- Time: 02:47 (outside admin's 08:00–18:00 baseline)
+- IP: 203.0.113.99 (never seen, not in 192.168.1.x)
+- User: admin (privileged)
+
+### Why no alert fired
+- No rule for "admin login from new IP"
+- No rule for "login outside business hours"
+- SIEM only alerts on FAILED login bursts (brute force)
+- This was ONE successful login
+
+### Confidence: Medium
+- Need: geolocation of IP, post-login activity, whether real admin's IP logged in nearby
+
+### Lesson
+- Hunting = proactive, hypothesis-driven, baseline-first
+- IOC = fact (IP). TTP = behaviour (login at odd hour from new IP)
+- A single anomaly ≠ incident. It's a thread to pull.
+- "Maybe" is the hunter's honest word.
+- Every hunt that finds something becomes a new alert rule.
+
+## 12.25 Threat Hunting — Phase B DONE ✅
+
+Hunted a hidden anomaly in auth.log: admin login at 02:47 from a new IP.
+No alert fired. Found it by comparing against the baseline.
+
+### Core concepts
+- **Threat hunting** = proactively searching for threats that alerts missed.
+- **Alerting** = reactive, rule-based. **Hunting** = proactive, hypothesis-based.
+- **Baseline** = what normal looks like. You need it before you can spot abnormal.
+- **Hypothesis** = "I think an attacker could do X." Then hunt for evidence.
+- **IOC** (Indicator of Compromise) = a fact (IP, hash, domain). Cheap to change.
+- **TTP** (Tactics, Techniques, Procedures) = behaviour. Expensive to change.
+- **MITRE ATT&CK** = catalog of attacker techniques. Hunt TTPs, not just IOCs.
+- **Confidence levels:** Low → Medium → High → Confirmed. Not binary.
+- **Hunting loop:** Hypothesis → Data → Hunt → Analyze → Refine → Repeat.
+- **Every find becomes a new alert rule.**
+
+### Hunting vs alerting
+| | Alert | Hunt |
+|---|-------|------|
+| Trigger | Rule fires | You form a hypothesis |
+| Mode | Reactive | Proactive |
+| Finds | Known-bad | Unknown / hidden |
+| Result | Response | New rule or new hypothesis |
+
+### The drill (what I actually ran)
+- Wrote auth.log (30 lines: normal + anomaly + outlier)
+- Baselined IPs: 192.168.1.5/.8/.12/.2 are normal
+- Baselined users: wanjiku/otieno/amina/admin are normal
+- Anomaly: line 29 — admin @ 02:47 from 203.0.113.99
+- Outlier: backup user from 45.33.12.7 (1 login)
+
+### Things I saw
+- The anomaly had THREE things wrong together (time, IP, user) — no single one is enough.
+- No rule fires on a single successful login.
+- "Maybe the admin changed IP" is a legitimate counter-argument — confidence is Medium, not High.
+- `backup` from an external IP is a second thread worth pulling.
+- The hunter's job is to raise confidence before declaring an incident.
+
+### My own words (locked in)
+- Investigate strange behaviour not normally happening.
+- You can't spot abnormal without knowing normal (baseline).
+- One anomaly ≠ incident. It's a thread.
+- "Maybe" is the hunter's honest word.
+- IOC = fact. TTP = behaviour. Hunt TTPs.
+- Every hunt that finds something becomes a new alert rule.
+
+### Connection to other topics
+- 12.19 (Blue Team) — hunting is a blue-team activity.
+- 12.20 (SIEM) — where the logs live.
+- 12.21 (IDS/IPS) — what did and didn't alert.
+- 12.24 (Incident Response) — hunting feeds IR.
+- 8.5 (Network Security) — baselining network traffic.
+- 7.12 (Monitoring) — logs and metrics.
