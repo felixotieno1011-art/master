@@ -151,7 +151,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 9.12 Remote Work Skills 📱
 
 ## Part 10 — Capstone Projects
-- [ ] 10.1 Portfolio Site 📱
+- [x] 10.1 Portfolio Site 📱
 - [ ] 10.2 Blog with Auth 📱
 - [ ] 10.3 REST API CRUD 📱
 - [ ] 10.4 Real-Time Chat 📱
