@@ -2450,3 +2450,117 @@ No alert fired. Found it by comparing against the baseline.
 - 12.24 (Incident Response) — hunting feeds IR.
 - 8.5 (Network Security) — baselining network traffic.
 - 7.12 (Monitoring) — logs and metrics.
+
+## Threat model — Mini Pos-Lab
+
+### Assets
+- Customer data (names, phones) — privacy
+- Order data — business integrity
+- Admin credentials — access control
+- Payment secrets (HMAC key) — money movement
+- The database itself — all of the above
+
+### Trust boundaries
+1. Browser → Web Server (untrusted HTTP → trusted app)
+2. Web Server → Database (trusted backend → DB)
+3. Payment Provider → Webhook (external → internal, HMAC-verified)
+4. Admin Browser → Admin Panel (higher privilege)
+5. Web Server → File System (logs, uploads)
+
+### STRIDE threats (per boundary)
+
+Browser → Web Server:
+- Spoofing: fake JWT / stolen session cookie
+- Tampering: modified request body (qty, price)
+- Repudiation: user denies placing an order
+- Info disclosure: error messages leak paths
+- DoS: request flood
+- Elevation: user hits /admin
+
+Web Server → Database:
+- Tampering: SQL injection
+- Repudiation: no audit log
+- Info disclosure: DB dump leaks all
+- DoS: expensive queries
+- Elevation: SQLi reads admin table
+
+Payment Provider → Webhook:
+- Spoofing: fake webhook calls
+- Tampering: payload modified in transit
+- Repudiation: provider denies sending
+- Info disclosure: webhook leaks payment details
+- DoS: flood webhook endpoint
+
+Admin Browser → Admin Panel:
+- Spoofing: session hijacking
+- Elevation: IDOR / broken access control
+- Info disclosure: admin sees data they shouldn't
+
+### Current controls
+- HMAC on webhook (5.15)
+- Idempotency (5.15)
+- JWT/session on browser (5.6)
+- Input validation (5.7)
+- Prepared statements (blocks SQLi)
+- Password hashing (bcrypt/scrypt)
+- CORS policy
+- Rate limiting: NOT YET IMPLEMENTED (known gap — see 8.9)
+
+### Proposed architecture change
+
+Biggest weakness: DB directly reachable from web server. If RCE (VULN 6 in pos-lab), attacker reaches the DB with admin-level rights. No network separation.
+
+Before:
+## 12.36 Secure Architecture — Phase B DONE ✅
+
+Threat-modeled the Mini Pos-Lab from Part 6 using STRIDE.
+Identified trust boundaries, assets, threats, existing controls, and one
+architecture change that reduces blast radius: private subnet + least privilege.
+
+### Core concepts
+- **Trust boundary** = where data crosses from less-trusted to more-trusted.
+  Each boundary needs its own verification (JWT, HMAC, network ACL).
+- **Blast radius** = how much damage one compromise causes.
+  Goal: shrink it with segmentation and least privilege.
+- **Defense in depth** = many independent layers (if one fails, next catches).
+- **Least privilege** = each component has minimum permissions needed.
+- **Fail-safe defaults** = on error, deny (not allow).
+- **Secure defaults** = new users/accounts get minimum permissions.
+- **Zero trust** = verify every request, even from inside the network.
+- **Segmentation** = isolate systems so compromise of one ≠ compromise of all.
+- **STRIDE** = Spoofing, Tampering, Repudiation, Information disclosure,
+  Denial of service, Elevation of privilege.
+- **Secure architecture in one line:** "if they get in, they can't get far."
+
+### The drill (what I actually did)
+- Listed 5 assets with privacy/business reasons
+- Listed 5 trust boundaries (added admin panel + file system)
+- Applied STRIDE per boundary (not just a generic list)
+- Listed 8 current controls, flagged rate limiting as a known gap
+- Proposed: move DB to private subnet + least-privilege app DB user
+- Wrote the blast-radius sentence in own words
+
+### Things I saw
+- The DB directly reachable from the web server is the biggest weakness.
+- If RCE (VULN 6 in pos-lab) → attacker reaches DB with admin rights.
+- Private subnet + least-privilege user = attacker gets trapped.
+- Naming a known gap (rate limiting) makes the threat model useful, not weaker.
+- A threat model that claims "everything covered" is a lie.
+
+### My own words (locked in)
+- Trust boundary = where trust changes. Each needs its own verification.
+- Blast radius = how much damage one break-in causes.
+- Defense in depth = many layers. Least privilege = minimum permissions.
+- Secure architecture = "if they get in, they can't get far."
+- Honest gaps > fake completeness.
+
+### Connection to other topics
+- 8.1 (Web Security) — the threats per boundary.
+- 8.4 (Secure Coding) — input validation, prepared statements.
+- 8.10 (Secure API) — the webhook boundary.
+- 12.2 (CIA Triad) — confidentiality/integrity/availability as asset goals.
+- 12.19 (Blue Team) — designing for defense.
+- 12.34 (Cloud Security) — private subnets, IAM.
+- 12.35 (Container/K8s Security) — segmentation at the pod level.
+- 12.24 (Incident Response) — blast radius reduces incident severity.
+- 7.5.7 (System Design) — the architecture side.

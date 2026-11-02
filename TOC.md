@@ -222,7 +222,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.33 API Security 📱
 - [x] 12.34 Cloud Security 📱💻
 - [x] 12.35 Container & Kubernetes Security 📱💻
-- [ ] 12.36 Secure Architecture 📱
+- [x] 12.36 Secure Architecture 📱
 
 ### Module 7 — Legal & Compliance
 - [x] 12.37 Cyber Laws 📱
