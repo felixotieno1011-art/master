@@ -998,3 +998,86 @@ Replayed the same callback — second one was rejected as "already processed".
 - 8.10 (Secure API) — rate-limit webhooks.
 - 12.7 (Symmetric crypto) — HMAC is symmetric.
 - 12.39 (PCI-DSS) — never store card data.
+
+## API Testing drill — pytest on the 5.15 webhook
+
+### Setup
+- pip install pytest
+- tests/test_webhook.py against mock_mpesa.py (5.15)
+- pytest fixture: app.test_client()
+- HMAC helper: make_sig(body_bytes)
+
+### The 4 tests
+1. test_valid_callback_marks_paid
+   - valid body + valid signature → 200, status="ok"
+2. test_bad_signature_rejected
+   - valid body + X-Signature: "wrong" → 401
+3. test_replay_returns_already_processed
+   - same transaction_id twice → first 200 ok, second "already processed"
+4. test_missing_transaction_id
+   - valid signature, no transaction_id → 400
+
+### Result
+4 passed in 1.43s
+
+### What each test protects
+- test_valid → happy path still works
+- test_bad_signature → HMAC check still exists (catches accidental removal)
+- test_replay → idempotency still exists (catches the 5.15 bug regression)
+- test_missing_id → validation still exists
+
+### Lesson
+- "It worked when I tested it" ≠ tested. Manual = once. Automated = every time.
+- Tests move discovery from AFTER the damage to BEFORE the deploy.
+- 1.43s vs days of production debugging.
+- The tests you write are the bugs you never ship.
+
+## 5.16 API Testing — Phase B DONE ✅
+
+Wrote 4 pytest tests for the 5.15 webhook.
+All passed in 1.43s. Proved the HMAC, idempotency, and validation can never
+be silently removed again.
+
+### Core concepts
+- **API test** = automated check that an endpoint returns the right response.
+- **Manual testing** = you try it once. **Automated testing** = it runs every time.
+- **Regression** = a bug that comes back after being fixed. Tests prevent regressions.
+- **Test pyramid:**
+  - **Unit** — one function in isolation (ms)
+  - **Integration** — endpoint + DB + real logic (100ms)
+  - **E2E** — full flow, client to DB (seconds)
+- **pytest fixture** = reusable test setup (e.g. `client()`).
+- **`app.test_client()`** = Flask's built-in test client (no real server needed).
+- **Assertion** = the check that fails the test.
+
+### Why tests exist
+- Without tests, you find out when a customer's money is gone.
+- With tests, you find out 1.43s after the bug is written.
+- Tests move discovery from AFTER the damage to BEFORE the deploy.
+- "Works on my machine" = "I tried it once." Not a test.
+
+### The drill (what I actually ran)
+- `pip install pytest`
+- Wrote tests/test_webhook.py with 4 tests
+- `pytest tests/ -v` → 4 passed in 1.43s
+
+### Things I saw
+- The test client hit the real webhook without starting a server.
+- The replay test re-ran the same flow that 5.15's manual test did — but automated.
+- If the HMAC check is removed, test_bad_signature_rejected fails → deploy stops.
+- 1.43s for 4 tests beats 1.43 days debugging in prod.
+
+### My own words (locked in)
+- I wouldn't know about the bug until a problem occurs — without tests.
+- With tests, I know 1.43s after the bug is written.
+- Manual testing = once. Automated = every time.
+- Tests are the guardrail. They don't fix code — they stop broken code from shipping.
+- 4 tests = 4 bugs that can never ship silently.
+
+### Connection to other topics
+- 5.5 (REST API) — the endpoints being tested.
+- 5.6 (Auth) — test 401s, 403s.
+- 5.15 (Payments) — the webhook under test (HMAC + idempotency).
+- 7.8 (CI/CD) — tests run on every push.
+- 9.4 (Testing & Debugging) — the career-level version.
+- 12.41 (Hacking Lab) — tests catch what attackers would exploit.
