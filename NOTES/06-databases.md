@@ -549,3 +549,112 @@ Proved an index changes SCAN → SEARCH, and that it only helps matching queries
 - 6.9 (FTS) — FTS uses a special index (inverted index).
 - 7.12 (Monitoring) — slow query logs feed into monitoring.
 - 12.15 (Web Hacking) — SQL injection can exploit missing input validation, separate from performance.
+
+
+## Bad design drill — update anomaly
+
+### Bad table (one big table)
+CREATE TABLE sales_bad (
+  sale_id INTEGER PRIMARY KEY,
+  product_name TEXT, product_price REAL,
+  seller_name TEXT, seller_phone TEXT,
+  qty INTEGER, total REAL
+);
+INSERT: (1,Bread,60,Sam,0712,2,120), (2,Bread,60,Mary,0723,1,60), (3,Milk,75,Sam,0712,3,225)
+
+### Mistake: update only ONE row
+UPDATE sales_bad SET product_price = 70 WHERE sale_id = 1;
+SELECT * FROM sales_bad;
+
+Output:
+sale_id 1: Bread 70.0  Sam
+sale_id 2: Bread 60.0  Mary   ← stale
+sale_id 3: Milk  75.0  Sam
+
+→ Same product, two prices. DB is now lying.
+→ Bonus: sale 1 total=120 but 2×70=140. total is stale too.
+
+### Why it happened
+- product_price and seller_phone were repeated in every sale row.
+- One fact, many places → update anomaly.
+- seller_phone depends on seller_name, not on sale_id (transitive dependency → breaks 3NF).
+
+### The fix
+Split into 3 tables:
+- products (id, name, price) — stored once
+- sellers  (id, name, phone) — stored once
+- sales    (id, product_id, seller_id, qty, total) — facts only, FKs to the other two
+
+→ Price change = update one row in products.
+→ Phone change = update one row in sellers.
+→ No duplicates, no anomalies.
+
+### Lesson
+- Redundancy → update anomalies.
+- Normalization = every fact in one place.
+- Denormalization = deliberate duplicate for speed, needs a sync plan.
+
+## 6.6 Database Design & Normalization — Phase B DONE ✅
+
+Built a deliberately bad one-table design, triggered an update anomaly,
+then split it into three normalized tables.
+
+### Core concepts
+- **Normalization** = organizing data so each fact lives in exactly one place.
+- **Redundancy** = repeating data → risk of inconsistency.
+- **Update anomaly** = changing one row but not the others → DB lies.
+- **Insert anomaly** = can't add a fact without a related fact (e.g. a product with no sale).
+- **Delete anomaly** = deleting one fact wipes unrelated facts with it.
+
+### The three normal forms (plain English)
+| Form | Rule | In words |
+|------|------|----------|
+| **1NF** | No repeating groups | Each cell holds one value |
+| **2NF** | 1NF + no partial dependency | Every non-key column depends on the whole key |
+| **3NF** | 2NF + no transitive dependency | Non-key columns depend on the key, not on each other |
+
+### Relationships
+- **1:1** — one row ↔ one row (user ↔ profile)
+- **1:N** — one row ↔ many rows (seller ↔ sales)
+- **M:N** — many ↔ many, via a **junction table** (products ↔ sales, if a sale can have many products)
+
+### Denormalization
+- Deliberately duplicating data for **speed**.
+- Examples: cached `total`, `products_fts` (6.9), materialized views.
+- Requires a **sync plan** (triggers, jobs, cache invalidation).
+- Otherwise: the DB starts lying again.
+
+### The drill (what I actually ran)
+- Created `sales_bad` (one table, repeated product_price + seller_phone)
+- Inserted 3 rows
+- Updated ONLY row 1's price: 60 → 70
+- Query showed Bread @ 70 and Bread @ 60 — contradictory
+- `total` was also stale (2 × 70 = 140, but stored 120)
+- Designed the 3-table fix: products, sellers, sales with FKs
+
+### Things I saw
+- One missed update = two truths in one table.
+- The `total` column depends on `product_price` — if price changes, total must too.
+- seller_phone depends on seller, not on the sale → transitive dependency.
+- The fix is not "update harder" — it's "store once."
+
+### My own words (locked in)
+- Update anomaly = two Breads at different prices, from one missed update.
+- Redundancy = same fact stored many times.
+- Normalization = every fact lives in one place only.
+- Fix = split the table, link with foreign keys.
+- Denormalization = duplicate on purpose for speed — but keep copies in sync.
+- 3NF rule of thumb: non-key columns must depend on the key, not on each other.
+
+### Connection to other topics
+- 6.1 (Databases) — tables, rows, columns, keys.
+- 6.2 (SQL Basics) — the queries that exposed the anomaly.
+- 6.3 (Joins) — how the 3 tables are combined.
+- 6.5 (ORMs) — ORM classes map to normalized tables.
+- 6.7 (Backups & Migrations) — schema changes happen via migrations.
+- 6.8 (Caching) — denormalization is a form of caching at the DB layer.
+- 6.9 (FTS) — `products_fts` is denormalized on purpose.
+- 6.10 (DB Performance) — denormalization trades consistency for speed.
+
+### Rule of thumb
+"Every fact in one place, and only one place."y
