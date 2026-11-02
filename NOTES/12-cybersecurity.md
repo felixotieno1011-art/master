@@ -2266,3 +2266,90 @@ COPY . .
 RUN npm install
 EXPOSE 3000
 CMD ["node", "server.js"]
+
+## Mock incident — brute-force → admin compromise
+
+### Timeline (from incident.log)
+- 03:12:01 → 03:13:44: ~25 LOGIN_FAIL for admin from 203.0.113.45
+- 03:13:45: LOGIN_SUCCESS admin from 203.0.113.45  ← breach
+- 03:20:00: contained (disabled + IP blocked)
+- 11:45:20: real admin LOGIN_SUCCESS from 192.168.1.2 (unaware)
+
+### Detection
+grep "LOGIN_SUCCESS" incident.log
+→ found attacker's success at 03:13:45
+→ real admin logged in 8.5h later, unaware
+
+### Containment (done right)
+- 3a: identified admin activity (only 2 successes — attacker + real admin)
+- 3b: blocked 203.0.113.45 → blocked_ips.txt
+- 3c: disabled admin (not deleted) → actions.log
+- 3d: noted "DISABLED (not deleted) — preserved for forensics"
+
+### Incident report
+- Summary, root cause, what went well, what went wrong, actions
+- Root cause: no rate limit / lockout on /admin login
+- Actions: rate limit, MFA, alert on new-IP login, update playbook
+
+### Lesson
+- Alert ≠ incident. Confirmed impact = incident.
+- Investigate before you block. Blocking can destroy evidence.
+- Disable, don't delete. Attacker can't act; you keep proof.
+- Dwell time = how long attacker is inside. Yours: 6 min to contain, 8.5h to notice.
+- Lessons Learned is the vaccine.
+
+## 12.24 Incident Response — Phase B DONE ✅
+
+Ran a mock incident: brute-force on /admin succeeded, attacker got in at 03:13.
+Walked the 6-stage IR lifecycle. Contained within 6 minutes. Wrote an incident report.
+
+### Core concepts
+- **Event** = anything that happens.
+- **Alert** = a rule fired because an event matched a pattern.
+- **Incident** = confirmed impact (breach, data loss, service down).
+- **IR lifecycle:** Preparation → Detection & Analysis → Containment → Eradication → Recovery → Lessons Learned.
+- **Dwell time** = how long the attacker is inside before containment.
+- **Containment** = stop the bleeding, without destroying evidence.
+- **Disable, don't delete.** Deleting tips off the attacker and destroys forensics.
+- **Playbook** = pre-written steps for a known incident type.
+- **Chain of custody** = documented proof that evidence wasn't tampered with.
+- **Post-mortem** = blameless review after the incident.
+
+### The 3AM response order
+1. **Investigate** — is the attacker still in? Did any login succeed?
+2. **Preserve** — don't delete, don't reboot, don't wipe logs.
+3. **Contain** — disable account, block IP, kill sessions.
+4. **Eradicate** — patch the hole, remove backdoors, rotate creds.
+5. **Recover** — restore access, monitor for re-entry.
+6. **Learn** — update the playbook.
+
+### The drill (what I actually ran)
+- Wrote incident.log (200 failed logins + 1 success from 203.0.113.45)
+- grep "LOGIN_SUCCESS" → found the breach at 03:13:45
+- Blocked IP (blocked_ips.txt)
+- Disabled admin (actions.log) — not deleted
+- Noted "preserved for forensics"
+- Wrote incident-report.md with root cause + actions
+
+### Things I saw
+- The attacker had 8.5 hours of access before the real admin noticed.
+- Deleting the account would have destroyed proof AND tipped the attacker.
+- The real admin logged in normally at 11:45 — no idea anything happened.
+- The root cause wasn't the attack — it was the **missing lockout**.
+
+### My own words (locked in)
+- Event → alert → incident. Only confirmed impact makes it an incident.
+- Investigate before you block. Blocking can destroy evidence.
+- Disable, don't delete. Attacker can't act; you keep proof.
+- Dwell time matters. 6 min containment is good. 8.5h to notice is bad.
+- Lessons Learned is the vaccine — one incident becomes permanent defenses.
+
+### Connection to other topics
+- 8.9 (Rate Limiting) — the missing control that let this happen.
+- 12.19 (Blue Team) — you just played blue team.
+- 12.20 (SIEM) — how the alert fires.
+- 12.21 (IDS/IPS) — the IP block.
+- 12.22 (Endpoint Security) — the account disable.
+- 12.23 (Firewall Rules) — where IP blocks live.
+- 12.25 (Threat Hunting) — next topic, proactive IR.
+- 12.40 (Reporting) — the incident report.

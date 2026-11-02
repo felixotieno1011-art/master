@@ -206,7 +206,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.21 Intrusion Detection & Prevention (deep) 📱
 - [x] 12.22 Endpoint Security (EDR, antivirus) 📱
 - [x] 12.23 Firewall Rules & Network Defense 📱
-- [ ] 12.24 Incident Response 📱
+- [x] 12.24 Incident Response 📱
 - [ ] 12.25 Threat Hunting 📱
 
 ### Module 5 — Digital Forensics
