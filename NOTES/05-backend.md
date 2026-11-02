@@ -785,3 +785,112 @@ and watched it fire every minute into a log file.
 - 5.12 (Background Jobs) — cron is the classic time-based version; queues are the event-based version.
 - 6.7 (Backups & Migrations) — cron is how scheduled backups run.
 - 7.12 (Monitoring & Logging) — cron output goes into logs.
+
+## Background queue drill — producer → broker → worker
+
+### Setup
+- Redis as broker (redis-server --daemonize yes → PONG)
+- producer.py: pushes 3 "send_email" jobs to Redis list "jobs"
+- worker.py: BRPOP loop, sleeps 3s per job (simulates SMTP)
+- worker2.py: duplicate of worker.py, for concurrency test
+
+### Run 1 — 1 worker
+Producer:
+[producer] signup(felix) returned in 74ms
+[producer] signup(wanjiku) returned in 14ms
+[producer] signup(otieno) returned in 15ms
+
+Worker:
+[worker] picked up: felix → ✅ email sent (3s)
+[worker] picked up: wanjiku → ✅ email sent (3s)
+[worker] picked up: otieno → ✅ email sent (3s)
+
+→ Producer returned in ~15ms. Worker took 9s total. User never waited.
+
+### Run 2 — 2 workers, 6 jobs
+Worker 1: user1, user3, user5
+Worker 2: user0, user2, user4
+
+→ 6 jobs ÷ 2 workers × 3s = ~9s total. Half the time.
+→ Redis handed out jobs atomically. No duplicates.
+
+### Crash observed
+Worker died after ~5s of empty queue:
+redis.exceptions.TimeoutError: Timeout reading from socket
+→ BRPOP's default timeout. Fix: catch TimeoutError or use timeout=0.
+
+### Lesson
+- Producer → broker → worker
+- Producer returns fast. Worker does slow work in background.
+- 1 worker = queued. 2 workers = 2× throughput. Free horizontal scaling.
+- 10,000 workers = downstream crashes (SMTP, DB, CPU), not the queue.
+- The queue absorbs waiting, not work.
+
+## 5.12 Background Jobs & Queues — Phase B DONE ✅
+
+Built a real producer → broker → worker queue with Redis.
+Proved 15ms producer vs 3000ms worker, then scaled to 2 workers.
+
+### Core concepts
+- **Background job** = work that happens outside the request/response cycle.
+- **Queue** = ordered list of jobs waiting to be processed.
+- **Producer** = code that adds jobs to the queue (usually your web endpoint).
+- **Broker** = the middleman holding jobs (Redis, RabbitMQ, SQS).
+- **Worker** = a separate process that pops jobs and does the work.
+- **The pattern:** producer → queue → worker → done.
+
+### Why queues exist
+- Slow work (email, PDF, video) blocks the user if done inline.
+- Inline: user waits 8s → refreshes → duplicate signups.
+- Queue: user gets 200 OK in 15ms → work happens in background.
+- **The queue absorbs waiting, not work.**
+
+### Concurrency
+- 1 worker = jobs process one at a time.
+- N workers = N× throughput (until the bottleneck shifts).
+- Redis hands out jobs **atomically** via BRPOP — no duplicates.
+- **The limit isn't the queue — it's the downstream resource** (SMTP, DB, CPU).
+- 10,000 workers → SMTP rate-limits, DB pool exhausted, RAM dies.
+
+### Real tools
+- **Python:** Celery + Redis/RabbitMQ, RQ, Dramatiq.
+- **Node:** BullMQ, Bee-Queue.
+- **Cloud:** AWS SQS, Google Pub/Sub, Cloudflare Queues.
+- **Task types:** send email, resize image, generate PDF, charge payment, sync data.
+
+### Cron vs queue (link to 5.14)
+- **Cron:** time-based. "Run at 2 AM." No user trigger.
+- **Queue:** event-based. "User signed up → send email." Triggered by action.
+- Both run in the background. Different reasons.
+
+### The drill (what I actually ran)
+- `redis-server --daemonize yes` → `PONG`
+- `producer.py` → pushed 3 "send_email" jobs → returned in 74ms, 14ms, 15ms
+- `worker.py` → BRPOP loop → sent 3 emails, 3s each (9s total)
+- `worker2.py` + `worker.py` + 6 jobs → 2 workers split the queue → 9s total
+- Worker crashed after idle with `redis.exceptions.TimeoutError` → BRPOP default timeout
+
+### Things I saw
+- Producer returned **200× faster** than worker finished.
+- 2 workers halved the total time with **zero extra coordination code**.
+- Redis handed jobs to workers **atomically** — no duplicates, no locks.
+- The worker dying on empty queue is a **real production bug** — needs try/except or timeout=0.
+- The queue is a shock absorber, not a speed machine.
+
+### My own words (locked in)
+- Queue = waiting room. Producer drops a job and leaves. Worker picks it up later.
+- User never waits for the slow part.
+- 2 workers = 2× speed. 10,000 workers = crash something downstream.
+- Scale the bottleneck, not the workers.
+- Cron = time-triggered. Queue = event-triggered.
+
+### Connection to other topics
+- 5.2 / 5.4 (Flask/Express) — the producer is your endpoint.
+- 5.13 (Redis) — the broker.
+- 5.14 (Cron) — sibling concept: time vs event.
+- 6.4 (NoSQL) — Redis lists are the queue primitive.
+- 6.8 (Caching) — same tool, different job.
+- 7.6 / 7.7 (Docker) — workers run in containers.
+- 7.11 (Kubernetes) — scale workers horizontally.
+- 7.12 (Monitoring) — queue depth is a key metric.
+- 5.10 (WebSockets) — can notify the user when a job finishes.

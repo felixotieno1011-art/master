@@ -77,7 +77,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 5.9 File Uploads & Storage 📱🔁
 - [x] 5.10 WebSockets 📱
 - [x] 5.11 GraphQL 📱💻
-- [ ] 5.12 Background Jobs & Queues 📱🔁
+- [x] 5.12 Background Jobs & Queues 📱🔁
 - [x] 5.13 Caching (Redis) 📱💻
 - [x] 5.14 Cron Jobs 📱
 - [ ] 5.15 Payment Integration 📱💻
