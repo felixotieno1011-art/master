@@ -658,3 +658,102 @@ then split it into three normalized tables.
 
 ### Rule of thumb
 "Every fact in one place, and only one place."y
+
+## Backup + Restore drill
+
+### Setup
+cp ~/pos-lab/db/pos.db ./pos-backup.db
+sqlite3 ./pos-backup.db "SELECT COUNT(*) FROM products;" → 5
+
+### Simulate disaster
+cp ~/pos-lab/db/pos.db ./pos-live.db
+sqlite3 ./pos-live.db "DELETE FROM products;" → COUNT = 0
+
+### Restore
+cp ./pos-backup.db ./pos-live.db
+sqlite3 ./pos-live.db "SELECT COUNT(*) FROM products;" → 5
+
+→ Recovery works. Backup was real, not a wish.
+
+### Lesson
+- A backup is only real if you've restored it.
+- Delete → restore → count = 5 = proof.
+- Untested backup = hope. Tested backup = insurance.
+
+## Migration drill — add stock column
+
+### Migration file
+migrations/001_add_stock_column.sql:
+  ALTER TABLE products ADD COLUMN stock INTEGER NOT NULL DEFAULT 0;
+  UPDATE products SET stock = 10 WHERE stock = 0;
+
+### Apply
+sqlite3 ./pos-live.db < migrations/001_add_stock_column.sql
+
+### Verify
+SELECT id, name, stock FROM products;
+→ 5 rows, all stock=10. Old data intact.
+
+### Lesson
+- Inline ALTER = fixes my DB only, no record, no undo.
+- Migration file = versioned, in Git, repeatable.
+- Apply = ALTER + UPDATE in one file.
+- Old rows survive; new column gets backfilled.
+- Backups protect data. Migrations change structure.
+
+## 6.7 Backups & Migrations — Phase B DONE ✅
+
+Backed up pos-lab, deleted all products, restored from backup (5 rows back).
+Then ran a real migration file: added a column, backfilled it, verified old rows survived.
+
+### Core concepts — BACKUPS
+- **Backup** = a copy of the data, stored somewhere else.
+- **Restore** = bringing the data back from a backup.
+- **Backup ≠ insurance until tested.** An untested backup is a wish.
+- **Full backup** = everything (simple, slow).
+- **Incremental** = changes since the last backup (fast, complex).
+- **Logical backup** = SQL statements (`pg_dump`, `.dump`).
+- **Physical backup** = the raw DB file (`cp`, `.backup`).
+- **3-2-1 rule:** 3 copies, 2 formats, 1 off-site.
+
+### Core concepts — MIGRATIONS
+- **Migration** = a versioned, repeatable change to the DB's *structure*.
+- **Backups protect data. Migrations change structure.** Different jobs.
+- **Inline ALTER** = fixes my DB only. No record. No undo. Teammates still wrong.
+- **Migration file** = in Git. Numbered. Ordered. Reversible. Anyone can apply it.
+- **UP / DOWN** = apply the change / roll it back.
+- **Tools:** Alembic (SQLAlchemy), Django migrations, Flyway, Liquibase.
+- **The rule:** never hand-edit a production DB. Always via migration.
+
+### The drill (what I actually ran)
+- `cp pos.db → pos-backup.db` → COUNT = 5
+- `cp pos.db → pos-live.db`, `DELETE FROM products` → COUNT = 0
+- `cp pos-backup.db → pos-live.db` → COUNT = 5 (restore works)
+- Migration: `ALTER TABLE products ADD COLUMN stock INTEGER NOT NULL DEFAULT 0; UPDATE products SET stock = 10;`
+- Applied via `sqlite3 ./pos-live.db < migrations/001_add_stock_column.sql`
+- `SELECT id, name, stock FROM products` → 5 rows, all stock=10
+
+### Things I saw
+- Delete → restore → 5 rows. The backup saved the day.
+- Migration added a column with no data loss.
+- Old rows got backfilled in the same file (UPDATE after ALTER).
+- The migration file is a record — inline ALTER is a private action.
+- Migrations need to consider FTS triggers and indexes (existing triggers survived).
+
+### My own words (locked in)
+- Untested backup is a wish. Tested backup is insurance.
+- Inline ALTER = one-time fix on my machine. Migration = versioned change in Git.
+- Backups save data. Migrations change structure.
+- Migrations are ordered and numbered — they tell a story of the schema.
+- The migration file is the source of truth, not the running DB.
+
+### Connection to other topics
+- 6.1 (Databases) — the tables being backed up.
+- 6.2 (SQL) — the queries inside the migration.
+- 6.3 (Joins) — migrations may add FK columns.
+- 5.14 (Cron) — backups run on a schedule.
+- 6.5 (ORMs) — Alembic pairs with SQLAlchemy for migrations.
+- 6.6 (DB Design) — schema changes come from design changes.
+- 7.8 (CI/CD) — migrations run automatically on deploy.
+- 7.12 (Monitoring) — backup success/failure should be monitored.
+- 9.4 (Testing) — migrations should be tested like code.

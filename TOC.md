@@ -90,7 +90,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 6.4 NoSQL (MongoDB, Redis) 📱💻
 - [x] 6.5 ORMs 📱
 - [x] 6.6 Database Design & Normalization 📱
-- [ ] 6.7 Backups & Migrations 📱
+- [x] 6.7 Backups & Migrations 📱
 - [x] 6.8 Caching Layer (Redis) 📱💻
 - [x] 6.9 Search (Full-text) 📱
 - [x] 6.10 DB Performance 📱
