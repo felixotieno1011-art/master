@@ -757,3 +757,30 @@ Then ran a real migration file: added a column, backfilled it, verified old rows
 - 7.8 (CI/CD) — migrations run automatically on deploy.
 - 7.12 (Monitoring) — backup success/failure should be monitored.
 - 9.4 (Testing) — migrations should be tested like code.
+
+## Part 6 Capstone — Mini Pos-Lab (bonus) ✅
+
+Built a 3-table POS database from scratch: customers → orders → order_items.
+
+### Design decisions
+- Snapshot `unit_price` on `order_items` = history survives price changes
+- `ON DELETE CASCADE` on both FKs = clean deletion chain
+- Indexed FK columns (`orders.customer_id`, `order_items.order_id`) — JOIN targets
+- Skipped `products` table = scope decision (inventory is a later feature)
+
+### Verified by hand
+Wanjiku's line totals: 45+50+120+75+100 = 390. Matched Q1. "Query ran" ≠ "query right."
+
+### Backup drill
+DROP order_items → restore from backup → 10 items back.
+Tested backup = insurance. Untested = wish.
+
+### Migration
+Added `orders.status TEXT DEFAULT 'pending'`.
+Backfilled old orders to `'paid'` — they were already completed sales.
+Backfill must reflect historical truth, not the column default.
+
+### Performance
+`WHERE customer_id = 1` → SEARCH USING INDEX
+`WHERE status = 'paid'` → SCAN (no index)
+Fix = CREATE INDEX, but only if selective. Cost = disk + slower writes.
