@@ -80,7 +80,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 5.12 Background Jobs & Queues 📱🔁
 - [x] 5.13 Caching (Redis) 📱💻
 - [x] 5.14 Cron Jobs 📱
-- [ ] 5.15 Payment Integration 📱💻
+- [x] 5.15 Payment Integration 📱💻
 - [ ] 5.16 API Testing 📱💻
 
 ## Part 6 — Databases

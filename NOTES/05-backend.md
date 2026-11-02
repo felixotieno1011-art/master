@@ -894,3 +894,107 @@ Proved 15ms producer vs 3000ms worker, then scaled to 2 workers.
 - 7.11 (Kubernetes) — scale workers horizontally.
 - 7.12 (Monitoring) — queue depth is a key metric.
 - 5.10 (WebSockets) — can notify the user when a job finishes.
+
+## Mock M-Pesa webhook — idempotency drill
+
+### Setup
+- Flask mock server (mock_mpesa.py) on port 5000
+- SQLite payments.db with 2 tables:
+  - orders (id, amount, status)
+  - processed_callbacks (idempotency_key PRIMARY KEY, processed_at)
+- HMAC-SHA256 signature in X-Signature header
+- SECRET = b"my-secret-key"
+
+### Flow
+POST /webhook/mpesa with JSON body + HMAC signature
+1. Read JSON
+2. Verify HMAC (hmac.compare_digest — timing-safe)
+3. Extract transaction_id = idempotency key
+4. SELECT 1 FROM processed_callbacks WHERE key = ?
+   - If exists → return "already processed", 200
+5. UPDATE orders SET status='paid'
+6. INSERT INTO processed_callbacks (key)
+7. Return "ok", 200
+
+### Test 1 — first callback (TXN-001)
+Response: {"status":"ok"}
+DB: orders = [(1, 1000, 'paid')]
+    callbacks = [('TXN-001', '2026-11-02 07:50:36')]
+
+### Test 2 — replay same callback (TXN-001)
+Response: {"status":"already processed"}
+DB unchanged: order still paid once, one callback row
+
+→ Idempotency works.
+
+### Without idempotency (thought experiment)
+- Callback #1 → charge customer
+- Callback #2 → charge again
+- Callback #3 → charge again
+- 3 charges for 1 order. Customer paid 3×.
+- Worse with balance logic: balance goes negative.
+
+### Lesson
+- Idempotency = same operation, same effect, no matter how many times it arrives.
+- Check key BEFORE processing. Insert key AFTER processing.
+- Use `hmac.compare_digest` for signatures (timing-safe).
+- Webhooks WILL retry. Assume duplicates. Design for them.
+
+## 5.15 Payment Integration — Phase B DONE ✅
+
+Built a mock M-Pesa webhook with HMAC signature verification and idempotency.
+Replayed the same callback — second one was rejected as "already processed".
+
+### Core concepts
+- **Payment flow:** initiate → redirect/STK push → callback/webhook → verify → fulfill.
+- **Webhook** = server-to-server notification from the payment provider.
+- **HMAC signature** = proof the webhook came from the provider (not a faker).
+- **Idempotency** = same operation, same effect, no matter how many times it arrives.
+- **Idempotency key** = unique ID per payment (e.g. transaction_id).
+- **Replay attack** = sending the same valid callback multiple times.
+- **Never store card numbers** (PCI-DSS lite, 12.39) — store a token from the provider.
+
+### Why idempotency matters
+- Payment providers retry callbacks (timeouts, network blips).
+- Without a key check: every retry = another charge / receipt / stock decrement.
+- With a key check: 3 retries = 1 effect.
+- **The #1 payment bug** is missing idempotency. The #2 is missing signature verification.
+
+### The flow (real M-Pesa Daraja)
+1. Client calls your `/pay` endpoint.
+2. Your server initiates STK Push (Daraja API).
+3. Client enters PIN on phone.
+4. Daraja sends a callback to your webhook.
+5. You verify signature + idempotency, mark order paid, send receipt.
+
+### The drill (what I actually ran)
+- Flask mock webhook with HMAC-SHA256 check
+- SQLite with orders + processed_callbacks tables
+- Test 1: first callback → {"status":"ok"}, order paid, key stored
+- Test 2: same callback → {"status":"already processed"}, nothing changed
+
+### Things I saw
+- The second callback arrived at the server — the idempotency check is what stopped it.
+- `hmac.compare_digest` is timing-safe; `==` is a timing attack.
+- `request.get_data()` is used for HMAC because `get_json()` can reorder keys.
+- Concurrency edge case: two identical callbacks arriving simultaneously could both pass the SELECT then one hits the PRIMARY KEY constraint (needs IntegrityError handling in production).
+
+### My own words (locked in)
+- Payment will be more each processed time — without idempotency.
+- Idempotency key = "I've seen this, ignore it."
+- Check key before processing. Insert key after.
+- Webhooks WILL retry. Always assume duplicates.
+- HMAC signature = proof the callback is real.
+- Store tokens, never card numbers.
+
+### Connection to other topics
+- 5.5 (REST API) — the webhook is an endpoint.
+- 5.6 (Auth/JWT) — webhook uses HMAC, not JWT (server-to-server).
+- 5.7 (Validation) — check body fields before processing.
+- 5.8 (Env Vars) — SECRET must come from env, not hardcoded.
+- 5.12 (Background Jobs) — order fulfillment often goes into a queue.
+- 6.3 (Transactions) — mark paid + insert key should be one transaction.
+- 8.3 (HTTPS/TLS) — webhook must be HTTPS.
+- 8.10 (Secure API) — rate-limit webhooks.
+- 12.7 (Symmetric crypto) — HMAC is symmetric.
+- 12.39 (PCI-DSS) — never store card data.
