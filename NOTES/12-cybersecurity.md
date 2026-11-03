@@ -2607,3 +2607,31 @@ Exploited SQL injection on DVWA and analyzed the vulnerable PHP code.
 - 8.4 (Secure Coding) — prepared statements.
 - 7.6 (Docker) — how the lab is built.
 - 12.42 (TryHackMe) — the next step in lab practice.
+
+## Exploit 2 — XSS (Cross-Site Scripting)
+
+### Reflected XSS
+- Payload: `<script>alert('Hacked!')</script>`
+- Result: Popup appeared immediately.
+- Source Code: `$html .= '<pre>Hello ' . $_GET['name'] . '</pre>';`
+- Vulnerability: The input is concatenated directly into the HTML without encoding.
+
+### Stored XSS
+- Payload: `<script>alert('Persistent Hack!')</script>` in the guestbook message.
+- Result: Popup appeared immediately, and **again on every page refresh**. The payload is saved in the database.
+- Vulnerability: The app saves the raw script to the DB and prints it unescaped to all visitors.
+
+### Why it's dangerous (Real-world)
+- `alert()` is just a proof of concept.
+- A real attacker uses `document.cookie` to steal session tokens (Session Hijacking).
+- Stored XSS affects every user who views the page.
+
+### The Fix
+- **Reflected:** Use `htmlspecialchars($_GET['name'])` in PHP to encode output.
+- **Stored:** Encode on output (and sanitize on input if needed).
+- Encoding turns `<script>` into `&lt;script&gt;`, so the browser displays it as text instead of executing it.### XSS Drill (Reflected & Stored)
+- **Reflected XSS:** Payload runs immediately from the URL. Affects only the person who clicks the link.
+- **Stored XSS:** Payload is saved in the DB and runs for every visitor. Much more dangerous.
+- **The hole:** Concatenating user input into HTML (`echo $_GET['name']`).
+- **The fix:** Output encoding (`htmlspecialchars()`). Turns executable tags into harmless text.
+- **Real-world impact:** Session hijacking, defacement, stealing credentials.
