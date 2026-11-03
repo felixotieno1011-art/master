@@ -2564,3 +2564,46 @@ architecture change that reduces blast radius: private subnet + least privilege.
 - 12.35 (Container/K8s Security) — segmentation at the pod level.
 - 12.24 (Incident Response) — blast radius reduces incident severity.
 - 7.5.7 (System Design) — the architecture side.
+
+
+**`NOTES/12-cybersecurity.md`:**
+
+```markdown
+## 12.41 Setting Up Your Hacking Lab — Phase B DONE ✅
+
+Built a legal hacking lab using GitHub Codespaces and Docker.
+Exploited SQL injection on DVWA and analyzed the vulnerable PHP code.
+
+### Core concepts
+- **Hacking Lab** = isolated environment with explicit permission to break things.
+- **Legality:** Never test on systems you don't own or have written permission for. It's a crime (Cybercrimes Act).
+- **DVWA** = Damn Vulnerable Web Application. Intentionally insecure for practice.
+- **Codespaces + Docker** = a lightweight, cloud-based lab you can run from a phone.
+- **The exploit cycle:** Setup → Recon → Exploit → Analyze Code → Patch.
+
+### The drill (what I actually did)
+- Ran DVWA in a Codespace container (`docker run -d -p 8080:80 vulnerables/web-dvwa`).
+- Exposed port 8080 publicly via GitHub Codespaces.
+- Logged in (`admin`/`password`), reset the database, set security to Low.
+- Executed SQL injection: `1' OR '1'='1` → dumped all users.
+- Inspected the PHP source: found `$query = "SELECT ... WHERE user_id = '$id';"`.
+- Identified the fix: prepared statements (`bind_param`).
+
+### Things I saw
+- The payload returned 5 users instead of 1.
+- The vulnerable code concatenated `$id` directly into the query.
+- The fix is to use a placeholder (`?`) so the input is treated as data.
+
+### My own words (locked in)
+- Hacking without permission = unethical hacking.
+- A lab is a safe training ground.
+- SQL injection happens when input is pasted into a query.
+- Prepared statements kill SQL injection.
+- Seeing the code makes the vulnerability real.
+
+### Connection to other topics
+- 12.15 (Web Hacking) — the theory behind SQL injection.
+- 8.2 (OWASP Top 10) — injection is #1.
+- 8.4 (Secure Coding) — prepared statements.
+- 7.6 (Docker) — how the lab is built.
+- 12.42 (TryHackMe) — the next step in lab practice.

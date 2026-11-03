@@ -2,10 +2,10 @@
 
 ## Overall
 - Total topics: 182
-- Completed: 152
-- Remaining: 30
-- Progress: 83%
-- Last updated: 2026-11-03 11:52
+- Completed: 153
+- Remaining: 29
+- Progress: 84%
+- Last updated: 2026-11-03 15:51
 
 ## By Part
 | Part | Title | Done | Total | % |
@@ -22,7 +22,7 @@
 | 9 | Career | 3 | 12 | 25% |
 | 10 | Capstone | 1 | 8 | 12% |
 | 11 | Specialization | 0 | 8 | 0% |
-| 12 | Cybersecurity | 40 | 46 | 86% |
+| 12 | Cybersecurity | 41 | 46 | 89% |
 
 ## Milestones
 - [x] First project pushed to GitHub
