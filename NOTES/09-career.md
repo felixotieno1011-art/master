@@ -54,3 +54,53 @@ Ran the code, got a 401, and understood that the error response itself points to
 - 9.3 (Problem Solving) — docs are a primary tool.
 - 9.2 (AI Tools) — AI is an alternative to docs, but docs are the source of truth.
 - 9.4 (Testing & Debugging) — reading error messages.
+## GitHub Profile Upgrade
+
+### What I did
+- Created a special profile repo (`felixotieno1011-art/felixotieno1011-art`)
+- Added a custom README with:
+  - Title & tagline
+  - Links to Portfolio, Resume, LinkedIn
+  - Tech stack badges (Python, FastAPI, Node.js, Redis, PostgreSQL, Docker, etc.)
+  - Table of 5 featured projects
+- Pinned the 5 best repos to the profile.
+
+### Why it matters
+- Recruiters don't read through 20 repos. They look at the Pinned section.
+- The Profile README acts as a landing page.
+- Clean presentation = professional.
+- The badges show tech stack at a glance.
+
+## 9.6 GitHub Profile — Phase B DONE ✅
+
+Built a custom GitHub Profile README using the username special repo.
+Pinned the 5 best projects and cleaned up the presentation.
+
+### Core concepts
+- **Profile README:** A repo named exactly after your username shows up on your profile. It's your GitHub landing page.
+- **Pinned Repos:** The 6 projects featured at the top of your profile. Curate these — don't let GitHub choose.
+- **Badges:** Shields.io badges give a visual tech stack (e.g., Python, Docker, Redis).
+- **Clean Repos:** Archive old practice repos (`git_test`, `docker-basics`) so they don't clutter the list.
+- **Bio:** Short, keyword-rich, professional. No "learning to code."
+
+### The drill (what I actually did)
+- Created `felixotieno1011-art/felixotieno1011-art`.
+- Wrote a README with intro, links, badges, and a table of 5 projects.
+- Pushed it to GitHub.
+- Pinned `felchat`, `zero-trust-gateway`, `cloud-native-siem`, `honeypot-factory`, `recon-platform`.
+
+### Things I saw
+- The README rendered perfectly with the badges.
+- It immediately makes the profile look 10x more professional than a list of repos.
+- A recruiter can see my best work in 3 seconds without scrolling.
+
+### My own words (locked in)
+- Neatly arranged is the goal.
+- Profile README = the shop window.
+- Pinned repos = the front counter.
+- Badges = quick visual proof of skills.
+
+### Connection to other topics
+- 9.5 (Portfolio) — the GitHub profile complements the live portfolio site.
+- 9.7 (Resume & LinkedIn) — they all link to each other.
+- 9.6 is the GitHub side of the same story.
