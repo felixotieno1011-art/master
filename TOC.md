@@ -236,4 +236,4 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 12.43 CTF Basics 📱
 - [ ] 12.44 Bug Bounty Hunting 📱
 - [ ] 12.45 Certifications Roadmap 📱
-- [ ] 12.46 Building a Security Portfolio 📱
+- [x] 12.46 Building a Security Portfolio 📱
