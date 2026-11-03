@@ -232,7 +232,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 
 ### Module 8 — Career & Practice
 - [x] 12.41 Setting Up Your Hacking Lab 📱
-- [ ] 12.42 TryHackMe / HackTheBox Paths 📱
+- [x] 12.42 TryHackMe / HackTheBox Paths 📱
 - [ ] 12.43 CTF Basics 📱
 - [ ] 12.44 Bug Bounty Hunting 📱
 - [ ] 12.45 Certifications Roadmap 📱
