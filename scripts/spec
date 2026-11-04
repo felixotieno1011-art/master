@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Path to your specialization file
 FILE="SPECIALIZATION.md"
 
 if [ ! -f "$FILE" ]; then
@@ -22,7 +21,10 @@ case "$1" in
     show)
         echo "🎯 SPECIALIZATION PROGRESS:"
         echo "-------------------------"
-        grep -E "^- \[( |x)\]" "$FILE" | awk '{if($2=="[x]") done++; else todo++} END {print "✅ Done: " done+0 "\n🔲 Todo: " todo+0}'
+        DONE=$(grep -cE "^- \[x\]" "$FILE")
+        TODO=$(grep -cE "^- \[ \]" "$FILE")
+        echo "✅ Done: $DONE"
+        echo "🔲 Todo: $TODO"
         echo "-------------------------"
         echo "Next up:"
         grep -E "^- \[ \]" "$FILE" | head -n 1
