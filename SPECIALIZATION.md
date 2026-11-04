@@ -11,7 +11,7 @@ Legend: 🎯 build · 🔁 break-fix · 🧐 review · 🗣️ defend · 📱 ph
 ## 🟢 TRACK 1 — BACKEND (build the artifact)
 
 ### Builds
-- [ ] 🎯 B1. Secure API skeleton — 2 resources, runs locally 💻
+- [x] 🎯 B1. Secure API skeleton — 2 resources, runs locally 💻
 - [ ] 🎯 B2. Add JWT auth (register/login/protected route) 💻
 - [ ] 🎯 B3. Add DB + one migration 💻
 - [ ] 🎯 B4. Add validation + proper error responses 💻

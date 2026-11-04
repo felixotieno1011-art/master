@@ -1,0 +1,18 @@
+#!/data/data/com.termux/files/usr/bin/bash
+# Shortcut to tick items in SPECIALIZATION.md
+
+FILE="SPECIALIZATION.md"
+
+if [ -z "$1" ]; then
+    echo "Usage: tick-spec B1"
+    exit 1
+fi
+
+# Replaces "- [ ] ... B1." with "- [x] ... B1."
+sed -i "s/- \[ \] \(.*$1.*\)/- [x] \1/" "$FILE"
+
+if git diff --quiet "$FILE"; then
+    echo "❌ Could not find '$1' (or it's already ticked)."
+else
+    echo "✅ Ticked $1 in $FILE"
+fi
