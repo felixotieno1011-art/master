@@ -2635,3 +2635,61 @@ Exploited SQL injection on DVWA and analyzed the vulnerable PHP code.
 - **The hole:** Concatenating user input into HTML (`echo $_GET['name']`).
 - **The fix:** Output encoding (`htmlspecialchars()`). Turns executable tags into harmless text.
 - **Real-world impact:** Session hijacking, defacement, stealing credentials.
+
+## CTF Basics — First Web Challenge
+
+### Challenge: The Hidden Login
+- Setup: Served a fake login page via Python HTTP server.
+- Target: http://localhost:8080
+- Goal: Find the hidden admin password and flag.
+
+### The Solve
+- Opened the page in the browser.
+- Used "View Page Source" (view-source:http://localhost:8080).
+- Found HTML comments left by the developer:
+  - `<!-- Admin Password: SuperSecretAdmin123 -->`
+  - `<!-- Flag: FLAG{SOURCE_CODE_LEAKED} -->`
+
+### Why it worked
+- Developers often leave sensitive info in comments.
+- The frontend code is always visible to the user.
+- "Security through obscurity" (hiding a comment) doesn't work.
+
+### Lesson
+- Always check the source code.
+- CTFs are puzzles. The answer is usually in plain sight if you know where to look.
+- This is a real vulnerability class (Information Disclosure).
+## 12.43 CTF Basics — Phase B DONE ✅
+
+Solved my first Web Exploitation CTF challenge by inspecting the HTML source code.
+Learned how to approach CTF puzzles and find hidden data.
+
+### Core concepts
+- **CTF (Capture The Flag):** A gamified cybersecurity challenge. Find the hidden "flag" (usually `FLAG{...}`).
+- **Categories:** Web Exploitation, Cryptography, Forensics, Reverse Engineering, Binary Exploitation.
+- **Information Disclosure:** Leaking sensitive data (passwords, keys, flags) through comments, error messages, or exposed files.
+- **View Page Source:** The most basic recon tool. Always check what the server sends to the browser.
+- **Caesar Cipher:** A basic substitution cipher (shift letters by N).
+
+### The drill (what I actually did)
+- Created a local vulnerable HTML page.
+- Served it on port 8080.
+- Inspected the source code and found the flag in an HTML comment.
+- Decoded a Caesar cipher in the gate question.
+
+### Things I saw
+- The flag was literally sitting in the source code.
+- Developers leave comments and secrets behind.
+- Security through obscurity is not security.
+
+### My own words (locked in)
+- CTFs are puzzles. Look for the obvious first.
+- Always check the page source.
+- Never put secrets in HTML comments.
+- The first CTF is the hardest. Once you know the format, it gets easier.
+
+### Connection to other topics
+- 12.11 (Reconnaissance) — view source is the first step.
+- 12.15 (Web Hacking) — information disclosure.
+- 12.41 (Hacking Lab) — the lab you built.
+- 9.3 (Problem Solving) — CTFs are pure problem solving.
