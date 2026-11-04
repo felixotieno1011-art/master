@@ -104,3 +104,42 @@ Pinned the 5 best projects and cleaned up the presentation.
 - 9.5 (Portfolio) — the GitHub profile complements the live portfolio site.
 - 9.7 (Resume & LinkedIn) — they all link to each other.
 - 9.6 is the GitHub side of the same story.
+
+
+**`NOTES/09-career.md`:**
+
+```markdown
+## 9.2 AI Tools — Phase B DONE ✅
+
+Used AI to review vulnerable code, identify a security flaw, and produce a fix.
+Practiced the "exoskeleton" mindset — AI as a force multiplier, not a replacement for understanding.
+
+### Core concepts
+- **Crutch vs. Exoskeleton:** Copying AI code you don't understand vs. using AI to review/explain/test.
+- **AI in security:** Great for code review, finding flaws, generating test cases.
+- **AI in debugging:** Give it the error + stack trace, not just "it doesn't work."
+- **The 2 AM test:** If it breaks and the AI is gone, can you fix it?
+- **Prompting for depth:** Ask "Why is this vulnerable?" not just "Fix it."
+
+### The drill (what I actually did)
+- Wrote a deliberately vulnerable SQL function.
+- Asked AI to review it.
+- AI found the SQL injection and provided the parameterized fix.
+- I retyped the fix myself and verified why it works.
+
+### Things I saw
+- The AI spotted the flaw immediately.
+- The fix was small (one placeholder) but conceptually huge.
+- Retyping the fix made the logic stick.
+
+### My own words (locked in)
+- Junior dev can't understand if code breaks or crashes later.
+- AI is a rubber duck that never sleeps.
+- Use AI to explain, not to skip understanding.
+- If you can't explain it, you don't own it.
+
+### Connection to other topics
+- 9.1 (Reading Docs) — AI is an alternative to docs, but docs are the source of truth.
+- 9.3 (Problem Solving) — AI is a tool in the problem-solving toolkit.
+- 9.4 (Testing & Debugging) — AI can generate tests.
+- 12.15 (Web Hacking) — the SQLi you just found with AI is the same one from DVWA.
