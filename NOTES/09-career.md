@@ -148,3 +148,61 @@ Practiced the "exoskeleton" mindset — AI as a force multiplier, not a replacem
 - Copying AI code gives you a **maze**. When it breaks, you are a stranger in your own codebase.
 - At 2 AM, nobody reads 10,000 lines. You use **logs, stack traces, and monitoring** to jump straight to the bug.
 - The rule: If you use AI to write a feature, read every line, add comments in your own words, and break it on purpose. If you can't explain it, it's too big.
+
+## Mock Interview Drill
+
+### Q1: Walk me through your Zero-Trust Gateway architecture.
+**My initial answer:** "I built it for a portfolio. It verifies requests and detects anomalies. Works on my machine."
+**Feedback:** Sounded like a hobbyist. Missed the "how" and the "result".
+**Pro Answer:** "Solves the problem of securing backend microservices. Uses JWT for identity, custom WAF for payload filtering, Redis for rate limiting. 69 automated tests. Containerized with Docker for any cloud."
+
+### Q2: Tell me about learning a new tech quickly.
+**My initial answer:** "FelChat was slow. I remembered Groq and used it. It responds fast."
+**Feedback:** Good skeleton, but needs metrics and technical depth.
+**Pro Answer:** "FelChat had 5-10s latency. I needed low-latency. I researched Groq's LPU architecture, read their docs, swapped the provider. Result: dropped latency to <1s. Learned that infra matters as much as code."
+
+### Q3: Secure a Kubernetes cluster in the cloud.
+**My initial answer:** "Pod security and authentication."
+**Feedback:** Right concepts, but too brief.
+**Pro Answer:** "Three layers: 1) Network (VPC, Network Policies), 2) Identity (RBAC, OIDC, IAM roles), 3) Workload (Pod Security Standards, image scanning). Priority: Secrets Management."
+
+### Lesson
+- Never say "it works on my machine." Say "it's containerized."
+- Use STAR for behavioral questions.
+- For technical questions, list the layers/concepts you know, and be honest about what you haven't implemented.
+## 9.8 Interview Prep — Phase B DONE ✅
+
+Practiced translating hands-on project work into professional interview answers.
+Used the STAR method and learned how to structure complex technical answers.
+
+### Core concepts
+- **STAR Method:** Situation, Task, Action, Result. Essential for behavioral questions.
+- **Show, don't tell:** Instead of "it detects anomalies," say "it filters SQLi and XSS using a custom WAF."
+- **Use metrics:** "Reduced latency from 5s to <1s" is better than "it's fast."
+- **The "I don't know" test:** Don't bluff. Break the problem into layers (Network, Identity, Workload) and explain your approach.
+- **"Works on my machine" is banned.** Say "it's containerized with Docker" or "it runs on any environment with X."
+- **Own the action:** Don't say "AI fixed it." Say "I used AI to research, then I implemented the fix."
+
+### The drill (what I actually did)
+- Answered 3 mock interview questions.
+- Q1 (Zero-Trust Gateway): Learned to focus on the 'how' and the 'result' instead of the 'why I built it'.
+- Q2 (Learning quickly): Learned to name the specific tech (Groq LPU) and use metrics.
+- Q3 (K8s security): Learned to break a big topic into layers (Network, Identity, Workload).
+
+### Things I saw
+- My initial answers were honest but lacked structure.
+- Adding specific tech names (JWT, Redis, RBAC) makes a huge difference.
+- Structuring answers (STAR) makes you sound senior.
+
+### My own words (locked in)
+- Never say "it works on my machine."
+- Use STAR. Give the result.
+- Break complex questions into layers.
+- Be honest about what you haven't built, but explain how you would approach it.
+
+### Connection to other topics
+- 9.5 (Portfolio) — the projects you talk about.
+- 9.6 (GitHub) — the proof you link to.
+- 9.7 (Resume & LinkedIn) — the first impression.
+- 7.11 (Kubernetes) — the tech for Q3.
+- 12.35 (Container Security) — the security concepts for Q3.
