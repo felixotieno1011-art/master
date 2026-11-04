@@ -143,3 +143,8 @@ Practiced the "exoskeleton" mindset — AI as a force multiplier, not a replacem
 - 9.3 (Problem Solving) — AI is a tool in the problem-solving toolkit.
 - 9.4 (Testing & Debugging) — AI can generate tests.
 - 12.15 (Web Hacking) — the SQLi you just found with AI is the same one from DVWA.
+### The "10,000 Lines" Rule (Debugging AI vs. Human Code)
+- Writing code yourself gives you a **mental map** of the system. You know where the likely failure points are.
+- Copying AI code gives you a **maze**. When it breaks, you are a stranger in your own codebase.
+- At 2 AM, nobody reads 10,000 lines. You use **logs, stack traces, and monitoring** to jump straight to the bug.
+- The rule: If you use AI to write a feature, read every line, add comments in your own words, and break it on purpose. If you can't explain it, it's too big.
