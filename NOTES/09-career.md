@@ -206,3 +206,38 @@ Used the STAR method and learned how to structure complex technical answers.
 - 9.7 (Resume & LinkedIn) — the first impression.
 - 7.11 (Kubernetes) — the tech for Q3.
 - 12.35 (Container Security) — the security concepts for Q3.
+
+## 9.7 Resume & LinkedIn — Phase B DONE ✅
+
+Optimized LinkedIn to target Security Engineer roles.
+Removed confusing experience, added real projects, and fixed keyword skills.
+
+### Core concepts
+- **The 6-Second Scan:** Layout, Terminologies (keywords), and Projects.
+- **ATS (Applicant Tracking Systems):** Robots scan for exact keywords before humans see the resume.
+- **Narrative Control:** Every item on the profile must support the role you want.
+- **The "Experience Trap":** Unrelated jobs (resort, accounting) dilute the message. Projects are better proof.
+- **LinkedIn Projects:** A hidden feature that lets you showcase GitHub repos with descriptions.
+
+### The drill (what I actually did)
+- Audited the LinkedIn profile and found it was confusing.
+- Deleted the resort/accounting job.
+- Rewrote Headline and About with target keywords.
+- Added 4 major projects with GitHub links.
+- Swapped accounting skills for tech skills.
+
+### Things I saw
+- A mixed profile makes the recruiter guess what you do.
+- A focused profile makes you look like a specialist.
+- Links to live projects are the strongest proof of skill.
+
+### My own words (locked in)
+- Don't list accounting on a security profile.
+- Headline must match the job title you want.
+- Projects are the new experience for self-taught devs.
+- Use real screenshots, not fake AI graphics.
+
+### Connection to other topics
+- 9.5 (Portfolio) — the live site linked on LinkedIn.
+- 9.6 (GitHub) — the proof behind the projects.
+- 9.8 (Interview Prep) — you can now talk about the projects you listed.
