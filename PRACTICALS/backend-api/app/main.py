@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.auth import create_access_token, verify_password, get_password_hash, SECRET_KEY, ALGORITHM
 from app.database import SessionLocal, engine, Base
 from app.models import User
+from app.schemas import UserCreate # Add this to your imports at the top
 
 # Create the database tables
 Base.metadata.create_all(bind=engine)
@@ -47,20 +48,19 @@ def read_root():
     return {"status": "ok", "message": "API is running"}
 
 @app.post("/register")
-def register(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)):
+def register(user_data: UserCreate, db: Session = Depends(get_db)):
     # Check if user exists
-    existing_user = db.query(User).filter(User.username == form_data.username).first()
+    existing_user = db.query(User).filter(User.username == user_data.username).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
     
     # Create new user
-    hashed_pw = get_password_hash(form_data.password)
-    new_user = User(username=form_data.username, hashed_password=hashed_pw)
+    hashed_pw = get_password_hash(user_data.password)
+    new_user = User(username=user_data.username, hashed_password=hashed_pw)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     return {"message": f"User {new_user.username} created successfully"}
-
 @app.post("/login")
 def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == form_data.username).first()
