@@ -7,6 +7,8 @@ from app.auth import create_access_token, verify_password, get_password_hash, SE
 from app.database import SessionLocal, engine, Base
 from app.models import User
 from app.schemas import UserCreate # Add this to your imports at the top
+from app.models import User, GameScore
+from app.schemas import UserCreate, ScoreSubmit, ScoreResponse
 
 # Create the database tables
 Base.metadata.create_all(bind=engine)
@@ -73,3 +75,25 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Sessio
 @app.get("/protected")
 def protected_route(current_user: Annotated[dict, Depends(get_current_user)]):
     return {"message": f"Welcome {current_user.username}! You accessed the secret area."}
+
+@app.post("/scores", response_model=ScoreResponse)
+def submit_score(
+    score_data: ScoreSubmit, 
+    current_user: Annotated[User, Depends(get_current_user)], 
+    db: Session = Depends(get_db)
+):
+    # Create a new score linked to the logged-in user
+    new_score = GameScore(score=score_data.score, user_id=current_user.id)
+    db.add(new_score)
+    db.commit()
+    db.refresh(new_score)
+    
+    return {"username": current_user.username, "score": new_score.score}
+
+@app.get("/leaderboard", response_model=list[ScoreResponse])
+def get_leaderboard(db: Session = Depends(get_db)):
+    # Get top 10 scores, sorted highest first
+    top_scores = db.query(GameScore).order_by(GameScore.score.desc()).limit(10).all()
+    
+    # Format the response to show the username
+    return [{"username": s.owner.username, "score": s.score} for s in top_scores]
