@@ -241,3 +241,62 @@ Removed confusing experience, added real projects, and fixed keyword skills.
 - 9.5 (Portfolio) — the live site linked on LinkedIn.
 - 9.6 (GitHub) — the proof behind the projects.
 - 9.8 (Interview Prep) — you can now talk about the projects you listed.
+
+## Communication Drill — The Manager Update
+
+### The Scenario
+Project is due tomorrow. Found a critical security bug (SQL injection) that takes 3 hours to fix. Only 1 hour left.
+
+### My First Draft (Junior)
+"The project is moving fine and it's almost complete, but due to a bug we identified, we request 2 more hours to debug it."
+*Feedback: Downplayed the risk. Called a critical flaw a "bug". Sounds uncertain.*
+
+### My Second Draft (Better)
+"Our project is in completion phase, but there is issue where the project can expose database secrets. We've been trying to fix it, if you give us like 3 hours we may solve it."
+*Feedback: Much better business impact. But still sounds passive ("trying", "may solve").*
+
+### The Senior Version (BLUF)
+"Status: Feature-complete.
+Impact: Found a security flaw that could expose database credentials.
+Action: Patching the flaw and running the security test suite.
+Request: Need ~3 hours to verify the fix. Deployment pushed to tomorrow at 10 AM."
+
+### Lesson
+- Use BLUF (Bottom Line Up Front).
+- Translate tech (SQLi) to business impact (exposed secrets).
+- Be definitive ("approximately 3 hours", not "like 3 hours").
+- Take ownership ("I am patching", not "we are trying").
+## 9.11 Communication — Phase B DONE ✅
+
+Practiced translating technical problems into professional updates for managers.
+Learned the BLUF method and how to communicate business impact.
+
+### Core concepts
+- **BLUF (Bottom Line Up Front):** Status → Impact → Action → Request.
+- **Translate Tech to Business:** "SQL injection" = "exposed database secrets." "Server down" = "users cannot access the platform."
+- **Be definitive:** Use precise timelines ("3 hours", not "like 3 hours").
+- **Take ownership:** "I am patching it" instead of "we are trying."
+- **Don't hide bad news:** Managers hate surprises. Tell them the risk immediately and give them the solution.
+
+### The drill (what I actually did)
+- Roleplayed a scenario: deadline tomorrow, found a critical bug.
+- Wrote a first draft that downplayed the risk.
+- Rewrote it using BLUF and business impact.
+- Learned to provide a concrete new deadline.
+
+### Things I saw
+- A "bug" sounds minor to a manager. A "security flaw that exposes credentials" sounds critical.
+- Asking for time is better if you also provide the new delivery time.
+- The difference between junior and senior is not just code; it's how they communicate.
+
+### My own words (locked in)
+- Don't say "bug" when it's a security flaw.
+- BLUF: Status, Impact, Action, Request.
+- "Like 3 hours" sounds unsure. Say "approximately 3 hours."
+- Take responsibility and provide a solution.
+
+### Connection to other topics
+- 9.8 (Interview Prep) — STAR method for behavioral questions.
+- 12.24 (Incident Response) — writing clear incident reports.
+- 8.4 (Secure Coding) — the SQL injection you found.
+- 9.7 (Resume) — communicating your skills clearly.
