@@ -12,12 +12,12 @@ Legend: 🎯 build · 🔁 break-fix · 🧐 review · 🗣️ defend · 📱 ph
 
 ### Builds
 - [x] 🎯 B1. Secure API skeleton — 2 resources, runs locally 💻
-- [ ] 🎯 B2. Add JWT auth (register/login/protected route) 💻
-- [ ] 🎯 B3. Add DB + one migration 💻
-- [ ] 🎯 B4. Add validation + proper error responses 💻
-- [ ] 🎯 B5. Add one fun feature (shortener / leaderboard / your tool) 💻
+- [x] 🎯 B2. Add JWT auth (register/login/protected route) 💻
+- [x] 🎯 B3. Add DB + one migration 💻
+- [x] 🎯 B4. Add validation + proper error responses 💻
+- [x] 🎯 B5. Add one fun feature (shortener / leaderboard / your tool) 💻
 - [ ] 🎯 B6. Add tests — prove unauthorized is rejected 💻
-- [ ] 🎯 B7. README: what it does + one decision explained 📱
+- [x] 🎯 B7. README: what it does + one decision explained 📱
 
 ### Drills
 - [ ] 🔁 D1. Break auth — remove expiry, observe 💻
@@ -25,9 +25,9 @@ Legend: 🎯 build · 🔁 break-fix · 🧐 review · 🗣️ defend · 📱 ph
 - [ ] 🔁 D3. Break validation — send garbage, fix crash 💻
 
 ### Review & Defend
-- [ ] 🧐 R1. Review B1–B7 repo 📱
+- [x] 🧐 R1. Review B1–B7 repo 📱
 - [ ] 🗣️ F1. Explain auth flow to a non-technical person 📱
-- [ ] 🗣️ F2. Scenario: token stolen — what limits damage? 📱💻
+- [x] 🗣️ F2. Scenario: token stolen — what limits damage? 📱💻
 - [ ] 🗣️ F3. Scenario: traffic 10x — where does it break? 📱
 
 ---

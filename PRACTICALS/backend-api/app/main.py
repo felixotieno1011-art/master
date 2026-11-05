@@ -9,11 +9,13 @@ from app.models import User
 from app.schemas import UserCreate # Add this to your imports at the top
 from app.models import User, GameScore
 from app.schemas import UserCreate, ScoreSubmit, ScoreResponse
+from fastapi.staticfiles import StaticFiles
 
 # Create the database tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Master API")
+app.mount("/game", StaticFiles(directory="static", html=True), name="static")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
