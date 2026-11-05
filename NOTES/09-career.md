@@ -300,3 +300,38 @@ Learned the BLUF method and how to communicate business impact.
 - 12.24 (Incident Response) — writing clear incident reports.
 - 8.4 (Secure Coding) — the SQL injection you found.
 - 9.7 (Resume) — communicating your skills clearly.
+
+## 9.3 Problem Solving — Phase B DONE ✅
+
+Practiced debugging a silent crash. Learned to read stack traces from the bottom up and verify assumptions.
+
+### Core concepts
+- **Read stack traces bottom-up:** The last line is the actual error. The lines above show the path.
+- **Verify assumptions:** Don't assume the file exists. Run `ls` or `cat` to check.
+- **Silent failures:** If the browser shows a blank page, check the Console (F12) or Network tab.
+- **The 3-step check:** Console → Network → Server Logs.
+- **Typo hunting:** `config.jso` vs `config.json` — one letter kills the app.
+- **Rubber ducking:** Explain the problem out loud to find the flaw.
+
+### The drill (what I actually did)
+- Wrote `broken_app.py` that expects `config.json`.
+- Ran it → `FileNotFoundError`.
+- Read the last line, created the file, ran it again → success.
+- Noticed a typo (`config.jso`) in the directory.
+
+### Things I saw
+- The error message was 10 lines, but the fix was in the last 1 line.
+- Creating a missing file fixed it instantly.
+- The typo (`config.jso`) was a real-world bug waiting to happen.
+
+### My own words (locked in)
+- Read the error from the bottom.
+- Don't guess — verify with `ls`.
+- Check the console if the screen is blank.
+- Tiny typos cause huge crashes.
+
+### Connection to other topics
+- 9.2 (AI Tools) — AI can help read stack traces.
+- 9.4 (Testing & Debugging) — the next level of this skill.
+- 7.12 (Monitoring) — finding errors in production logs.
+- 1.4 (Command Line) — using `ls`, `cat`, `grep` to investigate.
