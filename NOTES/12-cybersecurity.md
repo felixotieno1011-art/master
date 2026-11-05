@@ -2693,3 +2693,30 @@ Learned how to approach CTF puzzles and find hidden data.
 - 12.15 (Web Hacking) — information disclosure.
 - 12.41 (Hacking Lab) — the lab you built.
 - 9.3 (Problem Solving) — CTFs are pure problem solving.
+
+## Bug Bounty Drill — Scope & Reporting
+
+### The Trap
+Tested `blog.acme.com` when the scope only allowed `*.acme.com` and `api.acme.com`.
+Result: No payout, possible legal action, account banned.
+
+### What I learned about Scope
+- **In-Scope:** What you are allowed to hack. (Domains, IPs, apps).
+- **Out-of-Scope:** What is strictly forbidden. (Staging servers, third-party tools).
+- **Vulnerability Types:** Some programs only want SQLi/RCE, not clickjacking.
+- **Safe Harbor:** The legal protection for researchers who follow the rules.
+
+### HackerOne Report Template
+- Title
+- Severity (CVSS)
+- Description
+- Steps to Reproduce
+- Impact (Business risk)
+- Remediation (How to fix it)
+- Supporting Material (Screenshots, logs)
+
+### Lesson
+- Scope is the law.
+- Read it three times before you touch anything.
+- An out-of-scope bug is a crime, not a bounty.
+- A good report explains the *impact* to the business, not just the technical payload.
