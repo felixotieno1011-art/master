@@ -235,5 +235,5 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.42 TryHackMe / HackTheBox Paths 📱
 - [x] 12.43 CTF Basics 📱
 - [x] 12.44 Bug Bounty Hunting 📱
-- [ ] 12.45 Certifications Roadmap 📱
+- [x] 12.45 Certifications Roadmap 📱
 - [x] 12.46 Building a Security Portfolio 📱

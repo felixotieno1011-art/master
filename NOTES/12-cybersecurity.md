@@ -2720,3 +2720,65 @@ Result: No payout, possible legal action, account banned.
 - Read it three times before you touch anything.
 - An out-of-scope bug is a crime, not a bounty.
 - A good report explains the *impact* to the business, not just the technical payload.
+
+## Certifications Roadmap — Audit & Strategy
+
+### The Rule
+- **Keep:** Industry vendor certs (Cisco, IBM, AWS, Microsoft, ISC2, CompTIA).
+- **Drop:** Basic learning platform certs (UniAthena, Udemy, SoloLearn) if they duplicate skills already proven by projects.
+
+### My Audit
+**Keep (Added to Resume & LinkedIn):**
+- Junior Cybersecurity Analyst Career Path (Cisco Networking Academy)
+- Introduction to Cybersecurity (Cisco Networking Academy)
+- Artificial Intelligence Fundamentals (IBM SkillsBuild)
+
+**Drop (Not useful for Security/Backend roles):**
+- Basics of Python (UniAthena) — Projects prove this better.
+- Essentials of MS Excel (UniAthena) — Irrelevant to tech roles.
+
+### The Strategy
+- Don't pay for certs right now (no money).
+- Use free vendor training (ISC2 CC, AWS Skill Builder, Microsoft Learn).
+- Let projects be the main proof; certs are the supporting evidence.
+
+### Lesson
+- Certs don't replace projects. They complement them.
+- Keep high-value, drop fluff.
+- Free vendor certs are just as valuable as paid ones.
+
+## 12.45 Certifications Roadmap — Phase B DONE ✅
+
+Audited existing certifications and built a strategy for future ones.
+Learned the difference between high-value vendor certs and low-value fluff.
+
+### Core concepts
+- **Vendor Certs (Keep):** Cisco, IBM, AWS, Microsoft, ISC2, CompTIA, Fortinet. They prove industry-standard knowledge.
+- **Fluff Certs (Drop):** Udemy, SoloLearn, UniAthena basics. They make a portfolio look padded.
+- **The Rule:** If it duplicates what your projects already prove, leave it off.
+- **Free vs. Paid:** ISC2 CC, Cisco Skills for All, AWS Skill Builder, and Microsoft Learn offer free training with recognized badges.
+- **Certifications vs. Projects:** Projects prove you can *build*. Certs prove you can *learn structured theory*. You need both.
+
+### The drill (what I actually did)
+- Reviewed 5 certificates.
+- Kept 3 (Cisco x2, IBM x1) for their industry recognition.
+- Dropped 2 (UniAthena Python/Excel) as fluff.
+- Added the 3 good ones to the Resume and LinkedIn.
+
+### Things I saw
+- A "Basics of Python" cert looks worse than no cert when you have advanced Python projects.
+- Cisco and IBM carry weight with hiring managers.
+- Free certifications from top vendors are just as good as paid ones for entry-level roles.
+
+### My own words (locked in)
+- Keep Cisco, IBM, AWS, Microsoft, ISC2, CompTIA.
+- Drop Udemy and basics.
+- Don't pay for certs yet. Use free vendor training.
+- Projects prove ability. Certs prove dedication.
+- Never pad a resume with fluff.
+
+### Connection to other topics
+- 9.7 (Resume & LinkedIn) — where these certs live.
+- 9.8 (Interview Prep) — talking about what you learned in them.
+- 12.44 (Bug Bounty) — real-world proof > certificates.
+- 9.5 (Portfolio) — the live proof.
