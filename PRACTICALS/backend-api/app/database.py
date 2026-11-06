@@ -1,15 +1,19 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# We are using SQLite (a simple file database) for now. 
-# It will create a file called "sql_app.db" in your folder.
-SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
+# Look for the DATABASE_URL environment variable (Docker will provide this).
+# If it doesn't exist, fall back to SQLite (for local testing).
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./sql_app.db")
 
-# connect_args={"check_same_thread": False} is only needed for SQLite
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+# SQLite needs a special check_same_thread argument. Postgres does not.
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    )
+else:
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
