@@ -153,7 +153,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 ## Part 10 — Capstone Projects
 - [x] 10.1 Portfolio Site 📱
 - [x] 10.2 Blog with Auth 📱
-- [ ] 10.3 REST API CRUD 📱
+- [x] 10.3 REST API CRUD 📱
 - [ ] 10.4 Real-Time Chat 📱
 - [ ] 10.5 E-commerce Store 📱💻
 - [ ] 10.6 Network Monitor 📱

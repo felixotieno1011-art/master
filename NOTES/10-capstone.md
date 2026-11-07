@@ -64,3 +64,73 @@ Added a Node.js serverless backend, a Postgres database, and an admin login to t
 - A static site is just HTML. A fullstack app needs a backend + database.
 - Auth protects the *write* actions, not the *read* actions.
 - Environment variables are how you keep secrets out of the code.
+## REST API CRUD Drill
+
+### The Architecture
+- **Frontend:** N/A for this drill (used `curl`).
+- **Backend:** Vercel Serverless Functions.
+- **Database:** Prisma Postgres.
+- **Auth:** JWT (HS256).
+
+### The Endpoints
+- `GET /api/posts` → Returns all posts.
+- `GET /api/posts/:id` → Returns one post (not implemented yet, but routed).
+- `POST /api/posts` → Creates a post (requires JWT).
+- `PUT /api/posts/:id` → Updates a post (requires JWT).
+- `DELETE /api/posts/:id` → Deletes a post (requires JWT).
+
+### The Drill (what I actually ran)
+1. Logged in to get a JWT token.
+2. `POST /api/posts` → Created "My First CRUD Post" (ID 4).
+3. `PUT /api/posts/4` → Updated the title to "Updated Title".
+4. `DELETE /api/posts/4` → Removed the post from the database.
+
+### Lesson
+- REST uses HTTP verbs to define actions.
+- URLs are nouns (resources), verbs are actions.
+- Dynamic routing (`[id].js`) allows one file to handle many IDs.
+- Parameterized queries (`$1`) prevent SQL injection.
+- JWTs protect state-changing operations (POST, PUT, DELETE).
+
+## 10.3 REST API CRUD — Phase B DONE ✅
+
+Built a complete CRUD REST API with dynamic routing and JWT protection.
+Tested all four HTTP methods using `curl`.
+
+### Core concepts
+- **CRUD:** Create, Read, Update, Delete.
+- **HTTP Verbs:**
+  - `GET` = Read.
+  - `POST` = Create.
+  - `PUT` / `PATCH` = Update.
+  - `DELETE` = Delete.
+- **REST:** URLs are nouns (resources), HTTP methods are verbs (actions).
+- **Dynamic Routing:** Vercel uses `[id].js` to capture URL parameters.
+- **Status Codes:** `200 OK` (success), `201 Created`, `400 Bad Request`, `401 Unauthorized`, `404 Not Found`, `405 Method Not Allowed`.
+- **Parameterized Queries:** `$1`, `$2` in SQL prevent injection.
+
+### The drill (what I actually did)
+- Created `api/posts/[id].js` to handle updates and deletes.
+- Used `PUT /api/posts/4` to change the title.
+- Used `DELETE /api/posts/4` to remove the post.
+- Verified the database changed (and cleaned up).
+
+### Things I saw
+- Vercel routing requires a specific file structure (`[id].js`).
+- Without dynamic routing, Vercel returns `404` for `/api/posts/4`.
+- A `405` error means the route exists, but the method isn't allowed.
+- The `pg` library requires parameterized queries for security.
+
+### My own words (locked in)
+- GET reads, POST creates, PUT updates, DELETE removes.
+- The URL is the noun; the method is the verb.
+- Dynamic routing captures IDs from the URL.
+- JWT protects the write operations.
+- Always parameterize SQL queries.
+
+### Connection to other topics
+- 5.5 (REST API Design) — the theory behind this.
+- 5.6 (Auth) — JWT.
+- 6.2 (SQL) — the queries.
+- 10.2 (Blog with Auth) — the frontend and DB setup.
+- 12.15 (Web Hacking) — why parameterized queries matter.
