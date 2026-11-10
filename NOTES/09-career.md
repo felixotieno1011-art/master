@@ -335,3 +335,68 @@ Practiced debugging a silent crash. Learned to read stack traces from the bottom
 - 9.4 (Testing & Debugging) — the next level of this skill.
 - 7.12 (Monitoring) — finding errors in production logs.
 - 1.4 (Command Line) — using `ls`, `cat`, `grep` to investigate.
+## 9.4 Testing & Debugging — Phase B DONE ✅
+
+Learned how to write tests that break the code (unhappy paths) and debug the resulting errors.
+Fixed a logic flaw by adding input validation.
+
+### Core concepts
+- **Happy Path:** Testing normal, expected inputs.
+- **Unhappy Path:** Testing invalid, malicious, or edge-case inputs.
+- **Assertion:** A statement that must be true for the test to pass.
+- **pytest.raises():** A context manager to assert that a specific error is raised.
+- **Stack Trace:** The map of the error (read from bottom to top).
+- **Type Validation:** Checking if the input is the expected type (e.g., `int`, `str`).
+- **Range Validation:** Checking if the input is within a realistic boundary.
+
+### The drill (what I actually did)
+- Wrote `age_checker.py` and 5 tests (all passed).
+- Added 3 tests for invalid inputs (string, None, 500).
+- Watched them fail (TypeError, AssertionError).
+- Rewrote `age_checker.py` to validate types and ranges.
+- Updated tests to use `pytest.raises()`.
+- All 8 tests passed.
+
+### Things I saw
+- A test that passes doesn't mean the code is good. It means you didn't test the right thing.
+- `TypeError` happens when comparing mismatched types.
+- `ValueError` is better for logic errors (like age 500).
+- Reading the stack trace tells you exactly what line crashed.
+
+### My own words (locked in)
+- Testing is breaking your own code so users don't.
+- Read the error from the bottom up.
+- Validate type and range before logic.
+- A failing test is a win; it caught a bug.
+
+### Connection to other topics
+- 5.16 (API Testing) — testing endpoints.
+- 9.2 (AI Tools) — AI can help write tests.
+- 9.3 (Problem Solving) — debugging is problem solving.
+- 12.41 (Hacking Lab) — security testing (fuzzing).
+- 6.3 (Transactions) — ensuring data integrity.## Testing & Debugging Drill — The Unhappy Path
+
+### The Setup
+Wrote a naive `can_vote(age)` function (returns True if >= 18).
+Wrote tests for the "Happy Path" (20, 10, 18, 17) → all passed.
+
+### Breaking the Code
+Added tests for the "Unhappy Path":
+- `can_vote("twenty")` → crashed with TypeError.
+- `can_vote(None)` → crashed with TypeError.
+- `can_vote(500)` → returned True (logic bug: allowed unrealistic age).
+
+### The Fix
+Added input validation:
+- `isinstance(age, (int, float))` → raises TypeError if not a number.
+- `age < 0 or age > 120` → raises ValueError if unrealistic.
+
+### Updating the Tests
+Changed the unhappy path tests to use `with pytest.raises(...)` to verify the errors are raised correctly.
+Result: **8 passed.**
+
+### Lesson
+- Testing is not about proving code works; it's about proving it breaks in predictable ways.
+- Read stack traces from the bottom up to find the root cause.
+- Validate inputs (type + range) before doing logic.
+- A test suite is a safety net; it catches bugs before users do.

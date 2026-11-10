@@ -140,7 +140,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 9.1 Reading Docs 📱
 - [x] 9.2 AI Tools 📱
 - [x] 9.3 Problem Solving 📱
-- [ ] 9.4 Testing & Debugging Skill 📱
+- [x] 9.4 Testing & Debugging Skill 📱
 - [x] 9.5 Portfolio 📱
 - [x] 9.6 GitHub Profile 📱
 - [x] 9.7 Resume & LinkedIn 📱
