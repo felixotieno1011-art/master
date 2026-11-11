@@ -2,10 +2,10 @@
 
 ## Overall
 - Total topics: 182
-- Completed: 167
-- Remaining: 15
-- Progress: 91%
-- Last updated: 2026-11-11 11:27
+- Completed: 168
+- Remaining: 14
+- Progress: 92%
+- Last updated: 2026-11-11 11:41
 
 ## By Part
 | Part | Title | Done | Total | % |
@@ -20,7 +20,7 @@
 | 7.5 | Systems | 8 | 8 | 100% |
 | 8 | Security | 11 | 11 | 100% |
 | 9 | Career | 10 | 12 | 83% |
-| 10 | Capstone | 3 | 8 | 37% |
+| 10 | Capstone | 4 | 8 | 50% |
 | 11 | Specialization | 0 | 8 | 0% |
 | 12 | Cybersecurity | 46 | 46 | 100% |
 

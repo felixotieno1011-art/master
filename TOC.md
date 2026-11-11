@@ -155,7 +155,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 10.2 Blog with Auth 📱
 - [x] 10.3 REST API CRUD 📱
 - [ ] 10.4 Real-Time Chat 📱
-- [ ] 10.5 E-commerce Store 📱💻
+- [x] 10.5 E-commerce Store 📱💻
 - [ ] 10.6 Network Monitor 📱
 - [ ] 10.7 Task Management SaaS 📱💻
 - [ ] 10.8 Deploy Everything 📱
