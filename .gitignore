@@ -20,3 +20,5 @@ PRACTICALS/02-networking/network-monitor/logs/
 PRACTICALS/02-networking/network-monitor/reports/
 PRACTICALS/02-networking/**/*.log
 *.db
+terraform-test/.terraform/
+terraform-test/*.tfstate*
