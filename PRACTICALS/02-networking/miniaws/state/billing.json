@@ -183,7 +183,47 @@
       "rate": 0.045,
       "amount": 0.045,
       "note": ""
+    },
+    {
+      "time": "2026-11-13T15:03:34",
+      "key": "s3.upload",
+      "quantity": 1.0,
+      "rate": 2.3e-05,
+      "amount": 2.3e-05,
+      "note": ""
+    },
+    {
+      "time": "2026-11-13T16:29:41",
+      "key": "ec2.run-instances.t3.micro",
+      "quantity": 1.0,
+      "rate": 0.0104,
+      "amount": 0.0104,
+      "note": ""
+    },
+    {
+      "time": "2026-11-13T16:30:26",
+      "key": "ec2.run-instances.t3.micro",
+      "quantity": 1.0,
+      "rate": 0.0104,
+      "amount": 0.0104,
+      "note": ""
+    },
+    {
+      "time": "2026-11-13T16:42:17",
+      "key": "vpc.create-igw",
+      "quantity": 1.0,
+      "rate": 0.045,
+      "amount": 0.045,
+      "note": ""
+    },
+    {
+      "time": "2026-11-13T16:51:54",
+      "key": "vpc.create-nat",
+      "quantity": 1.0,
+      "rate": 0.045,
+      "amount": 0.045,
+      "note": ""
     }
   ],
-  "total": 0.664913
+  "total": 0.775736
 }
