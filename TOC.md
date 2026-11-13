@@ -148,7 +148,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 9.9 Freelance vs Job 📱
 - [ ] 9.10 Open Source 📱
 - [x] 9.11 Communication 📱
-- [ ] 9.12 Remote Work Skills 📱
+- [x] 9.12 Remote Work Skills 📱
 
 ## Part 10 — Capstone Projects
 - [x] 10.1 Portfolio Site 📱
