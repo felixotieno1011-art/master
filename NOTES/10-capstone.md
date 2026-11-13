@@ -134,3 +134,77 @@ Tested all four HTTP methods using `curl`.
 - 6.2 (SQL) — the queries.
 - 10.2 (Blog with Auth) — the frontend and DB setup.
 - 12.15 (Web Hacking) — why parameterized queries matter.
+## 10.5 E-commerce Store — Phase B DONE ✅
+
+Learned the architecture of an e-commerce store and applied it to the existing portfolio stack.
+Focused on the most critical part: secure payment processing and idempotency.
+
+### Core concepts
+- **E-commerce:** Online buying and selling.
+- **Catalog:** The list of products (like blog posts).
+- **Cart:** A temporary list of items a user wants to buy.
+- **Checkout:** The process of converting a cart into a paid order.
+- **Payment Gateway:** The service that processes the money (M-Pesa, Stripe).
+- **Webhook:** The notification from the gateway saying "Payment successful."
+- **Idempotency:** Ensuring a payment is only processed once, even if the webhook fires 10 times.
+- **UNIQUE Constraint:** The database rule that rejects duplicate transaction IDs.
+
+### The drill (what I actually did)
+- Understood how a product is just a row in a database.
+- Analyzed the webhook flow (M-Pesa sending a success message).
+- Debugged the idempotency trap (charging the customer twice).
+- Designed the fix using `INSERT ... ON CONFLICT DO NOTHING` and a `UNIQUE` transaction ID.
+
+### Things I saw
+- Without idempotency, a network glitch means the customer pays twice.
+- The database is the final judge. If you try to insert a duplicate ID, it will block you.
+- You must check for the transaction ID *before* giving the user the product.
+
+### My own words (locked in)
+- E-commerce is just a storefront with a database.
+- Webhooks are dangerous because they retry.
+- Always use a transaction ID and a UNIQUE constraint.
+- If idempotency is broken, customers get charged twice.
+
+### Connection to other topics
+- 5.15 (Payment Integration) — the webhook and idempotency drill.
+- 6.2 (SQL) — the `UNIQUE` constraint.
+- 10.3 (REST API CRUD) — creating orders and products.
+- 12.15 (Web Hacking) — attackers can spam webhooks to cause double-charges.
+## 10.5 E-commerce Store — Phase B DONE ✅
+
+Learned the architecture of an e-commerce store and applied it to the existing portfolio stack.
+Focused on the most critical part: secure payment processing and idempotency.
+
+### Core concepts
+- **E-commerce:** Online buying and selling.
+- **Catalog:** The list of products (like blog posts).
+- **Cart:** A temporary list of items a user wants to buy.
+- **Checkout:** The process of converting a cart into a paid order.
+- **Payment Gateway:** The service that processes the money (M-Pesa, Stripe).
+- **Webhook:** The notification from the gateway saying "Payment successful."
+- **Idempotency:** Ensuring a payment is only processed once, even if the webhook fires 10 times.
+- **UNIQUE Constraint:** The database rule that rejects duplicate transaction IDs.
+
+### The drill (what I actually did)
+- Understood how a product is just a row in a database.
+- Analyzed the webhook flow (M-Pesa sending a success message).
+- Debugged the idempotency trap (charging the customer twice).
+- Designed the fix using `INSERT ... ON CONFLICT DO NOTHING` and a `UNIQUE` transaction ID.
+
+### Things I saw
+- Without idempotency, a network glitch means the customer pays twice.
+- The database is the final judge. If you try to insert a duplicate ID, it will block you.
+- You must check for the transaction ID *before* giving the user the product.
+
+### My own words (locked in)
+- E-commerce is just a storefront with a database.
+- Webhooks are dangerous because they retry.
+- Always use a transaction ID and a UNIQUE constraint.
+- If idempotency is broken, customers get charged twice.
+
+### Connection to other topics
+- 5.15 (Payment Integration) — the webhook and idempotency drill.
+- 6.2 (SQL) — the `UNIQUE` constraint.
+- 10.3 (REST API CRUD) — creating orders and products.
+- 12.15 (Web Hacking) — attackers can spam webhooks to cause double-charges.	

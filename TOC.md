@@ -145,17 +145,17 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 9.6 GitHub Profile 📱
 - [x] 9.7 Resume & LinkedIn 📱
 - [x] 9.8 Interview Prep 📱
-- [ ] 9.9 Freelance vs Job 📱
+- [x] 9.9 Freelance vs Job 📱
 - [ ] 9.10 Open Source 📱
 - [x] 9.11 Communication 📱
-- [ ] 9.12 Remote Work Skills 📱
+- [x] 9.12 Remote Work Skills 📱
 
 ## Part 10 — Capstone Projects
 - [x] 10.1 Portfolio Site 📱
 - [x] 10.2 Blog with Auth 📱
 - [x] 10.3 REST API CRUD 📱
 - [ ] 10.4 Real-Time Chat 📱
-- [ ] 10.5 E-commerce Store 📱💻
+- [x] 10.5 E-commerce Store 📱💻
 - [ ] 10.6 Network Monitor 📱
 - [ ] 10.7 Task Management SaaS 📱💻
 - [ ] 10.8 Deploy Everything 📱

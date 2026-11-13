@@ -400,3 +400,55 @@ Result: **8 passed.**
 - Read stack traces from the bottom up to find the root cause.
 - Validate inputs (type + range) before doing logic.
 - A test suite is a safety net; it catches bugs before users do.
+
+## Freelance vs Job Drill — The Bakery Pitch
+
+### The Scenario
+Client offers KSh 15,000 for a bakery website ("menu, contact form, ordering").
+Risk: Scope creep. "Ordering" could mean a simple form or full M-Pesa cart.
+
+### The Math
+Rate: KSh 500/hour.
+Budget: KSh 15,000.
+Hours covered: 30 hours. (If the project takes 40 hours, you lose money).
+
+### The Pitch (Draft 1)
+"Hi, thanks for reaching out... my rate is 500/hour. 15,000 covers 30 hours. Talk later if you reconsider."
+*Feedback: Too blunt. Sounds like an ultimatum.*
+
+### The Pitch (Final)
+"Hi, thanks for reaching out... rate is 500/hour. 15,000 covers 30 hours (menu + contact). M-Pesa integration is extra. Let's do a 10-minute call to clarify scope. Once agreed, I'll send a contract and a 50% deposit invoice."
+*Feedback: Professional, clear, sets boundaries.*
+
+### Lesson
+- Never say "Yes" without clarifying scope.
+- Always specify your hourly rate and what it covers.
+- Always ask for a 50% deposit upfront.
+- Guide the client to a call. Don't argue over text.
+
+## 9.9 Freelance vs Job — Phase B DONE ✅
+
+Learned how to price freelance work, define scope, and pitch clients without getting scammed.
+
+### Core concepts
+- **Scope Creep:** When a client asks for "just one more thing" until the project is unprofitable.
+- **The Hourly Rate:** Your budget divided by your rate = the hours you can afford to work.
+- **The 50% Deposit:** Never start work without half the money upfront. It filters out scammers.
+- **The Call:** Move the conversation from text to a call to align on scope.
+- **The Contract:** A written agreement of what is included and what costs extra.
+
+### The drill (what I actually did)
+- Calculated that KSh 15,000 = 30 hours at KSh 500/hr.
+- Drafted a pitch that clarifies "ordering" (form vs. M-Pesa).
+- Refined the pitch to sound professional and request a deposit.
+
+### Things I saw
+- "Ordering" is a dangerous word. It can mean a form or a full e-commerce store.
+- Asking for a deposit is not rude; it is standard business.
+- "Talk later if you reconsider" sounds aggressive. Ask for a call instead.
+
+### My own words (locked in)
+- Never say yes to a project without defining the scope.
+- 50% deposit or no work.
+- Price by the hour, not by the project (until you know the scope).
+- Guide the client to a call.
