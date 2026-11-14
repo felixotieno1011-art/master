@@ -109,6 +109,18 @@ while [ $# -gt 0 ]; do
 done
 
 # Set overrides as environment variables for Python code
+# Ensure --output json is always forwarded to cli.py when no explicit
+# --output flag was given (matches real AWS CLI v2 default behavior).
+HAS_OUTPUT=""
+for arg in "${NEW_ARGS[@]}"; do
+  case "$arg" in
+    --output|--output=*) HAS_OUTPUT="yes"; break ;;
+  esac
+done
+if [ -z "$HAS_OUTPUT" ]; then
+  NEW_ARGS+=("--output" "json")
+fi
+
 if [ -n "$REGION_OVERRIDE" ]; then
   export MINIAWS_REGION_OVERRIDE="$REGION_OVERRIDE"
 fi
@@ -180,13 +192,13 @@ case "$SERVICE/$ACTION" in
         --type=*) CHARGE_TYPE="${a#--type=}" ;;
       esac
     done
-    python3 "$PWD/lib/billing.py" charge "ec2.run-instances.$CHARGE_TYPE" 1 >/dev/null 2>&1 || true
+    python3 "$PWD/lib/billing_bridge.py" ec2 >/dev/null 2>&1 || true
     ;;
   ec2/create-nat-gateway)
-    python3 "$PWD/lib/billing.py" charge "vpc.create-nat" 1 >/dev/null 2>&1 || true
+    python3 "$PWD/lib/billing_bridge.py" nat >/dev/null 2>&1 || true
     ;;
   ec2/create-internet-gateway)
-    python3 "$PWD/lib/billing.py" charge "vpc.create-igw" 1 >/dev/null 2>&1 || true
+    python3 "$PWD/lib/billing_bridge.py" igw >/dev/null 2>&1 || true
     ;;
   s3/cp)
     python3 "$PWD/lib/billing.py" charge "s3.upload" 1 >/dev/null 2>&1 || true
@@ -212,13 +224,6 @@ if [ "$MINIAWS_OUTPUT_OVERRIDE" = "json" ]; then
   if [ -z "$HAS_QUERY" ]; then
     JSON_KEY=""
     case "$SERVICE/$ACTION" in
-      ec2/describe-vpcs)                 JSON_KEY="describe-vpcs" ;;
-      ec2/describe-subnets)              JSON_KEY="describe-subnets" ;;
-      ec2/describe-internet-gateways)    JSON_KEY="describe-internet-gateways" ;;
-      ec2/describe-route-tables)         JSON_KEY="describe-route-tables" ;;
-      ec2/describe-instances)            JSON_KEY="describe-instances" ;;
-      ec2/describe-availability-zones)   JSON_KEY="describe-availability-zones" ;;
-      ec2/describe-addresses)            JSON_KEY="describe-addresses" ;;
       s3/ls)                             JSON_KEY="list-buckets" ;;
       iam/list-users)                    JSON_KEY="list-users" ;;
       cloudwatch/list-alarms)            JSON_KEY="list-alarms" ;;

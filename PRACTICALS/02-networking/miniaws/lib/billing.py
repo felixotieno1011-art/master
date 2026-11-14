@@ -124,3 +124,149 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# ============================================================
+# Billing Model B — start/stop tracking with time-based accrual
+# ============================================================
+
+from datetime import datetime as _dt
+
+
+def _parse_time(iso):
+    """Parse ISO time string into Unix timestamp."""
+    try:
+        return _dt.fromisoformat(str(iso).replace("Z", "")).timestamp()
+    except Exception:
+        return 0.0
+
+
+def record_start(resource_id, service, rate, note=""):
+    """Log that a resource started (called at creation time).
+
+    Deduplicates: if the resource already has an unmatched start event
+    (still running), skip — prevents double-counting from repeated calls.
+    """
+    if not resource_id:
+        return False
+
+    data = _load()
+    events = data.get("events", [])
+
+    # Count pending starts for this resource
+    starts = sum(1 for e in events
+                 if e.get("type") == "start" and e.get("resource") == resource_id)
+    stops = sum(1 for e in events
+                if e.get("type") == "stop" and e.get("resource") == resource_id)
+
+    if starts > stops:
+        # Already running, don't double-count
+        return False
+
+    events.append({
+        "type": "start",
+        "time": datetime.now().isoformat(timespec="seconds"),
+        "resource": resource_id,
+        "service": service,
+        "rate": float(rate),
+        "note": note,
+    })
+    data["events"] = events
+    _save(data)
+    return True
+
+
+def record_stop(resource_id):
+    """Log that a resource stopped (called at delete time)."""
+    data = _load()
+    data["events"].append({
+        "type": "stop",
+        "time": datetime.now().isoformat(timespec="seconds"),
+        "resource": resource_id,
+    })
+    _save(data)
+    return True
+
+
+def get_accrued_total():
+    """Compute total cost from start/stop events.
+
+    For each 'start', find matching 'stop' (or use now()).
+    Cost = rate × hours.
+    """
+    data = _load()
+    events = data.get("events", [])
+
+    # Build map: resource_id → list of (start_time, rate, service)
+    starts = {}
+    total = 0.0
+    now_ts = _dt.now().timestamp()
+
+    for e in events:
+        if e.get("type") == "start":
+            rid = e.get("resource")
+            if rid:
+                starts.setdefault(rid, []).append({
+                    "time": _parse_time(e.get("time")),
+                    "rate": float(e.get("rate", 0)),
+                    "service": e.get("service", "unknown"),
+                })
+        elif e.get("type") == "stop":
+            rid = e.get("resource")
+            if rid and rid in starts and starts[rid]:
+                start = starts[rid].pop(0)
+                stop_ts = _parse_time(e.get("time"))
+                hours = max(stop_ts - start["time"], 0) / 3600
+                total += start["rate"] * hours
+
+    # Still running
+    for rid, pending in starts.items():
+        for start in pending:
+            hours = max(now_ts - start["time"], 0) / 3600
+            total += start["rate"] * hours
+
+    return total
+
+
+def get_accrued_by_service():
+    """Same as get_accrued_total but grouped by service."""
+    data = _load()
+    events = data.get("events", [])
+
+    starts = {}
+    by_service = {}
+    now_ts = _dt.now().timestamp()
+
+    for e in events:
+        if e.get("type") == "start":
+            rid = e.get("resource")
+            if rid:
+                starts.setdefault(rid, []).append({
+                    "time": _parse_time(e.get("time")),
+                    "rate": float(e.get("rate", 0)),
+                    "service": e.get("service", "unknown"),
+                })
+        elif e.get("type") == "stop":
+            rid = e.get("resource")
+            if rid and rid in starts and starts[rid]:
+                start = starts[rid].pop(0)
+                stop_ts = _parse_time(e.get("time"))
+                hours = max(stop_ts - start["time"], 0) / 3600
+                by_service[start["service"]] = by_service.get(start["service"], 0) + start["rate"] * hours
+
+    for rid, pending in starts.items():
+        for start in pending:
+            hours = max(now_ts - start["time"], 0) / 3600
+            by_service[start["service"]] = by_service.get(start["service"], 0) + start["rate"] * hours
+
+    return by_service
+
+
+def reset_with_backup():
+    """Reset billing but keep a backup of old events."""
+    import shutil
+    backup = BILLING_FILE + ".before-model-B"
+    if os.path.isfile(BILLING_FILE):
+        shutil.copy(BILLING_FILE, backup)
+    _save({"events": [], "total": 0.0})
+    return True
+

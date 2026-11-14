@@ -122,8 +122,60 @@ def describe_route_tables():
     }
 
 
-def describe_instances():
+def _parse_filter_args(args):
+    """Extract --filters values from a raw argv list."""
+    if not args:
+        return []
+    result = []
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a == "--filters" and i + 1 < len(args):
+            result.append(args[i + 1])
+            i += 2
+        elif a.startswith("--filters="):
+            result.append(a.split("=", 1)[1])
+            i += 1
+        else:
+            i += 1
+    return result
+
+
+def _apply_instance_filters(instances, filters):
+    """Apply AWS-style filters to a list of instance records."""
+    if not filters:
+        return instances
+    filtered = instances
+    for f in filters:
+        if not isinstance(f, str):
+            continue
+        parts = {}
+        for piece in f.split(","):
+            if "=" in piece:
+                k, v = piece.split("=", 1)
+                parts[k.strip()] = v.strip()
+        name = parts.get("Name", "")
+        values = [v.strip().lower() for v in parts.get("Values", "").split(",")]
+
+        if name == "instance-state-name":
+            filtered = [i for i in filtered
+                        if (i.get("state") or "").lower() in values]
+        elif name == "instance-id":
+            filtered = [i for i in filtered
+                        if (i.get("instance_id") or "").lower() in values]
+        elif name == "tag:Name":
+            filtered = [i for i in filtered
+                        if ((i.get("tags") or {}).get("Name") or "").lower() in values]
+        elif name == "vpc-id":
+            filtered = [i for i in filtered
+                        if (i.get("vpc_id") or "").lower() in values]
+    return filtered
+
+
+def describe_instances(args=None):
     instances = ec2_mod.list_all()
+    filters = _parse_filter_args(args or [])
+    instances = _apply_instance_filters(instances, filters)
     return {
         "Reservations": [
             {
@@ -141,7 +193,7 @@ def describe_instances():
                     for i in instances
                 ]
             }
-        ]
+        ] if instances else []
     }
 
 

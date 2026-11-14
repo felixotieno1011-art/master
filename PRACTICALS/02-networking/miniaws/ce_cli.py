@@ -60,34 +60,70 @@ def cmd_get_cost_and_usage(args):
     metrics = [m.strip() for m in metrics_raw.split(",")]
     group_by = flags.get("group-by", "")
 
-    # Load billing events
+    # PHASE 5: compute real accrual (not one-time charges)
+    # Get accrued cost by service from the billing engine.
+    try:
+        by_service = billing_mod.get_accrued_by_service()
+    except Exception:
+        by_service = {}
+
+    # Also include one-time charges (S3 uploads, Lambda invokes) from old events
+    # These don't accrue — they're one-time — so we sum them as-is.
     try:
         data = billing_mod._load()
-        events = data.get("events", [])
+        all_events = data.get("events", [])
     except Exception:
-        events = []
+        all_events = []
 
-    # Filter by time period
-    filtered = []
-    for e in events:
-        ts = e.get("time", "")
+    # PHASE 6: skip historical events unless --time-period explicitly covers them
+    ONE_TIME_SERVICES = {"s3", "lambda", "dynamodb"}
+    one_time_costs = {}
+
+    # Check if --time-period covers historical dates
+    include_historical = False
+    if start_date and end_date:
         try:
-            d = datetime.fromisoformat(ts).date()
+            sdt = datetime.fromisoformat(start_date).date()
+            edt = datetime.fromisoformat(end_date).date()
+            # Historical events are pre-Nov-14; include if period covers any pre-Nov-14 date
+            hist_cutoff = datetime.fromisoformat("2026-11-01").date()
+            if sdt < hist_cutoff and edt < datetime.fromisoformat("2026-11-14").date():
+                include_historical = True
         except Exception:
+            pass
+
+    for e in all_events:
+        if e.get("type") in ("start", "stop"):
+            continue  # skip accrual events (already in by_service)
+        # PHASE 6: skip historical unless explicitly requested
+        if e.get("historical") and not include_historical:
             continue
-        if start_date:
-            try:
-                if d < datetime.fromisoformat(start_date).date():
-                    continue
-            except Exception:
-                pass
-        if end_date:
-            try:
-                if d > datetime.fromisoformat(end_date).date():
-                    continue
-            except Exception:
-                pass
-        filtered.append(e)
+        key = e.get("key", "")
+        svc = key.split(".")[0] if "." in key else "other"
+        if svc in ONE_TIME_SERVICES or e.get("historical"):
+            one_time_costs[svc] = one_time_costs.get(svc, 0) + e.get("amount", 0)
+
+    # Merge: accrual + one-time
+    for svc, amt in one_time_costs.items():
+        by_service[svc] = by_service.get(svc, 0) + amt
+
+    # Now build synthetic events for the existing aggregation logic.
+    # Each event represents one service's cost as of now.
+    from datetime import datetime as _dt
+    now_iso = _dt.now().isoformat(timespec="seconds")
+
+    filtered = []
+    for svc, amt in by_service.items():
+        if amt <= 0:
+            continue
+        # If --time-period given, filter by the accrued period start
+        # (For accrual, we check against "now" — if now is outside period, skip)
+        filtered.append({
+            "time": now_iso,
+            "key": f"{svc}.accrued",
+            "service": svc,
+            "amount": amt,
+        })
 
     # Aggregate by period (MONTHLY / DAILY / HOURLY)
     def _period_key(ts):

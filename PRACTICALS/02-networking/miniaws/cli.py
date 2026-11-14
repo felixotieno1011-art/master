@@ -272,6 +272,53 @@ def cmd_tag(args):
 
 # ---------- EC2 ----------
 
+
+
+def _apply_instance_filters(instances, filters_arg):
+    """Apply AWS-style --filters to a list of instances.
+
+    Supports:
+      --filters Name=instance-state-name,Values=running,stopped
+      --filters Name=instance-id,Values=i-abc,i-def
+      --filters Name=tag:Name,Values=my-web-server
+      --filters Name=vpc-id,Values=vpc-xyz
+    Multiple --filters args are ANDed together.
+    """
+    if not filters_arg:
+        return instances
+
+    # Normalize: a single --filters string, or a list of them
+    filter_items = filters_arg if isinstance(filters_arg, list) else [filters_arg]
+
+    filtered = instances
+    for f in filter_items:
+        if not isinstance(f, str):
+            continue
+        # Parse "Name=X,Values=Y,Z"
+        parts = {}
+        for piece in f.split(","):
+            if "=" in piece:
+                k, v = piece.split("=", 1)
+                parts[k.strip()] = v.strip()
+        name = parts.get("Name", "")
+        values = [v.strip().lower() for v in parts.get("Values", "").split(",")]
+
+        if name == "instance-state-name":
+            filtered = [i for i in filtered
+                        if (i.get("state") or "").lower() in values]
+        elif name == "instance-id":
+            filtered = [i for i in filtered
+                        if (i.get("instance_id") or "").lower() in values]
+        elif name == "tag:Name":
+            filtered = [i for i in filtered
+                        if ((i.get("tags") or {}).get("Name") or "").lower() in values]
+        elif name == "vpc-id":
+            filtered = [i for i in filtered
+                        if (i.get("vpc_id") or "").lower() in values]
+        # Unsupported filter name → ignore it (AWS would error; we're lenient)
+
+    return filtered
+
 def cmd_ec2(args):
     if not args:
         print(USAGE); return 1
@@ -315,6 +362,11 @@ def cmd_ec2(args):
         flags = parse_flags(rest)
         filter_id = flags.get("instance-ids") if isinstance(flags.get("instance-ids"), str) else None
         instances = ec2.list_all()
+
+        # Apply --filters (state, id, tag:Name, vpc-id)
+        if "filters" in flags:
+            instances = _apply_instance_filters(instances, flags["filters"])
+
         if filter_id:
             instances = [i for i in instances if i["instance_id"] == filter_id]
             if not instances:
@@ -929,7 +981,11 @@ def _try_json_output(args):
     if not handler:
         return False
 
-    result = handler()
+    # Pass args so handlers can read --filters and other flags
+    try:
+        result = handler(args)
+    except TypeError:
+        result = handler()
 
     # Apply JMESPath if a --query expression was given
     if query_expr:

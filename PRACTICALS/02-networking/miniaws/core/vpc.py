@@ -262,6 +262,11 @@ def delete_internet_gateway(igw_id):
     if igw.get("attachments"):
         return False, f"IGW still attached to {igw['attachments']}"
     delete_file(_igw_path(igw_id))
+    try:
+        from lib import billing
+        billing.record_stop(igw_id)
+    except Exception:
+        pass
     return True, f"deleted internet gateway {igw_id}"
 
 

@@ -133,6 +133,11 @@ def terminate(instance_id):
     data["state"] = "terminated"
     data["terminated"] = now_iso()
     write_json(_instance_path(instance_id), data)
+    try:
+        from lib import billing
+        billing.record_stop(instance_id)
+    except Exception:
+        pass
     return True, f"terminated instance {instance_id}"
 
 
@@ -326,4 +331,9 @@ def release_address(allocation_id):
     if eip.get("InstanceId"):
         return False, f"cannot release EIP {allocation_id} — still associated with {eip['InstanceId']}. Disassociate first."
     delete_file(_eip_path(allocation_id))
+    try:
+        from lib import billing
+        billing.record_stop(allocation_id)
+    except Exception:
+        pass
     return True, f"released EIP {allocation_id} ({eip.get('PublicIp')})"

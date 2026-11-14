@@ -34,7 +34,7 @@ def _allocate(form):
         return _err("/ec2/elastic-ips", msg)
     # Charge the EIP cost
     try:
-        billing_mod.charge("ec2.allocate-eip", 1)
+        billing_mod.record_start(_aid, "ec2", 0.005)
     except Exception:
         pass
     return _ok("/ec2/elastic-ips", msg)

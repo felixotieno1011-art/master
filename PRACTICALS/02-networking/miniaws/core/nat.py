@@ -90,6 +90,11 @@ def delete_nat_gateway(nat_id):
     if not get_nat_gateway(nat_id):
         return False, f"NAT Gateway {nat_id} not found"
     delete_file(_nat_path(nat_id))
+    try:
+        from lib import billing
+        billing.record_stop(nat_id)
+    except Exception:
+        pass
     return True, f"deleted NAT Gateway {nat_id}"
 
 
