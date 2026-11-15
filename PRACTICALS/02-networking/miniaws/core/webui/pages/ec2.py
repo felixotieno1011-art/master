@@ -70,23 +70,42 @@ def render_list(qs=None):
     except Exception as e:
         return f'<div class="aws-notice aws-notice-error">Error loading instances: {_esc(e)}</div>'
 
-    # Default to showing non-terminated (real AWS default hides them)
-    show_terminated = bool((qs or {}).get("show_terminated"))
-    visible = instances if show_terminated else [
-        i for i in instances if (i.get("state") or "").lower() != "terminated"
+    # Real AWS Console default: "All instances" — show everything including terminated.
+    # Filter controlled by ?state= URL param (running/stopped/terminated/all).
+    state_filter = ((qs or {}).get("state") or ["all"])[0].lower()
+    if state_filter not in ("all", "running", "stopped", "terminated"):
+        state_filter = "all"
+
+    visible = instances if state_filter == "all" else [
+        i for i in instances if (i.get("state") or "").lower() == state_filter
     ]
-    # Server-side structured filter: ?state=running / ?region=us-west-2
-    visible = tf.apply_filter(visible, qs or {}, {
-        "state":  tf.by_state,
-        "region": tf.by_region,
-    })
-    terminated_count = len(instances) - len([i for i in instances
-                                            if (i.get("state") or "").lower() != "terminated"])
+
+    # Region filter still applies if ?region= given
+    region_qs = (qs or {}).get("region") or []
+    if region_qs:
+        visible = [i for i in visible if (i.get("region") or "").lower() == region_qs[0].lower()]
+
+    # Counts per state for the dropdown labels
+    counts = {"all": len(instances)}
+    for st in ("running", "stopped", "terminated"):
+        counts[st] = sum(1 for i in instances if (i.get("state") or "").lower() == st)
+
+    state_options = [
+        ("all",        f"All instances ({counts['all']})"),
+        ("running",    f"Running ({counts['running']})"),
+        ("stopped",    f"Stopped ({counts['stopped']})"),
+        ("terminated", f"Terminated ({counts['terminated']})"),
+    ]
+    dropdown = '<select id="state-filter" onchange="window.location=this.value" style="padding:6px 10px; font-size:13px; border:1px solid #d5dbdb; border-radius:3px; background:#fff;">'
+    for val, label in state_options:
+        sel = " selected" if val == state_filter else ""
+        dropdown += f'<option value="/ec2/instances?state={val}"{sel}>{_esc(label)}</option>'
+    dropdown += '</select>'
 
     if not visible:
         rows_html = f"""
         <tr><td colspan="6" class="aws-muted" style="text-align:center; padding:24px;">
-          No instances. Click <strong>Launch instance</strong> to create one.
+          No instances match the current filter.
         </td></tr>"""
     else:
         rows = []
@@ -121,13 +140,6 @@ def render_list(qs=None):
             </tr>""")
         rows_html = "".join(rows)
 
-    toggle = ""
-    if terminated_count:
-        if show_terminated:
-            toggle = f'<a class="aws-button-secondary" href="/ec2/instances">Hide terminated ({terminated_count})</a>'
-        else:
-            toggle = f'<a class="aws-button-secondary" href="/ec2/instances?show_terminated=1">Show terminated ({terminated_count})</a>'
-
     return f"""
 <section class="aws-section">
   {flash}
@@ -136,8 +148,14 @@ def render_list(qs=None):
     <h1>Instances <span class="aws-muted">({len(visible)})</span></h1>
     <div class="s3-page-actions">
       <a class="aws-button-primary" href="/ec2/launch">Launch instance</a>
-      {toggle}
     </div>
+  </div>
+
+  <div class="s3-filter-bar">
+    {dropdown}
+    <span class="aws-muted" style="font-size:12px;">
+      Matching real AWS Console: "All instances" is the default.
+    </span>
   </div>
 
   <table class="aws-table">
@@ -155,11 +173,11 @@ def render_list(qs=None):
   </table>
 
   <p class="aws-muted s3-footer-hint">
-    Matching real AWS: terminated instances are hidden by default.
-    Use "Show terminated" to include them.
+    Real AWS Console shows all instances by default. Use the state filter above to narrow the view.
   </p>
 </section>
 """
+
 
 
 # ---------- Detail ----------

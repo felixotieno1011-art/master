@@ -327,6 +327,8 @@ def cmd_ec2(args):
     check_dry_run("ec2", sub, rest)
     strict_flags("ec2", sub, rest)
     if sub == "run-instances":
+        if not _need("ec2:RunInstances"):
+            return 1
         flags = parse_flags(rest)
 
         # --- Instance name ---
@@ -415,9 +417,9 @@ def cmd_ec2(args):
             print(f"   {k} = {v}")
         return 0
     if sub == "allocate-address":
-        print(f'[DEBUG-ENTRY] rest={rest}', file=__import__("sys").stderr)
+        if not _need("ec2:AllocateAddress"):
+            return 1
         flags = parse_flags(rest)
-        print(f'[DEBUG-ENTRY] flags={flags}', file=__import__("sys").stderr)
 
         # --domain (real AWS: "vpc" or "standard"; we always use "vpc")
         domain = flags.get("domain", "vpc")
@@ -502,6 +504,8 @@ def cmd_ec2(args):
         return 0
 
     if sub == "associate-address":
+        if not _need("ec2:AssociateAddress"):
+            return 1
         flags = parse_flags(rest)
         aid = flags.get("allocation-id")
         iid = flags.get("instance-id")
@@ -512,6 +516,8 @@ def cmd_ec2(args):
         return 0 if ok_ else 1
 
     if sub == "disassociate-address":
+        if not _need("ec2:DisassociateAddress"):
+            return 1
         flags = parse_flags(rest)
         aid = flags.get("allocation-id") or flags.get("association-id")
         if not aid:
@@ -521,6 +527,8 @@ def cmd_ec2(args):
         return 0 if ok_ else 1
 
     if sub == "release-address":
+        if not _need("ec2:ReleaseAddress"):
+            return 1
         flags = parse_flags(rest)
         aid = flags.get("allocation-id")
         if not aid:
@@ -530,6 +538,14 @@ def cmd_ec2(args):
         return 0 if ok_ else 1
 
     if sub in ("start-instances", "stop-instances", "reboot-instances", "terminate-instances"):
+        _iam_action = {
+            "start-instances":     "ec2:StartInstances",
+            "stop-instances":      "ec2:StopInstances",
+            "reboot-instances":    "ec2:RebootInstances",
+            "terminate-instances": "ec2:TerminateInstances",
+        }.get(sub)
+        if _iam_action and not _need(_iam_action):
+            return 1
         if not rest:
             print(utils.err(f"usage: ec2 {sub} <id-or-name> OR --instance-ids <id>")); return 1
         flags = parse_flags(rest)
@@ -567,6 +583,29 @@ def cmd_ec2(args):
 
 # ---------- S3 ----------
 
+
+
+def _need(action):
+    """Check if current user can perform action. Root bypasses.
+
+    Returns True if allowed, False + prints AccessDenied if not.
+    Mirrors iam_cli.py's _need() for consistency.
+    """
+    try:
+        from core import iam
+        current = iam.get_current_user()
+        if not current or current == "root":
+            return True  # root bypasses all checks (matches real AWS)
+        allowed, reason = iam.can(action)
+        if not allowed:
+            print(utils.err(
+                f"AccessDenied: user '{current}' is not authorized "
+                f"to perform '{action}'"
+            ))
+        return allowed
+    except Exception:
+        return True  # if IAM check fails, don't block (matches iam_cli.py)
+
 def cmd_s3(args):
     if not args:
         print(USAGE); return 1
@@ -575,6 +614,8 @@ def cmd_s3(args):
     if sub == "mb":
         if not rest:
             print(utils.err("usage: s3 mb s3://<bucket>")); return 1
+        if not _need("s3:CreateBucket"):
+            return 1
         check_dry_run("s3", "mb", rest[1:])
         strict_flags("s3", "mb", rest[1:])
         bucket, _ = s3.parse_s3_uri(rest[0])
@@ -621,6 +662,17 @@ def cmd_s3(args):
     if sub == "cp":
         if len(rest) < 2:
             print(utils.err("usage: s3 cp <local> s3://<bucket>/<key>  OR  s3 cp s3://<bucket>/<key> <local>")); return 1
+        # Determine direction: upload → PutObject, download → GetObject
+        src_arg, dst_arg = rest[0], rest[1]
+        if not src_arg.startswith("s3://") and dst_arg.startswith("s3://"):
+            if not _need("s3:PutObject"):
+                return 1
+        elif src_arg.startswith("s3://") and not dst_arg.startswith("s3://"):
+            if not _need("s3:GetObject"):
+                return 1
+        elif src_arg.startswith("s3://") and dst_arg.startswith("s3://"):
+            if not _need("s3:GetObject") or not _need("s3:PutObject"):
+                return 1
         check_dry_run("s3", "cp", rest[2:])
         strict_flags("s3", "cp", rest[2:])
         src, dst = rest[0], rest[1]
@@ -808,6 +860,8 @@ def cmd_s3(args):
     if sub == "rm":
         if not rest:
             print(utils.err("usage: s3 rm s3://<bucket>/<key> [--recursive] [--dryrun]")); return 1
+        if not _need("s3:DeleteObject"):
+            return 1
         check_dry_run("s3", "rm", rest[1:])
         strict_flags("s3", "rm", rest[1:])
 
@@ -856,6 +910,8 @@ def cmd_s3(args):
     if sub == "rb":
         if not rest:
             print(utils.err("usage: s3 rb s3://<bucket> [--force]")); return 1
+        if not _need("s3:DeleteBucket"):
+            return 1
         check_dry_run("s3", "rb", rest[1:])
         strict_flags("s3", "rb", rest[1:])
         bucket, _ = s3.parse_s3_uri(rest[0])
@@ -920,6 +976,7 @@ JSON_HANDLERS = {
     ("iam", "list-access-keys"):             "list-access-keys",
     ("iam", "get-user"):                     "get-user",
     ("iam", "list-groups"):                  "list-groups",
+    ("iam", "list-policies"):                "list-policies",
     ("cloudwatch", "list-alarms"):           "list-alarms",
 }
 

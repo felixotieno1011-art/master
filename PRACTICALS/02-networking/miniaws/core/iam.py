@@ -290,7 +290,13 @@ def _normalize_policy_ref(ref):
     if ref.startswith("arn:"):
         # take the last path segment
         ref = ref.rsplit("/", 1)[-1]
-    return _POLICY_ALIASES.get(ref, ref)
+    # Only apply alias if the aliased target actually exists.
+    # Otherwise, use the raw name (so custom policies with alias-like names work).
+    if ref in _POLICY_ALIASES:
+        aliased = _POLICY_ALIASES[ref]
+        if get_policy(aliased):
+            return aliased
+    return ref
 
 
 def attach_user_policy(username, policy_name):

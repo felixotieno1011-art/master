@@ -92,7 +92,7 @@ def delete_nat_gateway(nat_id):
     delete_file(_nat_path(nat_id))
     try:
         from lib import billing
-        billing.record_stop(nat_id)
+        billing.record_stop(nat_id, service="vpc")
     except Exception:
         pass
     return True, f"deleted NAT Gateway {nat_id}"

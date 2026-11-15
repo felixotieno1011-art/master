@@ -37,6 +37,25 @@ def _parse_key_schema(spec):
     return first, "S"
 
 
+
+
+def _need(action):
+    """Check IAM permission. Root bypasses."""
+    try:
+        from core import iam
+        current = iam.get_current_user()
+        if not current or current == "root":
+            return True
+        allowed, _ = iam.can(action)
+        if not allowed:
+            print(utils.err(
+                f"AccessDenied: user '{current}' is not authorized "
+                f"to perform '{action}'"
+            ))
+        return allowed
+    except Exception:
+        return True
+
 def cmd_create_table(args):
     flags = parse(args)
     name = flags.get("table-name")
@@ -178,12 +197,20 @@ if __name__ == "__main__":
         sys.exit(1)
     sub = sys.argv[1]
     args = sys.argv[2:]
-    if sub == "create-table":  sys.exit(cmd_create_table(args))
+    if sub == "create-table":
+        if not _need("dynamodb:CreateTable"): sys.exit(1)
+        sys.exit(cmd_create_table(args))
     if sub == "list-tables":   sys.exit(cmd_list_tables(args))
-    if sub == "delete-table":  sys.exit(cmd_delete_table(args))
-    if sub == "put-item":      sys.exit(cmd_put_item(args))
+    if sub == "delete-table":
+        if not _need("dynamodb:DeleteTable"): sys.exit(1)
+        sys.exit(cmd_delete_table(args))
+    if sub == "put-item":
+        if not _need("dynamodb:PutItem"): sys.exit(1)
+        sys.exit(cmd_put_item(args))
     if sub == "get-item":      sys.exit(cmd_get_item(args))
-    if sub == "delete-item":   sys.exit(cmd_delete_item(args))
+    if sub == "delete-item":
+        if not _need("dynamodb:DeleteItem"): sys.exit(1)
+        sys.exit(cmd_delete_item(args))
     if sub == "scan":          sys.exit(cmd_scan(args))
     print(f"unknown dynamodb subcommand: {sub}")
     sys.exit(1)

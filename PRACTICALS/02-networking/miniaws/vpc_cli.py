@@ -55,6 +55,7 @@ VPC COMMANDS:
     flags = _parse(rest)
 
     if sub == "create-vpc":
+        if not _need("ec2:CreateVpc"): return 1
         cidr = flags.get("cidr-block")
         if not cidr:
             print(utils.err("--cidr-block required")); return 1
@@ -78,6 +79,7 @@ VPC COMMANDS:
         return 0
 
     if sub == "delete-vpc":
+        if not _need("ec2:DeleteVpc"): return 1
         # Support both syntaxes:
         #   aws ec2 delete-vpc <id>
         #   aws ec2 delete-vpc --vpc-id <id>
@@ -97,6 +99,7 @@ VPC COMMANDS:
         return 0 if ok_ else 1
 
     if sub == "create-subnet":
+        if not _need("ec2:CreateSubnet"): return 1
         vpc_id = flags.get("vpc-id"); cidr = flags.get("cidr-block")
         name = flags.get("name") if isinstance(flags.get("name"), str) else None
         if not vpc_id or not cidr:
@@ -118,6 +121,7 @@ VPC COMMANDS:
         return 0
 
     if sub == "delete-subnet":
+        if not _need("ec2:DeleteSubnet"): return 1
         target = None
         if "--subnet-id" in rest:
             idx = rest.index("--subnet-id")
@@ -134,6 +138,7 @@ VPC COMMANDS:
         return 0 if ok_ else 1
 
     if sub == "create-internet-gateway":
+        if not _need("ec2:CreateInternetGateway"): return 1
         name = flags.get("name") if isinstance(flags.get("name"), str) else None
         ok_, msg = vpc.create_internet_gateway(name=name)
         print(utils.ok(msg) if ok_ else utils.err(msg))
@@ -151,6 +156,7 @@ VPC COMMANDS:
         return 0
 
     if sub == "attach-internet-gateway":
+        if not _need("ec2:AttachInternetGateway"): return 1
         # Real AWS uses --internet-gateway-id. We also accept --igw-id for backwards compat.
         igw_id = flags.get("internet-gateway-id") or flags.get("igw-id")
         vpc_id = flags.get("vpc-id")
@@ -161,6 +167,7 @@ VPC COMMANDS:
         return 0 if ok_ else 1
 
     if sub == "detach-internet-gateway":
+        if not _need("ec2:DetachInternetGateway"): return 1
         igw_id = flags.get("internet-gateway-id") or flags.get("igw-id")
         vpc_id = flags.get("vpc-id")
         if not igw_id or not vpc_id:
@@ -170,6 +177,7 @@ VPC COMMANDS:
         return 0 if ok_ else 1
 
     if sub == "delete-internet-gateway":
+        if not _need("ec2:DeleteInternetGateway"): return 1
         # Real AWS uses --internet-gateway-id. Positional also accepted.
         igw_id = flags.get("internet-gateway-id") or flags.get("igw-id")
         if not igw_id:
@@ -238,6 +246,25 @@ def _parse(args):
     return flags
 
 
+
+
+
+def _need(action):
+    """Check IAM permission for action. Root bypasses."""
+    try:
+        from core import iam
+        current = iam.get_current_user()
+        if not current or current == "root":
+            return True
+        allowed, _ = iam.can(action)
+        if not allowed:
+            print(utils.err(
+                f"AccessDenied: user '{current}' is not authorized "
+                f"to perform '{action}'"
+            ))
+        return allowed
+    except Exception:
+        return True
 
 def main():
     """Delegate --query/--output to cli.py's _try_json_output, else run original."""

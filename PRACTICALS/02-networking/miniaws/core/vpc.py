@@ -264,7 +264,7 @@ def delete_internet_gateway(igw_id):
     delete_file(_igw_path(igw_id))
     try:
         from lib import billing
-        billing.record_stop(igw_id)
+        billing.record_stop(igw_id, service="vpc")
     except Exception:
         pass
     return True, f"deleted internet gateway {igw_id}"

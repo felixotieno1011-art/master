@@ -26,6 +26,25 @@ def parse(args):
 def print_row(cells, widths):
     print(" ".join(str(c).ljust(w) for c, w in zip(cells, widths)))
 
+
+
+def _need(action):
+    """Check IAM permission for action. Root bypasses."""
+    try:
+        from core import iam
+        current = iam.get_current_user()
+        if not current or current == "root":
+            return True
+        allowed, _ = iam.can(action)
+        if not allowed:
+            print(utils.err(
+                f"AccessDenied: user '{current}' is not authorized "
+                f"to perform '{action}'"
+            ))
+        return allowed
+    except Exception:
+        return True
+
 def cmd_create(args):
     flags = parse(args)
     subnet = flags.get("subnet-id")
@@ -84,10 +103,12 @@ if __name__ == "__main__":
     sub = sys.argv[1]
     args = sys.argv[2:]
     if sub == "create":
+        if not _need("ec2:CreateNatGateway"): sys.exit(1)
         sys.exit(cmd_create(args))
     if sub == "list":
-        sys.exit(cmd_list(args))
+        sys.exit(cmd_list(args))  # read — not gated
     if sub == "delete":
+        if not _need("ec2:DeleteNatGateway"): sys.exit(1)
         sys.exit(cmd_delete(args))
     print(f"unknown subcommand: {sub}")
     sys.exit(1)

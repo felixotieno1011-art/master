@@ -324,20 +324,37 @@ def cmd(args):
 
     # --- policies ---
     if sub == "create-policy":
-        if not rest:
-            print(utils.err("policy name required")); return 1
         if not _need("iam:CreatePolicy"): return 1
-        fpath = flags.get("file")
-        if not fpath:
-            print(utils.err("--file <path.json> required")); return 1
+
+        # Name: --policy-name OR first positional (real AWS uses --policy-name)
+        name = flags.get("policy-name") or (rest[0] if rest else None)
+        if not name:
+            print(utils.err("--policy-name required")); return 1
+
+        # Document: --policy-document (inline JSON or file://path) OR --file (legacy)
+        doc_arg = flags.get("policy-document")
+        if not doc_arg:
+            fpath = flags.get("file")
+            if not fpath:
+                print(utils.err(
+                    "--policy-document required (JSON string or file://path.json)"
+                )); return 1
+            doc_arg = f"file://{fpath}"
+
+        # Parse: file://path loads from disk, otherwise inline JSON
         try:
-            with open(fpath) as f:
-                doc = json.load(f)
+            if isinstance(doc_arg, str) and doc_arg.startswith("file://"):
+                path = doc_arg[7:]
+                with open(path) as f:
+                    doc = json.load(f)
+            else:
+                doc = json.loads(doc_arg)
         except Exception as e:
-            print(utils.err(f"failed to read {fpath}: {e}")); return 1
-        ok_, msg = iam.create_policy(rest[0], doc)
+            print(utils.err(f"failed to parse policy document: {e}")); return 1
+
+        ok_, msg = iam.create_policy(name, doc)
         print(utils.ok(msg) if ok_ else utils.err(msg))
-        if ok_: iam.audit("iam:CreatePolicy", rest[0])
+        if ok_: iam.audit("iam:CreatePolicy", name)
         return 0 if ok_ else 1
     if sub == "list-policies":
         if not _need("iam:ListPolicies"): return 1
@@ -356,11 +373,14 @@ def cmd(args):
         print(json.dumps(p, indent=2))
         return 0
     if sub == "delete-policy":
-        if not rest:
-            print(utils.err("policy name required")); return 1
         if not _need("iam:DeletePolicy"): return 1
-        ok_, msg = iam.delete_policy(rest[0])
+        # Accept --policy-name (real AWS) OR first positional (legacy)
+        name = flags.get("policy-name") or (rest[0] if rest else None)
+        if not name:
+            print(utils.err("--policy-name required")); return 1
+        ok_, msg = iam.delete_policy(name)
         print(utils.ok(msg) if ok_ else utils.err(msg))
+        if ok_: iam.audit("iam:DeletePolicy", name)
         return 0 if ok_ else 1
 
     # --- get-user ---
@@ -608,7 +628,15 @@ def _try_iam_json(args):
     if not positional:
         return False
 
-    key = _JSON_HANDLERS_IAM.get((positional[0],))
+    # Use the central JSON_HANDLERS from cli.py — single source of truth.
+    # (Previously referenced _JSON_HANDLERS_IAM, which was never defined.)
+    try:
+        from cli import JSON_HANDLERS
+        action = positional[0]
+        key = JSON_HANDLERS.get(("iam", action))
+    except Exception:
+        key = None
+
     if not key:
         return False
 

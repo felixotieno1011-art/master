@@ -146,7 +146,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 9.7 Resume & LinkedIn 📱
 - [x] 9.8 Interview Prep 📱
 - [x] 9.9 Freelance vs Job 📱
-- [ ] 9.10 Open Source 📱
+- [x] 9.10 Open Source 📱
 - [x] 9.11 Communication 📱
 - [x] 9.12 Remote Work Skills 📱
 

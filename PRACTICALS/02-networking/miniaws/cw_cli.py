@@ -41,6 +41,25 @@ CLOUDWATCH COMMANDS:
 """
 
 
+
+
+def _need(action):
+    """Check IAM permission. Root bypasses."""
+    try:
+        from core import iam
+        current = iam.get_current_user()
+        if not current or current == "root":
+            return True
+        allowed, _ = iam.can(action)
+        if not allowed:
+            print(utils.err(
+                f"AccessDenied: user '{current}' is not authorized "
+                f"to perform '{action}'"
+            ))
+        return allowed
+    except Exception:
+        return True
+
 def cmd(args):
     if not args or args[0] in ("-h", "--help", "help"):
         print(USAGE); return 1
@@ -48,6 +67,7 @@ def cmd(args):
     flags = parse(rest)
 
     if sub == "put-metric-data":
+        if not _need("cloudwatch:PutMetricData"): return 1
         ns = flags.get("namespace")
         m = flags.get("metric-name") or flags.get("metric")
         v = flags.get("value")
@@ -89,6 +109,7 @@ def cmd(args):
         return 0
 
     if sub == "put-metric-alarm":
+        if not _need("cloudwatch:PutMetricAlarm"): return 1
         name = flags.get("name"); ns = flags.get("namespace")
         m = flags.get("metric"); th = flags.get("threshold")
         comp = flags.get("comparison") or "GreaterThanThreshold"
@@ -114,6 +135,7 @@ def cmd(args):
         return 0
 
     if sub == "delete-alarm":
+        if not _need("cloudwatch:DeleteAlarm"): return 1
         if not rest:
             print(utils.err("alarm name required")); return 1
         ok_, msg = cloudwatch.delete_alarm(rest[0])
@@ -121,6 +143,7 @@ def cmd(args):
         return 0 if ok_ else 1
 
     if sub == "evaluate-alarms":
+        if not _need("cloudwatch:PutMetricAlarm"): return 1
         changes = cloudwatch.evaluate_alarms()
         if not changes:
             print(utils.ok("no alarm state changes")); return 0
@@ -129,6 +152,7 @@ def cmd(args):
         return 0
 
     if sub == "create-log-group":
+        if not _need("logs:CreateLogGroup"): return 1
         if not rest:
             print(utils.err("group name required")); return 1
         ok_, msg = cloudwatch.create_log_group(rest[0])
@@ -146,6 +170,7 @@ def cmd(args):
         return 0
 
     if sub == "put-log-event":
+        if not _need("logs:PutLogEvents"): return 1
         if len(rest) < 2:
             print(utils.err("usage: put-log-event <group> <message>")); return 1
         ok_, msg = cloudwatch.put_log_events(rest[0], rest[1])

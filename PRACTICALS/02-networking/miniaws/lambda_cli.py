@@ -26,6 +26,25 @@ def parse(args):
     return flags
 
 
+
+
+def _need(action):
+    """Check IAM permission. Root bypasses."""
+    try:
+        from core import iam
+        current = iam.get_current_user()
+        if not current or current == "root":
+            return True
+        allowed, _ = iam.can(action)
+        if not allowed:
+            print(utils.err(
+                f"AccessDenied: user '{current}' is not authorized "
+                f"to perform '{action}'"
+            ))
+        return allowed
+    except Exception:
+        return True
+
 def cmd_create(args):
     flags = parse(args)
     name = flags.get("function-name")
@@ -48,12 +67,14 @@ def cmd_create(args):
 
 def cmd_list(args):
     funcs = lambda_svc.list_functions()
-    if not funcs:
-        print(utils.warn("no functions"))
+
+    # JSON output first (real AWS returns {"Functions": []} even when empty)
+    if "--output" in args and "json" in args:
+        print(json.dumps({"Functions": funcs or []}, indent=2))
         return 0
 
-    if "--output" in args and "json" in args:
-        print(json.dumps({"Functions": funcs}, indent=2))
+    if not funcs:
+        print(utils.warn("no functions"))
         return 0
 
     print(f"{'FUNCTION':<25} {'RUNTIME':<15} {'HANDLER':<20} {'SIZE':<10}")
@@ -115,9 +136,15 @@ if __name__ == "__main__":
         sys.exit(1)
     sub = sys.argv[1]
     args = sys.argv[2:]
-    if sub == "create":           sys.exit(cmd_create(args))
+    if sub == "create":
+        if not _need("lambda:CreateFunction"): sys.exit(1)
+        sys.exit(cmd_create(args))
     if sub == "list":             sys.exit(cmd_list(args))
-    if sub == "invoke":           sys.exit(cmd_invoke(args))
-    if sub == "delete":           sys.exit(cmd_delete(args))
+    if sub == "invoke":
+        if not _need("lambda:InvokeFunction"): sys.exit(1)
+        sys.exit(cmd_invoke(args))
+    if sub == "delete":
+        if not _need("lambda:DeleteFunction"): sys.exit(1)
+        sys.exit(cmd_delete(args))
     print(f"unknown lambda subcommand: {sub}")
     sys.exit(1)

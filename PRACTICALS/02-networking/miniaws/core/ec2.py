@@ -135,7 +135,7 @@ def terminate(instance_id):
     write_json(_instance_path(instance_id), data)
     try:
         from lib import billing
-        billing.record_stop(instance_id)
+        billing.record_stop(instance_id, service="ec2")
     except Exception:
         pass
     return True, f"terminated instance {instance_id}"
@@ -333,7 +333,7 @@ def release_address(allocation_id):
     delete_file(_eip_path(allocation_id))
     try:
         from lib import billing
-        billing.record_stop(allocation_id)
+        billing.record_stop(allocation_id, service="ec2")
     except Exception:
         pass
     return True, f"released EIP {allocation_id} ({eip.get('PublicIp')})"

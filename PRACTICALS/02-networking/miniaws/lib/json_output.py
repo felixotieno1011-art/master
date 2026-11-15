@@ -320,6 +320,27 @@ def list_alarms():
     }
 
 
+def list_policies():
+    """Return all policies in AWS shape."""
+    from core import iam as iam_mod
+    policies = iam_mod.list_policies()
+    return {
+        "Policies": [
+            {
+                "PolicyName": p.get("policyName"),
+                "Arn": p.get("arn"),
+                "Path": "/",
+                "DefaultVersionId": "v1",
+                "AttachmentCount": 0,
+                "CreateDate": p.get("created"),
+                "UpdateDate": p.get("created"),
+            }
+            for p in policies
+        ]
+    }
+
+
+
 # Dispatch table
 HANDLERS = {
     "describe-vpcs": describe_vpcs,
@@ -334,6 +355,7 @@ HANDLERS = {
     "list-access-keys": list_access_keys,
     "get-user": describe_user,
     "list-groups": list_groups,
+    "list-policies": list_policies,
     "list-alarms": list_alarms,
 }
 

@@ -75,24 +75,41 @@ def reset():
 
 def show():
     data = _load()
-    total = data.get("total", 0.0)
     events = data.get("events", [])
+    legacy_total = data.get("total", 0.0)
+    accrued_total = get_accrued_total()
 
     print(f"💰 MiniAWS Billing Summary")
-    print(f"   Total (simulated): ${total:.4f}")
+    print(f"   Total accrued:   ${accrued_total:.6f}  (from live resources)")
+    print(f"   Legacy charges:  ${legacy_total:.6f}  (from old charge events)")
+    print(f"   Combined:        ${accrued_total + legacy_total:.6f}")
     print(f"   Events: {len(events)}")
     print()
     if not events:
         print("   (no charges yet)")
         return
 
-    print(f"   {'TIME':<22} {'SERVICE.ACTION':<30} {'AMOUNT':>10}")
-    print("   " + "-" * 65)
+    print(f"   {'TIME':<22} {'EVENT':<40} {'AMOUNT':>10}")
+    print("   " + "-" * 75)
     for e in events[-20:]:
-        t = e["time"][:19]
-        k = e["key"]
-        amt = e["amount"]
-        print(f"   {t:<22} {k:<30} ${amt:>9.6f}")
+        t = e.get("time", "")[:19]
+        etype = e.get("type", "charge")
+        if etype in ("start", "stop"):
+            # Accrual events have no "amount" — show the resource and rate
+            svc = e.get("service", "")
+            res = e.get("resource", "")
+            k = f"{etype}:{svc}:{res}"
+            if etype == "start":
+                rate = e.get("rate", 0)
+                info = f"@ ${rate:.4f}/hr"
+            else:
+                info = "(stopped)"
+            print(f"   {t:<22} {k:<40} {info:>10}")
+        else:
+            # Legacy charge() events
+            k = e.get("key", "?")
+            amt = e.get("amount", 0.0)
+            print(f"   {t:<22} {k:<40} ${amt:>9.6f}")
     if len(events) > 20:
         print(f"   ... and {len(events) - 20} more")
 
@@ -120,10 +137,6 @@ def main():
     else:
         print(f"unknown command: {cmd}")
         sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
 
 # ============================================================
 # Billing Model B — start/stop tracking with time-based accrual
@@ -175,14 +188,26 @@ def record_start(resource_id, service, rate, note=""):
     return True
 
 
-def record_stop(resource_id):
+def record_stop(resource_id, service=None, note=""):
     """Log that a resource stopped (called at delete time)."""
+    if not resource_id:
+        return False
     data = _load()
-    data["events"].append({
+    events = data.get("events", [])
+    starts = sum(1 for e in events
+                 if e.get("type") == "start" and e.get("resource") == resource_id)
+    stops = sum(1 for e in events
+                if e.get("type") == "stop"  and e.get("resource") == resource_id)
+    if starts <= stops:
+        return False
+    events.append({
         "type": "stop",
         "time": datetime.now().isoformat(timespec="seconds"),
         "resource": resource_id,
+        "service": service or "",
+        "note": note,
     })
+    data["events"] = events
     _save(data)
     return True
 
@@ -270,3 +295,6 @@ def reset_with_backup():
     _save({"events": [], "total": 0.0})
     return True
 
+
+if __name__ == "__main__":
+    main()
