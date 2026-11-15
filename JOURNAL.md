@@ -7,3 +7,4 @@ Format: date — topic — what I
 - **Learned:** How to filter good certs from fluff. How to write a HackerOne report. How to resolve a Git collision between Codespace and Termux. 
 - **Blocked by:** Hack The Box VPN on mobile. Decided to defer it until I have a laptop. Not a failure, just a tooling limit.
 - **Tomorrow:** Start Part 10 (Deploy FelChat live) or finish Part 9 (Testing & Debugging).
+almost in this field
