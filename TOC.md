@@ -165,7 +165,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 11.2 Cloud Engineer 📱💻
 - [x] 11.3 Cybersecurity Analyst 📱💻
 - [ ] 11.4 Site Reliability Engineer 📱💻
-- [ ] 11.5 Fullstack Engineer 📱
+- [x] 11.5 Fullstack Engineer 📱
 - [ ] 11.6 Network Engineer 📱💻
 - [x] 11.7 Final Project 📱
 - [ ] 11.8 Network Automation Specialist Path 📱

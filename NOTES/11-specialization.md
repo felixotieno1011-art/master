@@ -181,3 +181,68 @@ Turned a messy learning repo into a recruiter-friendly showcase.
 - 9.6 (GitHub Profile) — the profile README.
 - 10.8 (Deploy Everything) — the live apps.
 - 11.1 (DevOps), 11.2 (Cloud), 11.3 (Security) — the tracks showcased.
+
+## 11.5 Fullstack Engineer — Phase B DONE ✅
+
+Mapped the Blog with Auth (10.2/10.3) to a Junior Fullstack Engineer job description.
+Learned why fullstack engineers are valuable and where the security boundaries are.
+
+### Core concepts
+- **Fullstack Engineer:** Builds both the frontend (UI) and the backend (API/DB).
+- **The Trade-off:** Cheaper than hiring two people, but risks being a "jack of all trades, master of none."
+- **The Frontend:** Hostile territory. Can be modified by anyone using browser dev tools.
+- **The Backend:** The gatekeeper. Must validate inputs and verify JWTs.
+- **Fullstack Flow:** Browser → (fetch) → API → (verify) → Database → (response) → Browser.
+- **Security Boundary:** The line between untrusted frontend and trusted backend.
+
+### The drill (what I actually did)
+- Mapped the Blog UI to "Build user interfaces."
+- Mapped the Node.js API to "Develop RESTful APIs."
+- Mapped bcrypt + JWT to "Implement authentication."
+- Mapped Prisma Postgres queries to "Work with PostgreSQL."
+
+### Things I saw
+- The frontend is easy to attack. The backend must protect it.
+- A fullstack dev must know the whole flow, not just one side.
+- The blog project proves I can build the entire stack.
+
+### My own words (locked in)
+- The frontend is hostile; the backend is the gatekeeper.
+- Never trust the client. Validate everything on the server.
+- A fullstack dev saves money but risks spreading too thin.
+- Map projects to the job requirements.
+
+### Connection to other topics
+- 10.2 (Blog with Auth) — the project.
+- 10.3 (REST API CRUD) — the API.
+- 5.6 (Auth) — JWT.
+- 8.1 (Web Security) — why the frontend is untrusted.
+- 12.15 (Web Hacking) — how attackers target the frontend.
+
+## Fullstack Engineer Role Mapping
+
+### The Role
+A Fullstack Engineer connects the User Interface (Frontend) to the Database (Backend). They are cheaper than hiring two specialists, but the danger is spreading themselves too thin.
+
+### How My Blog Project Maps to the Job
+
+**Requirement: Build user interfaces (HTML/CSS/JS).**
+- My Evidence: Built the Frontend for the Blog (Login Modal, Journal section, Admin editor using vanilla JS).
+- Interview Pitch: "I write the JavaScript that fetches data from the API and renders it dynamically without page reloads."
+
+**Requirement: Develop RESTful APIs.**
+- My Evidence: Built the Backend (`/api/login`, `/api/posts`) with Node.js Serverless Functions. Handled GET, POST, PUT, DELETE.
+- Interview Pitch: "I understand REST verbs and the correct status codes (200, 201, 401, 404)."
+
+**Requirement: Implement authentication and secure data flow.**
+- My Evidence: Hashed admin password with bcrypt. Generated a JWT on login. Protected POST/PUT/DELETE endpoints with `Authorization: Bearer <token>`.
+- Interview Pitch: "The frontend never sees the password; it only receives the JWT. The backend verifies that token before writing to the database."
+
+**Requirement: Work with PostgreSQL.**
+- My Evidence: Used Prisma Postgres. Created a `posts` table and queried it using parameterized SQL (`$1`, `$2`).
+- Interview Pitch: "I use parameterized queries to prevent SQL injection and know how to connect Node.js to Postgres."
+
+### Lesson
+- The frontend is hostile territory. Never trust it.
+- The backend is the gatekeeper. Validate everything there.
+- A fullstack engineer is valuable because they understand the whole flow, not just one side.
