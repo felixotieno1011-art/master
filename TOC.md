@@ -237,3 +237,5 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [x] 12.44 Bug Bounty Hunting 📱
 - [x] 12.45 Certifications Roadmap 📱
 - [x] 12.46 Building a Security Portfolio 📱
+
+> 📘 Digital Ghost field guide → `TRAINING/digital-ghost/`

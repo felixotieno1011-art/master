@@ -54,3 +54,5 @@ I am currently open to Junior Backend, Cloud, or Security Engineering roles.
 
 ---
 *Last updated: 2026-11-15*
+
+> 📘 Digital Ghost field guide → `TRAINING/digital-ghost/`
