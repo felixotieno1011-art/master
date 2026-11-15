@@ -167,7 +167,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 11.4 Site Reliability Engineer 📱💻
 - [ ] 11.5 Fullstack Engineer 📱
 - [ ] 11.6 Network Engineer 📱💻
-- [ ] 11.7 Final Project 📱
+- [x] 11.7 Final Project 📱
 - [ ] 11.8 Network Automation Specialist Path 📱
 
 ====================================================
