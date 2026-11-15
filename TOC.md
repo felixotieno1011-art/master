@@ -162,7 +162,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 
 ## Part 11 — Specialization
 - [ ] 11.1 DevOps Engineer 📱💻
-- [ ] 11.2 Cloud Engineer 📱💻
+- [x] 11.2 Cloud Engineer 📱💻
 - [x] 11.3 Cybersecurity Analyst 📱💻
 - [ ] 11.4 Site Reliability Engineer 📱💻
 - [ ] 11.5 Fullstack Engineer 📱
