@@ -190,3 +190,20 @@ gotchas, "remember we did this." No lesson content here — lessons live in
 - Uses a while loop, an array of benign sites (Wikipedia, BBC, etc.), and random sleep timers.
 - **The point:** If a tracker sees 50 requests, they can't tell which 5 are your real browsing habits and which 45 are noise.
 - **How to run it in background:** `./chaff.sh &` (Use `pkill chaff.sh` to stop it).
+
+### 7.5 — The Free IP Rotator (Codespace Churn)
+- **The Movie Trick:** IPs jumping across the world.
+- **The Reality:** Paid proxy pools do this per-request. We do it per-session.
+- **The Ghost Setup:** Delete Codespace -> Create new one in a different region -> Re-run `gh codespace ssh -D 1080` -> New IP.
+- **Lesson:** You don't need a paid VPN to teleport. GitHub is your free teleporter.
+
+### 7.2 — DNS Flooding (Poisoning the Phonebook)
+- Wrote `dnsflood.sh` in Termux.
+- Uses a loop to generate random fake domains (`fake-$RANDOM-$RANDOM.com`) and queries them using `dig`.
+- **The point:** ISPs log every DNS request. By flooding the log with fake domains, the real browsing history is buried in noise.
+- **Result:** Tracker sees 50 fake sites and 3 real ones. It becomes impossible to build an accurate profile.
+
+### Session Wrap-Up (Nov 16)
+- **Part 7:** Built Chaff script (fake web traffic) and DNS Flood script (fake lookups) to poison ISP logs.
+- **Part 8 (Attempted):** Tried setting up Tor with obfs4 bridges inside Codespace. Hit a wall with the secret bridge lines. *Left for tomorrow.*
+- **Realization:** You already built the core ghost tunnel (Termux + Codespace + Tor). The advanced stuff is just extra armor.

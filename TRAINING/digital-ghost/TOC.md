@@ -83,6 +83,7 @@
 - 7.2 DNS query flooding: making resolver logs statistically useless
 - 7.3 Timing jitter: randomizing request intervals
 - 7.4 Fingerprint poisoning across sessions
+- 7.5 The Free IP Rotator (Codespace Churn)
 - 7.5 Random (not round-robin) IP rotation
 - 7.6 Feeding false positives to trackers
 
