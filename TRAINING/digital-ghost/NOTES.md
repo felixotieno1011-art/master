@@ -110,3 +110,83 @@ gotchas, "remember we did this." No lesson content here — lessons live in
 - **The Math:** `Max-Age=63071999` seconds = **2 years**. 
 - **The Domain:** `.reddit.com` (leading dot) means it's shared across all Reddit subdomains.
 - **Lesson:** Real cookies are long-lived IDs. They persist long after you close the browser.
+
+### 3.2 — Fingerprinting (The Digital Tattoo)
+- Ran EFF Cover Your Tracks in Chrome (Incognito).
+- **Result:** "Unique among 374,236 tested." Fingerprint is fully exposed.
+- **Blocking:** Ads: No. Invisible Trackers: No.
+- **The Leaks:** Screen size (410x912), Timezone (Africa/Nairobi), Fonts, WebGL (GPU hash), AudioContext (audio hardware math).
+- **The Trap:** Incognito mode hides history from *me*, not from *trackers*. It does nothing against fingerprinting.
+- **Canvas:** Chrome randomized it per-domain, but WebGL and Audio still give a unique signature.
+
+### 3.3 — Poisoning the Tattoo (Fingerprint Defenses)
+- You can't delete your hardware fingerprint. You have to **spoof** it.
+- Pulled Firefox's `arkenfox/user.js` config to see the raw settings.
+- The nuclear option: `user_pref("privacy.resistFingerprinting", true);`
+- **What RFP does:** Lies about screen size (1000x1000), timezone (UTC), blocks Canvas/WebGL, restricts fonts.
+- **The Trade-off:** Blending in breaks some websites. That's the price of the Shield.
+- **Action for Android:** Use Brave (built-in randomizer) or Firefox (with RFP enabled).
+
+### 3.3 — Fingerprint Defenses (Part 3 Wrap)
+- You can't change hardware. You have to spoof it.
+- Firefox `user.js` uses `privacy.resistFingerprinting` to lie about screen size, timezone, and canvas.
+- **Tomorrow's Practical:** Install Brave (Wi-Fi), test `coveryourtracks.eff.org` in Brave vs. Phoenix. Expect Brave to randomize the fingerprint and block trackers; expect Phoenix to leak like a sieve.
+
+### 3.4 — Browser Testing (Tomorrow's Homework)
+- **Chrome (Incognito):** Unique fingerprint (1 in 374k). Zero protection.
+- **Opera Mini:** Uses a proxy (hides IP), but scores "No" on EFF protection. Limited JS breaks tests.
+- **Phoenix Browser:** Will likely score "Unique" and "No". Known to harvest data. (Good for a bad-example test).
+- **Brave Browser:** The fix. Randomizes Canvas/WebGL, blocks trackers by default.
+- **Action:** Install Brave tomorrow on Wi-Fi. Run EFF test on Phoenix (bad) vs. Brave (good). Compare.
+
+### Pre-Download Checklist (Wi-Fi)
+- Termux: installed openssh, privoxy, tor, proxychains-ng, autossh, termux-api.
+- Codespace: pre-installed fluffy-barnacle (pip) for future cs-proxy/cs-wg use.
+- Browser: Brave download pending (tomorrow).
+
+### 4.1 — The Shield: Browser Baseline (Brave)
+- Tested Brave on EFF Cover Your Tracks.
+- **Result:** "Strong protection against Web tracking."
+- **Ads/Trackers:** Blocked.
+- **Fingerprint:** Randomized (Canvas & WebGL are fed fake data per domain).
+- **The Leak:** Timezone (Africa/Nairobi), Screen Size (410x912), and Cookies remain. Brave cannot fake these without breaking websites.
+- **Verdict:** Brave is the baseline Shield. It makes the tracker's job too expensive.
+
+### 4.2 — Firefox Hardening (The Paranoia Route)
+- Bypassed Android restrictions using `chrome://geckoview/content/config.xhtml`.
+- Enabled `privacy.resistFingerprinting = true`.
+- **The Lies Firefox tells:**
+  - Timezone: Says "Atlantic/Reykjavik" (Iceland) instead of Nairobi.
+  - Screen: Says 1095x2067 instead of my actual phone screen.
+  - User-Agent: Says it's a Linux Desktop, not an Android phone.
+  - Canvas/WebGL: Randomized.
+- **The Result:** EFF still says "Unique" because a "Linux Desktop with Touch Support" is rare. But ad trackers get poisoned with useless data.
+- **Side Effect:** Screen scrolling might feel laggy (locked to 60Hz).
+
+### 5.0 — Termux Tor Proxy (The Local Pivot) — DONE
+- Built a full HTTP-to-SOCKS5 tunnel on an unrooted Android.
+- **Steps:**
+  1. Started Tor: `tor &` (SOCKS listener on 127.0.0.1:9050).
+  2. Wrote Privoxy config: listen on 8118, forward-socks5 to 9050.
+  3. Started Privoxy: `privoxy $PREFIX/etc/privoxy/config &`.
+  4. Set Android Wi-Fi Proxy to 127.0.0.1:8118.
+- **Result:** Browser now routes through Tor. `check.torproject.org` confirms IP is a Tor exit node.
+- **Gotchas:** 
+  - Apps that ignore system proxies (like some social media apps) will still leak.
+  - Tor is slow.
+  - Mobile Data ignores this proxy entirely.
+
+### 5.2 — The Seal is Complete
+- Disabled WebRTC in browser settings.
+- Re-tested ipleak.net.
+- **Result:** Zero leaks. 
+  - IPv4/IPv6: Germany (Tor exit).
+  - WebRTC: Sealed (RTCPeerConnection not available).
+  - DNS: 0 servers detected (handled by Tor).
+- **Conclusion:** The Termux Tor Proxy + Browser Hardening is a fully functional ghost tunnel. 
+
+### 7.1 — Chaff Traffic (The Noise Layer)
+- Wrote `chaff.sh` in Termux.
+- Uses a while loop, an array of benign sites (Wikipedia, BBC, etc.), and random sleep timers.
+- **The point:** If a tracker sees 50 requests, they can't tell which 5 are your real browsing habits and which 45 are noise.
+- **How to run it in background:** `./chaff.sh &` (Use `pkill chaff.sh` to stop it).

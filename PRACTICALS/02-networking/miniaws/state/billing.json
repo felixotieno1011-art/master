@@ -74,7 +74,23 @@
       "type": "stop",
       "time": "2026-11-14T13:21:03",
       "resource": "nat-9c831a891e0046fbb"
+    },
+    {
+      "time": "2026-11-16T14:30:03",
+      "key": "s3.upload",
+      "quantity": 1.0,
+      "rate": 2.3e-05,
+      "amount": 2.3e-05,
+      "note": ""
+    },
+    {
+      "time": "2026-11-16T14:32:07",
+      "key": "s3.upload",
+      "quantity": 1.0,
+      "rate": 2.3e-05,
+      "amount": 2.3e-05,
+      "note": ""
     }
   ],
-  "total": 2.3e-05
+  "total": 6.9e-05
 }
