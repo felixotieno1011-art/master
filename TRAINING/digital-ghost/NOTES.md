@@ -207,3 +207,29 @@ gotchas, "remember we did this." No lesson content here — lessons live in
 - **Part 7:** Built Chaff script (fake web traffic) and DNS Flood script (fake lookups) to poison ISP logs.
 - **Part 8 (Attempted):** Tried setting up Tor with obfs4 bridges inside Codespace. Hit a wall with the secret bridge lines. *Left for tomorrow.*
 - **Realization:** You already built the core ghost tunnel (Termux + Codespace + Tor). The advanced stuff is just extra armor.
+
+### 8.2 — MAC Randomization (Hardware Barcode)
+- Wi-Fi routers log your device's MAC address to track physical presence.
+- **The Fix:** Settings > Wi-Fi > Gear icon > Privacy/MAC type.
+- Set to "Randomized MAC" (or "Non-persistent randomized MAC" on Android 12+).
+- This changes your hardware ID every time you connect to a public network.
+
+### 9.1 — Device Hardening (Passwords & 2FA)
+- **The Vulnerability:** Reusing passwords (even just 2) means one breach compromises everything.
+- **The Fix 1 (Passwords):** Install Bitwarden. Use it to generate unique 16-character passwords for every site.
+- **The Fix 2 (2FA):** Never use SMS. Install Aegis Authenticator. Link it to Gmail, Bank, and Social Media.
+- **The Goal:** Become un-profitable to hack. 
+
+### 10.1 — OpSec (Where Ghosts Die)
+- **The Rule:** Software can't save you from human error.
+- **Cross-Contamination:** Logging into a real account (like Amazon or Facebook) while using a proxy/Tor instantly links your real name to the ghost IP. Game over.
+- **The Flaw:** Mixing real identity (address, email) with ghost identity (fake IP).
+- **The Fix:** Compartmentalize. Ghost mode = no personal logins. Real mode = turn off the proxy.
+
+### 11.1 — Full-Stack Verification (The Drill)
+- **Baseline (Tunnel Off):** Real ISP IP (105.166.5.38), DNS leaked `edns0-client-subnet`.
+- **Ghost Mode (Tunnel On):** 
+  - Started Codespace: `gh codespace ssh -c psychic-space-acorn-77rqqx495qxx3x6rv -- -D 1080`
+  - Started Privoxy pointing to 1080.
+  - **Result:** IP is now `4.240.39.192` (Microsoft Azure).
+- **The Checklist:** Always verify your IP and DNS before doing sensitive browsing. 
