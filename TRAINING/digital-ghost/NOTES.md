@@ -233,3 +233,10 @@ gotchas, "remember we did this." No lesson content here — lessons live in
   - Started Privoxy pointing to 1080.
   - **Result:** IP is now `4.240.39.192` (Microsoft Azure).
 - **The Checklist:** Always verify your IP and DNS before doing sensitive browsing. 
+
+### Bonus — Proxychains-ng (The Whip)
+- **Problem:** Most CLI tools (nmap, git, ssh) ignore system proxies and leak your IP.
+- **The Fix:** `proxychains4` intercepts the network calls and forces them through a proxy.
+- **Config:** Edited `$PREFIX/etc/proxychains.conf` to set `socks5 127.0.0.1 1080`.
+- **Test:** `proxychains4 curl -s https://ifconfig.me` returned the Microsoft IP (`4.240.39.192`).
+- **Lesson:** Any tool prefixed with `proxychains4` is now forced through the Codespace tunnel.
