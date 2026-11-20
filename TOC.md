@@ -161,7 +161,7 @@ Tick `[x]` when done. Track totals in PROGRESS.md.
 - [ ] 10.8 Deploy Everything 📱
 
 ## Part 11 — Specialization
-- [ ] 11.1 DevOps Engineer 📱💻
+- [x] 11.1 DevOps Engineer 📱💻
 - [x] 11.2 Cloud Engineer 📱💻
 - [x] 11.3 Cybersecurity Analyst 📱💻
 - [ ] 11.4 Site Reliability Engineer 📱💻

@@ -246,3 +246,72 @@ A Fullstack Engineer connects the User Interface (Frontend) to the Database (Bac
 - The frontend is hostile territory. Never trust it.
 - The backend is the gatekeeper. Validate everything there.
 - A fullstack engineer is valuable because they understand the whole flow, not just one side.
+## DevOps Engineer Role Mapping
+
+### The Role
+A DevOps Engineer builds the bridge between writing code and running it in production. They automate the testing, building, and deployment so that bad code never reaches the user.
+
+### The 3 Invisible Steps (CI/CD)
+1. **Continuous Integration (CI):** Downloads code, runs tests. If tests fail, the pipeline stops.
+2. **Continuous Delivery (CD):** Builds the artifact (Docker image).
+3. **Deployment:** Pushes the artifact to a live environment.
+
+### How My Honeypot Factory Maps to the Job
+
+**Requirement: Build and maintain CI/CD pipelines.**
+- My Evidence: GitHub Actions workflow in the Honeypot Factory. Builds the Docker image, runs Ansible, deploys to the server.
+- Interview Pitch: "I understand CI/CD because I built one. I know how to write GitHub Actions workflows, pass secrets securely, and fail a pipeline if a test fails."
+
+**Requirement: Write Infrastructure as Code (IaC).**
+- My Evidence: Ansible playbooks in the Honeypot Factory.
+- Interview Pitch: "I use code to manage servers. I don't SSH into a machine and type commands manually. I write Ansible playbooks so infrastructure is version-controlled and repeatable."
+
+**Requirement: Manage Docker containers.**
+- My Evidence: Built a custom Cowrie Docker image and pushed it to GHCR.
+- Interview Pitch: "I know how to build a Dockerfile, push it to a registry, and run it in any environment. I understand the difference between an image and a container."
+
+**Requirement: Automate deployments.**
+- My Evidence: The entire Honeypot Factory is automated. From `git push` to a running honeypot, with zero manual steps.
+- Interview Pitch: "I automate everything. If I have to do a task twice, I write a script for it."
+
+### Lesson
+- Manual deployment is dangerous. CI/CD is the automated bouncer.
+- DevOps is not just writing YAML. It is building a safe path to production.
+- If tests fail, deployment stops. The user never sees the bug.
+## 11.1 DevOps Engineer — Phase B DONE ✅
+
+Mapped the Honeypot Factory to a Junior DevOps Engineer job description.
+Learned the 3 invisible steps of CI/CD and why automation prevents production failures.
+
+### Core concepts
+- **DevOps Engineer:** Builds the pipeline that takes code from a developer's laptop to production.
+- **CI (Continuous Integration):** Automatically downloading code and running tests.
+- **CD (Continuous Delivery):** Automatically building the artifact (e.g., Docker image).
+- **Deployment:** Pushing the artifact to production.
+- **IaC (Infrastructure as Code):** Managing servers with code (Ansible, Terraform).
+- **Docker:** Packaging code and dependencies into a portable container.
+- **Automation:** If you do a task twice, write a script for it.
+
+### The drill (what I actually did)
+- Mapped the Honeypot Factory's GitHub Actions to "CI/CD pipelines."
+- Mapped the Ansible playbooks to "Infrastructure as Code."
+- Mapped the Cowrie Docker image to "Docker containers."
+- Mapped the automated `git push` deployment to "Automate deployments."
+
+### Things I saw
+- Manual deployment is risky. One forgotten test can break production.
+- CI/CD is the automated bouncer that stops bad code.
+- DevOps is about building a safe, repeatable path to production.
+
+### My own words (locked in)
+- If it fails at production, it's a disaster. CI/CD stops that.
+- DevOps automates the boring, dangerous parts.
+- Infrastructure as Code means servers are not pets; they are cattle.
+- If you do it twice, script it.
+
+### Connection to other topics
+- 7.6 (Docker) — the container.
+- 7.8 (CI/CD) — the pipeline.
+- 7.14 (IaC) — Ansible.
+- 11.2 (Cloud) — the foundation.
+- 11.5 (Fullstack) — the code that gets deployed.
