@@ -240,3 +240,17 @@ gotchas, "remember we did this." No lesson content here — lessons live in
 - **Config:** Edited `$PREFIX/etc/proxychains.conf` to set `socks5 127.0.0.1 1080`.
 - **Test:** `proxychains4 curl -s https://ifconfig.me` returned the Microsoft IP (`4.240.39.192`).
 - **Lesson:** Any tool prefixed with `proxychains4` is now forced through the Codespace tunnel.
+
+### Project Complete: Ghost Box on Mobile Data
+- **The Trick:** Configured the Android APN settings to force mobile data through 127.0.0.1:8118.
+- **The Result:** 
+  - IP: Microsoft Azure (India).
+  - DNS: Microsoft (No Safaricom leaks).
+  - WebRTC: Sealed.
+- **The Rule:** The APN proxy only works when Termux and the Codespace tunnel are running. If the tunnel dies, mobile data breaks. Clear the APN proxy to restore normal internet.
+
+### Ghost Box: Wi-Fi vs Mobile Data
+- **Mobile Data:** Requires APN proxy (127.0.0.1:8118). Can break internet if tunnel dies. 
+- **Wi-Fi:** Uses Android Wi-Fi proxy menu. Much more stable. 
+- **Result on Wi-Fi:** IP is Microsoft (India), DNS is 100% Microsoft (India), IPv6 blocked, WebRTC sealed.
+- **Conclusion:** Wi-Fi is the preferred environment for the Ghost Box.
